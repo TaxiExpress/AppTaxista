@@ -14,16 +14,14 @@ class __Controller.LoginCtrl extends Monocle.Controller
   constructor: ->
     super
     phone_number = Lungo.Cache.get "phone"
-    @db = window.openDatabase("TaxiExpressNew", "1.0", "description", 2 * 1024 * 1024) #2MB
+    @db = window.openDatabase("TaxiExpressTaxistaNew", "1.0", "description", 2 * 1024 * 1024) #2MB
     @db.transaction (tx) =>
-      tx.executeSql "CREATE TABLE IF NOT EXISTS accessData (email STRING NOT NULL PRIMARY KEY, pass STRING NOT NULL, dateUpdate STRING NOT NULL, name STRING NOT NULL, surname STRING NOT NULL, phone STRING NOT NULL, image STRING NOT NULL )"
+      tx.executeSql "CREATE TABLE IF NOT EXISTS accessData (email STRING NOT NULL PRIMARY KEY, pass STRING NOT NULL)"
     @read()
 
   doLogin: (event) =>
     if (@username[0].value && @password[0].value)
       #Lungo.Router.section "init_s"
-      __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
-      Lungo.Router.section "confirmation_s"
       @drop()
       date = new Date("1/1/1970").toISOString().substring 0, 19
       date = date.replace "T", " "
@@ -31,11 +29,11 @@ class __Controller.LoginCtrl extends Monocle.Controller
     else
       alert "Debe rellenar el email y la contraseña"
 
-  valideCredentials: (email, pass, phone, date)=>
+  valideCredentials: (email, pass)=>
     server = Lungo.Cache.get "server"
     $$.ajax
       type: "POST"
-      url: server + "client/login"
+      url: server + "driver/login"
       data:
         email: email
         password: pass
@@ -48,6 +46,9 @@ class __Controller.LoginCtrl extends Monocle.Controller
 
   parseResponse: (result) ->
     alert "parseResponse"
+    alert result.email
+    __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
+    Lungo.Router.section "confirmation_s"
 
   drop: =>
     @db.transaction (tx) =>

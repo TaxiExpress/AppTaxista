@@ -8,7 +8,7 @@
     function AppCtrl() {
       AppCtrl.__super__.constructor.apply(this, arguments);
       Lungo.Cache.set("phone", "669338946");
-      Lungo.Cache.set("server", "http://192.168.43.137:8000/");
+      Lungo.Cache.set("server", "http://TaxiLoadBalancer-638315338.us-east-1.elb.amazonaws.com/");
       __Controller.login = new __Controller.LoginCtrl("section#login_s");
     }
 
@@ -195,9 +195,9 @@
       var _this = this;
       LoginCtrl.__super__.constructor.apply(this, arguments);
       phone_number = Lungo.Cache.get("phone");
-      this.db = window.openDatabase("TaxiExpressNew", "1.0", "description", 2 * 1024 * 1024);
+      this.db = window.openDatabase("TaxiExpressTaxistaNew", "1.0", "description", 2 * 1024 * 1024);
       this.db.transaction(function(tx) {
-        return tx.executeSql("CREATE TABLE IF NOT EXISTS accessData (email STRING NOT NULL PRIMARY KEY, pass STRING NOT NULL, dateUpdate STRING NOT NULL, name STRING NOT NULL, surname STRING NOT NULL, phone STRING NOT NULL, image STRING NOT NULL )");
+        return tx.executeSql("CREATE TABLE IF NOT EXISTS accessData (email STRING NOT NULL PRIMARY KEY, pass STRING NOT NULL)");
       });
       this.read();
     }
@@ -205,8 +205,6 @@
     LoginCtrl.prototype.doLogin = function(event) {
       var date;
       if (this.username[0].value && this.password[0].value) {
-        __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
-        Lungo.Router.section("confirmation_s");
         this.drop();
         date = new Date("1/1/1970").toISOString().substring(0, 19);
         date = date.replace("T", " ");
@@ -216,13 +214,13 @@
       }
     };
 
-    LoginCtrl.prototype.valideCredentials = function(email, pass, phone, date) {
+    LoginCtrl.prototype.valideCredentials = function(email, pass) {
       var server,
         _this = this;
       server = Lungo.Cache.get("server");
       return $$.ajax({
         type: "POST",
-        url: server + "client/login",
+        url: server + "driver/login",
         data: {
           email: email,
           password: pass
@@ -241,7 +239,10 @@
     };
 
     LoginCtrl.prototype.parseResponse = function(result) {
-      return alert("parseResponse");
+      alert("parseResponse");
+      alert(result.email);
+      __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
+      return Lungo.Router.section("confirmation_s");
     };
 
     LoginCtrl.prototype.drop = function() {
