@@ -1,0 +1,9 @@
+{
+    "name"          : "taxistaExpress",
+    "dependencies"  : {},
+    "devDependencies"   : {
+        "grunt-contrib-coffee"  : "*",
+        "grunt-contrib-watch"   : "*"
+    },
+    "engines"       : {"node": "*"}
+}

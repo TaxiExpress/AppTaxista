@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>TaxiExpress</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link rel="stylesheet" href="components/lungo/lungo.css">
+    <link rel="stylesheet" href="components/lungo/lungo.icon.css">
+    <link rel="stylesheet" href="components/lungo/lungo.theme.css">
+</head>
+<body>  
+    <section id="init_s" data-transition="fade">
+        <article id="init_a" class="splash initial">
+            <span class="logo"><img src="img/logo.png" alt=""/></span>
+            <span class="load"><img src="img/loading.gif" alt="Cargando..." /></span>
+            <span class="name">taxiexpress.com (Versión Taxista)</span>
+       </article>
+    </section>
+
+    <section id="login_s" data-transition="fade">
+        <article id="login_a" class="splash initial">
+          <span class="logo"><img src="img/logo.png" alt=""></span>
+          <div class="form initial_form">
+              <fieldset class="radius-top">
+                  <input id="login_username" type="email" placeholder="Usuario">
+              </fieldset>
+              <fieldset class="radius-bottom" >
+                  <input id="login_password" type="password" placeholder="Contraseña">
+              </fieldset>
+              <button id="login_login_b" class="anchor" data-label="Acceder" />
+          </div>
+       </article>
+    </section>
+
+    <section id="confirmation_s" data-transition="fade">
+      <!--<header data-title="¿Desea recoger al cliente en la siguiente calle?"></header>-->
+      <article id="confirmation_a" class="street">
+        <div class="location">
+          <fieldset class="radius-bottom" >
+            <stong>¿Desea recoger al cliente en la siguient dirección?</strong>
+            <input id="home_streetField" type="text" readonly="readonly"/>
+          </fieldset>
+          <!--  <a href="#" data-image="http://www.futbolsalaragon.com/imagenes/alfonsorodriguez2012.JPG">return</a><br>-->
+          <button id="confirmation_accept" class="anchor" data-label="Aceptar"/>
+          <button id="confirmation_reject" class="anchor" data-label="Rechazar"/>
+        </div>
+        <div id="map-canvas" />
+      </article>
+    </section>
+
+    <section id="arrive_s" data-transition="fade">
+      <!--<article id="arrive_a" class="splash initial">-->
+      <article id="arrive_a" class="arrive">
+        <button id="arrive_pickup" data-label="Recoger"/>
+        <button id="arrive_cancel" data-label="Cancelar"/>
+        <button id="arrive_call"><a href=”="tel:8009229999" data-label="Llamar" data-icon="phone"></a></button>
+        <!--<button id="arrive_call" data-icon="phone"  data-label="Llamar"></button>-->
+      </article>
+    </section>
+
+    <section id="charge_s" data-transition="fade">
+      <article id="charge_a" class="charge">
+        <fieldset class="radius-bottom" >
+          <div>
+            <label for="option_cash"><input type="radio" name="charge_option" id="option_cash" value="cash" checked> Contado</label>
+            <label for="option_card"><input type="radio" name="charge_option" id="option_card" value="card"> Tarjeta</label>
+          </div>
+          
+          <input id="charge_amount" type="text" placeholder="Importe a cobrar"/>
+          <button id="charge_charge" data-label="Cobrar"/>
+        </fielset>
+      </article>
+    </section>
+
+    <script src="components/quojs/quo.js"></script>
+    <script src="components/monocle/monocle.js"></script>
+    <script src="components/lungo/lungo.js"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
+    <script src="app/taxistaExpress.js"></script>   
+</body>
+</html>
