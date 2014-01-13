@@ -29,6 +29,9 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ArriveCtrl = (function(_super) {
+    var getStreet, initialize, manageErrors,
+      _this = this;
+
     __extends(ArriveCtrl, _super);
 
     ArriveCtrl.prototype.elements = {
@@ -45,8 +48,84 @@
       this.doCall = __bind(this.doCall, this);
       this.cancelPickUp = __bind(this.cancelPickUp, this);
       this.doPickUp = __bind(this.doPickUp, this);
+      var options;
       ArriveCtrl.__super__.constructor.apply(this, arguments);
+      if (navigator.geolocation) {
+        options = {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        };
+        navigator.geolocation.getCurrentPosition(initialize, manageErrors);
+      }
     }
+
+    manageErrors = function(err) {
+      var _this = this;
+      alert("Error de localización GPS");
+      return setTimeout((function() {
+        return navigator.geolocation.getCurrentPosition(initialize, manageErrors);
+      }), 5000);
+    };
+
+    initialize = function(location) {
+      var currentLocation, map, mapOptions;
+      Lungo.Router.section("home_s");
+      if (map === void 0) {
+        currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude);
+        mapOptions = {
+          center: currentLocation,
+          zoom: 16,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          panControl: false,
+          streetViewControl: false,
+          overviewMapControl: false,
+          mapTypeControl: false,
+          zoomControl: false,
+          styles: [
+            {
+              featureType: "poi.business",
+              elementType: "labels",
+              stylers: [
+                {
+                  visibility: "off"
+                }
+              ]
+            }
+          ]
+        };
+        map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+        getStreet(currentLocation);
+        google.maps.event.addListener(map, "dragend", function(event) {
+          return getStreet(map.getCenter());
+        });
+        google.maps.event.addListener(map, "dragstart", function(event) {
+          return home_streetField.value = 'Localizando ...';
+        });
+        return google.maps.event.addListener(map, "zoom_changed", function(event) {
+          return getStreet(map.getCenter());
+        });
+      }
+    };
+
+    getStreet = function(pos) {
+      var geocoder;
+      Lungo.Cache.set("geoPosition", pos);
+      geocoder = new google.maps.Geocoder();
+      return geocoder.geocode({
+        latLng: pos
+      }, function(results, status) {
+        if (status === google.maps.GeocoderStatus.OK) {
+          if (results[1]) {
+            return home_streetField.value = results[0].address_components[1].short_name + ", " + results[0].address_components[0].short_name;
+          } else {
+            return home_streetField.value = 'Calle desconocida';
+          }
+        } else {
+          return home_streetField.value = 'Calle desconocida';
+        }
+      });
+    };
 
     ArriveCtrl.prototype.doPickUp = function(event) {
       __Controller.charge = new __Controller.ChargeCtrl("section#charge_s");
@@ -63,7 +142,7 @@
 
     return ArriveCtrl;
 
-  })(Monocle.Controller);
+  }).call(this, Monocle.Controller);
 
 }).call(this);
 
@@ -208,7 +287,8 @@
         this.drop();
         date = new Date("1/1/1970").toISOString().substring(0, 19);
         date = date.replace("T", " ");
-        return this.valideCredentials(this.username[0].value, this.password[0].value, date);
+        __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
+        return Lungo.Router.section("confirmation_s");
       } else {
         return alert("Debe rellenar el email y la contraseña");
       }
@@ -240,7 +320,6 @@
 
     LoginCtrl.prototype.parseResponse = function(result) {
       alert("parseResponse");
-      alert(result.email);
       __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
       return Lungo.Router.section("confirmation_s");
     };

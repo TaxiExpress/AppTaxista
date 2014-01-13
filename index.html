@@ -37,24 +37,30 @@
       <article id="confirmation_a" class="street">
         <div class="location">
           <fieldset class="radius-bottom" >
-            <stong id="confirmation_question">¿Desea recoger al cliente en la siguient dirección?</strong>
-            <input id="home_streetField" type="text" readonly="readonly"/>
+            <stong id="confirmation_question">¿Desea recoger al cliente en la siguiente dirección?</strong>
+            <input id="confirmation_streetField" type="text" readonly="readonly"/>
           </fieldset>
           <!--  <a href="#" data-image="http://www.futbolsalaragon.com/imagenes/alfonsorodriguez2012.JPG">return</a><br>-->
-          <button id="confirmation_accept" class="anchor" data-label="Aceptar"/>
-          <button id="confirmation_reject" class="anchor" data-label="Rechazar"/>
         </div>
-        <div id="map-canvas" />
+        <button id="confirmation_accept" data-label="Aceptar"/>
+         <button id="confirmation_reject" data-label="Rechazar"/>
       </article>
     </section>
 
     <section id="arrive_s" data-transition="fade">
       <!--<article id="arrive_a" class="splash initial">-->
       <article id="arrive_a" class="arrive">
-        <button id="arrive_pickup" data-label="Recoger"/>
-        <button id="arrive_cancel" data-label="Cancelar"/>
-        <button id="arrive_call"><a href=”="tel:8009229999" data-label="Llamar" data-icon="phone"></a></button>
-        <!--<button id="arrive_call" data-icon="phone"  data-label="Llamar"></button>-->
+        <div class="location">
+          <input id="arrive_streetField" type="text" readonly="readonly" />
+          <button id="arrive_call" data-icon="phone" ></button>
+          <button id="arrive_pickup" data-label="Recoger"/>
+          <button id="arrive_cancel" data-label="Cancelar"/>
+        </div>
+        <div id="map-canvas" />
+        
+        
+        <!--<button id="arrive_call"><a href=”="tel:8009229999" data-label="Llamar" data-icon="phone"></a></button>-->
+        
       </article>
     </section>
 

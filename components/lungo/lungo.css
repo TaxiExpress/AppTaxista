@@ -647,17 +647,18 @@ display:block;
 margin: 5px auto;
 */
 
-.street .location button{z-index:1!important; font-family:'Open Sans'; outline:none; display: block; border-radius:6px; }
-.street .location button#confirmation_accept{color: #444}
-.street .location button#confirmation_reject{background-color: #444; color: #ffcc00}
+.street button{z-index:1!important; font-family:'Open Sans'; outline:none; display: block; border-radius:6px; }
+.street button#confirmation_accept{color: #444}
+.street button#confirmation_reject{background-color: #444; color: #ffcc00}
 .street .location input{z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; width:100%; margin-top: 1%;}
 @media screen and (orientation: portrait){
-	.street .location button{margin: 5% auto; height:220px; font-size:30px;}
+	.street button{margin: 5% auto; height:220px; font-size:30px; width: 100%}
 	.street .location input{height:60px; font-size:24px; padding-left:5px; padding-right:5px;}
-	.street .location #confirmation_question{font-size:24px;}
+	.street .location #confirmation_question{font-size:24px}
 }
 @media screen and (orientation: landscape){
-	.street .location button{margin: 5%; height:400px; width: 40%; font-size:30px; float: left;}
+	.street .location{margin-right:  5%; margin-left: 5%}
+	.street button{height:400px; width: 40%; font-size:30px; float: left; margin-right:  5%;margin-left: 5%}
 	.street .location input{height:40px; font-size:30px; padding-left:5px; padding-right:5px;}	
 	.street .location #confirmation_question{font-size:30px;}
 }
@@ -673,32 +674,49 @@ margin: 5px auto;
 .arrive #arrive_call{bottom:50px;}
 
 */
+.arrive .location input{position: absolute; z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; margin-top: 1%; left: 10px;}
+.arrive .location button{position: absolute; z-index:1!important; font-family:'Open Sans'; outline:none; border-radius:6px;}
+/*
+.arrive .location input{font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; margin-top: 1%; float: left;}
+.arrive button{font-family:'Open Sans'; outline:none; border-radius:6px; float: left;}
 .arrive button{
 	display: table-cell;
 	vertical-align: middle;
-	z-index:1!important; font-family:'Open Sans'; outline:none; font-size:30px; border-radius:6px;}
+	z-index:1!important; font-family:'Open Sans'; outline:none; border-radius:6px;}
+*/
 /*@media screen and (max-width: 480) and (orientation: portrait){*/
-.arrive button#arrive_pickup{color: #444}
-.arrive button#arrive_cancel{background-color: #444; color: #ffcc00}
-.arrive button#arrive_call{background-color: green; color: black}
+.arrive .location button#arrive_call{margin-top: 1%; right: 5px; background-color: green;}
+
+.arrive .location button#arrive_pickup,
+.arrive .location button#arrive_cancel{margin-top: 1%; font-size:20px; bottom: 5px; width: 48%;}
+
+.arrive .location button#arrive_pickup{color: #444; left: 5px;}
+.arrive .location button#arrive_cancel{background-color: #444; color: #ffcc00; right: 5px;}
+
+/*.arrive button#arrive_call{background-color: green; color: black;}*/
 @media screen and (orientation: portrait){
-	.arrive button {margin: 5% auto; height:150px; width: 100%;}
-	.arrive button#arrive_call a {height: 150px;}
+	/*.arrive button {margin: 1% 2.5%; height:220px; font-size:30px; width: 45%; }*/
+	.arrive .location button#arrive_call{height:40px; width: 40px;}
+	.arrive .location input{height:40px; font-size:28px; width:85%;} 
+	.arrive .location button#arrive_pickup,
+	.arrive .location button#arrive_cancel{height:60px;}
+	/*.arrive button {margin: 5% auto; height:150px; width: 100%;}
+	.arrive button#arrive_call a {height: 150px;}*/
 }
 @media screen and (orientation: landscape){
-	.arrive button {margin: 2%; height:350px; width: 29.3%; float: left;}
-	.arrive button#arrive_call a {height: 350px;display: table-cell;vertical-align: middle;}
+	.arrive .location button#arrive_call{height:50px; width: 50px;}
+	.arrive .location{margin-left: 5%;}
+	.arrive .location input{height:50px; font-size:30px; width: 90%;}	
+	.arrive .location button#arrive_pickup,
+	.arrive .location button#arrive_cancel{height:50px}
+	/*.arrive button {margin: 2%; height:350px; width: 29.3%; float: left;}
+	.arrive button#arrive_call a {height: 350px;display: table-cell;vertical-align: middle;}*/
 }
 /*
 	#arrive_call{bottom:50px; background-size: 200px 20px; background-image:url("../../img/phone.jpg"); background-repeat:no-repeat; background-position:center}
 	background-size -> sirve para definir como quieres que se adapte la img al elemento
 */
 
-/*
-.initial_form {position:absolute; width:80%; left: 10%; right: 10%; bottom:15%;}
-
-.yellow {background-color:#ffcc00; color:black;}
-*/
 div.chage{height: 100px;}
 .charge input[type="radio"]{color: #444}
 .charge label{font-family:'Open Sans'; color: #555; margin: 1% auto;display: block; text-align: left;}
@@ -713,7 +731,4 @@ div.chage{height: 100px;}
 	.charge label{font-size:50px; width: 35%;text-align: left;}	
 	#charge_amount{height:60px; font-size:50px;}
 }
-#charge_charge{z-index:1!important; font-family:'Open Sans'; outline:none; color: #444; font-size:30px; border-radius:6px; height:150px; width: 100%; margin-top: 5%}
-
-
-/*.charge input[type="radio"] + label { display: inline-block; }*/
+#charge_charge{z-index:1!important; font-family:'Open Sans'; outline:none; color: #444; font-size:30px; border-radius:6px; height:150px; width: 100%; margin-top: 5%;}

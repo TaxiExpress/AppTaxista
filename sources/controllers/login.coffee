@@ -25,7 +25,9 @@ class __Controller.LoginCtrl extends Monocle.Controller
       @drop()
       date = new Date("1/1/1970").toISOString().substring 0, 19
       date = date.replace "T", " "
-      @valideCredentials(@username[0].value, @password[0].value, date)
+      #@valideCredentials(@username[0].value, @password[0].value, date)
+      __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
+      Lungo.Router.section "confirmation_s"
     else
       alert "Debe rellenar el email y la contraseña"
 
@@ -46,7 +48,6 @@ class __Controller.LoginCtrl extends Monocle.Controller
 
   parseResponse: (result) ->
     alert "parseResponse"
-    alert result.email
     __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
     Lungo.Router.section "confirmation_s"
 
