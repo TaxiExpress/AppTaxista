@@ -8,7 +8,6 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
   constructor: ->
     super
     timer = setTimeout((=>Lungo.Router.section "init_s") , 5000)
-    alert Lungo.Cache.get "login"
     
   acceptConfirmation: (event) =>
     @stopTimer()

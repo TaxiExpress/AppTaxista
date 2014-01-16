@@ -214,7 +214,6 @@
       timer = setTimeout((function() {
         return Lungo.Router.section("init_s");
       }), 5000);
-      alert(Lungo.Cache.get("login"));
     }
 
     ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
@@ -287,7 +286,6 @@
           sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('" + _this.username[0].value + "','" + _this.password[0].value + "');";
           return tx.executeSql(sql);
         });
-        alert("doLogin");
         Lungo.Cache.set("login", true);
         __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
         return Lungo.Router.section("confirmation_s");
@@ -328,7 +326,6 @@
         return tx.executeSql(sql);
       });
       Lungo.Cache.set("login", true);
-      alert("parseResponse");
       __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
       return Lungo.Router.section("confirmation_s");
     };

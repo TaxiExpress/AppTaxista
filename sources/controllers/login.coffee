@@ -28,7 +28,6 @@ class __Controller.LoginCtrl extends Monocle.Controller
       @db.transaction (tx) =>
         sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('"+@username[0].value+"','"+@password[0].value+"');"
         tx.executeSql sql
-      alert "doLogin"
       Lungo.Cache.set "login", true
       # borrar hasta aquí
       __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
@@ -56,7 +55,6 @@ class __Controller.LoginCtrl extends Monocle.Controller
       sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('"+@username[0].value+"','"+@password[0].value+"');"
       tx.executeSql sql
     Lungo.Cache.set "login", true
-    alert "parseResponse"
     __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
     Lungo.Router.section "confirmation_s"
 
