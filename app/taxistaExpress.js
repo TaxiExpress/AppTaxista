@@ -29,13 +29,17 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ArriveCtrl = (function(_super) {
-    var getStreet, initialize, manageErrors,
+    var initialize, manageErrors, map, street,
       _this = this;
 
     __extends(ArriveCtrl, _super);
 
+    map = void 0;
+
+    street = "Aldapabarrena kalea";
+
     ArriveCtrl.prototype.elements = {
-      "#arrive_telephone": "telephone"
+      "#arrive_streetField": "streetField"
     };
 
     ArriveCtrl.prototype.events = {
@@ -50,6 +54,7 @@
       this.doPickUp = __bind(this.doPickUp, this);
       var options;
       ArriveCtrl.__super__.constructor.apply(this, arguments);
+      this.streetField[0].value = street;
       if (navigator.geolocation) {
         options = {
           enableHighAccuracy: true,
@@ -69,10 +74,10 @@
     };
 
     initialize = function(location) {
-      var currentLocation, map, mapOptions;
+      var currentLocation, mapOptions, marker;
       Lungo.Router.section("home_s");
       if (map === void 0) {
-        currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude);
+        currentLocation = new google.maps.LatLng(43.3256502, -2.990092699999991);
         mapOptions = {
           center: currentLocation,
           zoom: 16,
@@ -95,36 +100,12 @@
           ]
         };
         map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-        getStreet(currentLocation);
-        google.maps.event.addListener(map, "dragend", function(event) {
-          return getStreet(map.getCenter());
-        });
-        google.maps.event.addListener(map, "dragstart", function(event) {
-          return home_streetField.value = 'Localizando ...';
-        });
-        return google.maps.event.addListener(map, "zoom_changed", function(event) {
-          return getStreet(map.getCenter());
+        return marker = new google.maps.Marker({
+          position: currentLocation,
+          map: map,
+          title: street
         });
       }
-    };
-
-    getStreet = function(pos) {
-      var geocoder;
-      Lungo.Cache.set("geoPosition", pos);
-      geocoder = new google.maps.Geocoder();
-      return geocoder.geocode({
-        latLng: pos
-      }, function(results, status) {
-        if (status === google.maps.GeocoderStatus.OK) {
-          if (results[1]) {
-            return home_streetField.value = results[0].address_components[1].short_name + ", " + results[0].address_components[0].short_name;
-          } else {
-            return home_streetField.value = 'Calle desconocida';
-          }
-        } else {
-          return home_streetField.value = 'Calle desconocida';
-        }
-      });
     };
 
     ArriveCtrl.prototype.doPickUp = function(event) {
@@ -213,7 +194,11 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ConfirmationCtrl = (function(_super) {
+    var timer;
+
     __extends(ConfirmationCtrl, _super);
+
+    timer = null;
 
     ConfirmationCtrl.prototype.events = {
       "tap #confirmation_accept": "acceptConfirmation",
@@ -221,18 +206,30 @@
     };
 
     function ConfirmationCtrl() {
+      this.stopTimer = __bind(this.stopTimer, this);
       this.rejectConfirmation = __bind(this.rejectConfirmation, this);
       this.acceptConfirmation = __bind(this.acceptConfirmation, this);
+      var _this = this;
       ConfirmationCtrl.__super__.constructor.apply(this, arguments);
+      timer = setTimeout((function() {
+        return Lungo.Router.section("init_s");
+      }), 5000);
+      alert(Lungo.Cache.get("login"));
     }
 
     ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
+      this.stopTimer();
       __Controller.arrive = new __Controller.ArriveCtrl("section#arrive_s");
       return Lungo.Router.section("arrive_s");
     };
 
     ConfirmationCtrl.prototype.rejectConfirmation = function(event) {
+      this.stopTimer();
       return Lungo.Router.section("init_s");
+    };
+
+    ConfirmationCtrl.prototype.stopTimer = function() {
+      return clearTimeout(timer);
     };
 
     return ConfirmationCtrl;
@@ -247,15 +244,13 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.LoginCtrl = (function(_super) {
-    var credentials, db, phone_number;
+    var credentials, db;
 
     __extends(LoginCtrl, _super);
 
     db = void 0;
 
     credentials = void 0;
-
-    phone_number = void 0;
 
     LoginCtrl.prototype.elements = {
       "#login_username": "username",
@@ -273,20 +268,27 @@
       this.doLogin = __bind(this.doLogin, this);
       var _this = this;
       LoginCtrl.__super__.constructor.apply(this, arguments);
-      phone_number = Lungo.Cache.get("phone");
-      this.db = window.openDatabase("TaxiExpressTaxistaNew", "1.0", "description", 2 * 1024 * 1024);
+      this.db = window.openDatabase("TaxiExpressDriver", "1.0", "description", 2 * 1024 * 1024);
       this.db.transaction(function(tx) {
-        return tx.executeSql("CREATE TABLE IF NOT EXISTS accessData (email STRING NOT NULL PRIMARY KEY, pass STRING NOT NULL)");
+        return tx.executeSql("CREATE TABLE IF NOT EXISTS accessDataDriver (email STRING NOT NULL PRIMARY KEY, pass STRING NOT NULL)");
       });
       this.read();
     }
 
     LoginCtrl.prototype.doLogin = function(event) {
-      var date;
+      var date,
+        _this = this;
       if (this.username[0].value && this.password[0].value) {
         this.drop();
         date = new Date("1/1/1970").toISOString().substring(0, 19);
         date = date.replace("T", " ");
+        this.db.transaction(function(tx) {
+          var sql;
+          sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('" + _this.username[0].value + "','" + _this.password[0].value + "');";
+          return tx.executeSql(sql);
+        });
+        alert("doLogin");
+        Lungo.Cache.set("login", true);
         __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
         return Lungo.Router.section("confirmation_s");
       } else {
@@ -319,6 +321,13 @@
     };
 
     LoginCtrl.prototype.parseResponse = function(result) {
+      var _this = this;
+      this.db.transaction(function(tx) {
+        var sql;
+        sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('" + _this.username[0].value + "','" + _this.password[0].value + "');";
+        return tx.executeSql(sql);
+      });
+      Lungo.Cache.set("login", true);
       alert("parseResponse");
       __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
       return Lungo.Router.section("confirmation_s");
@@ -327,17 +336,17 @@
     LoginCtrl.prototype.drop = function() {
       var _this = this;
       return this.db.transaction(function(tx) {
-        return tx.executeSql("DELETE FROM accessData");
+        return tx.executeSql("DELETE FROM accessDataDriver");
       });
     };
 
     LoginCtrl.prototype.read = function() {
       var _this = this;
       return this.db.transaction(function(tx) {
-        return tx.executeSql("SELECT * FROM accessData", [], (function(tx, results) {
+        return tx.executeSql("SELECT * FROM accessDataDriver", [], (function(tx, results) {
           if (results.rows.length > 0) {
             credentials = results.rows.item(0);
-            return _this.valideCredentials(credentials.email, credentials.pass, phone_number, credentials.dateUpdate);
+            return _this.valideCredentials(credentials.email, credentials.pass);
           } else {
             return Lungo.Router.section("login_s");
           }

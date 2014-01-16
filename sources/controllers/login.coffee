@@ -2,7 +2,6 @@ class __Controller.LoginCtrl extends Monocle.Controller
 
   db = undefined
   credentials = undefined
-  phone_number = undefined
 
   elements:
     "#login_username"                              : "username"
@@ -13,10 +12,9 @@ class __Controller.LoginCtrl extends Monocle.Controller
 
   constructor: ->
     super
-    phone_number = Lungo.Cache.get "phone"
-    @db = window.openDatabase("TaxiExpressTaxistaNew", "1.0", "description", 2 * 1024 * 1024) #2MB
+    @db = window.openDatabase("TaxiExpressDriver", "1.0", "description", 2 * 1024 * 1024) #2MB
     @db.transaction (tx) =>
-      tx.executeSql "CREATE TABLE IF NOT EXISTS accessData (email STRING NOT NULL PRIMARY KEY, pass STRING NOT NULL)"
+      tx.executeSql "CREATE TABLE IF NOT EXISTS accessDataDriver (email STRING NOT NULL PRIMARY KEY, pass STRING NOT NULL)"
     @read()
 
   doLogin: (event) =>
@@ -26,6 +24,13 @@ class __Controller.LoginCtrl extends Monocle.Controller
       date = new Date("1/1/1970").toISOString().substring 0, 19
       date = date.replace "T", " "
       #@valideCredentials(@username[0].value, @password[0].value, date)
+      # borrarlo cuando active las credenciales
+      @db.transaction (tx) =>
+        sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('"+@username[0].value+"','"+@password[0].value+"');"
+        tx.executeSql sql
+      alert "doLogin"
+      Lungo.Cache.set "login", true
+      # borrar hasta aquí
       __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
       Lungo.Router.section "confirmation_s"
     else
@@ -47,20 +52,24 @@ class __Controller.LoginCtrl extends Monocle.Controller
         alert type.response        
 
   parseResponse: (result) ->
+    @db.transaction (tx) =>
+      sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('"+@username[0].value+"','"+@password[0].value+"');"
+      tx.executeSql sql
+    Lungo.Cache.set "login", true
     alert "parseResponse"
     __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
     Lungo.Router.section "confirmation_s"
 
   drop: =>
     @db.transaction (tx) =>
-      tx.executeSql "DELETE FROM accessData"
+      tx.executeSql "DELETE FROM accessDataDriver"
 
   read: =>
     @db.transaction (tx) =>
-      tx.executeSql "SELECT * FROM accessData", [], ((tx, results) =>
+      tx.executeSql "SELECT * FROM accessDataDriver", [], ((tx, results) =>
         if results.rows.length > 0
           credentials = results.rows.item(0)
-          @valideCredentials(credentials.email, credentials.pass, phone_number, credentials.dateUpdate)
+          @valideCredentials(credentials.email, credentials.pass)
         else
           Lungo.Router.section "login_s"
       ), null
