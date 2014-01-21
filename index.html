@@ -11,9 +11,9 @@
 <body>  
     <section id="init_s" data-transition="fade">
         <article id="init_a" class="splash initial">
-            <span class="logo"><img src="img/logo.png" alt=""/></span>
-            <span class="load"><img src="img/loading.gif" alt="Cargando..." /></span>
-            <span class="name">taxiexpress.com (Versión Taxista)</span>
+          <span class="logo"><img src="img/logo.png" alt=""/></span>
+          <span class="load"><img src="img/loading.gif" alt="Cargando..." /></span>
+          <span class="name">taxiexpress.com (Versión Taxista)</span>
        </article>
     </section>
 
@@ -28,7 +28,24 @@
                   <input id="login_password" type="password" placeholder="Contraseña">
               </fieldset>
               <button id="login_login_b" class="anchor" data-label="Acceder" />
+              <button id="location" class="anchor" data-label="location" />
           </div>
+       </article>
+    </section>
+
+    <section id="waiting_s" data-transition="fade">
+        <article id="waiting_a" class="splash initial">
+          <div id="waiting_logoutdiv">
+            <span id="waiting_driver"></span>
+            <!--<fieldset><small id ="waiting_driver"></small></fieldset>-->
+            <small>Disponible</small>
+            <input id="waiting_available" type="checkbox" />
+            <button id="waiting_logout" data-icon="signout"></button>
+          </div>
+          <span class="logo"><img src="img/logo.png" alt=""/></span>
+          <button id="waiting_confirmation" data-label="Prueba confirmation"></button>
+          <button id="waiting_prueba1" data-label="Prueba location"></button>
+          <button id="waiting_prueba2" data-label="Prueba available"></button>
        </article>
     </section>
 
@@ -52,7 +69,8 @@
       <article id="arrive_a" class="arrive">
         <div class="location">
           <input id="arrive_streetField" type="text" readonly="readonly" />
-          <button id="arrive_call" data-icon="phone" ></button>
+          <a id="arrive_call" class="button" href="tel:8009229999" data-icon="phone"></a>
+          <!--<button id="arrive_call" data-icon="phone" ></button>-->
           <button id="arrive_pickup" data-label="Recoger"/>
           <button id="arrive_cancel" data-label="Cancelar"/>
         </div>

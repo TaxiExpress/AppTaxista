@@ -75,7 +75,6 @@
 
     initialize = function(location) {
       var currentLocation, mapOptions, marker;
-      Lungo.Router.section("home_s");
       if (map === void 0) {
         currentLocation = new google.maps.LatLng(43.3256502, -2.990092699999991);
         mapOptions = {
@@ -114,11 +113,12 @@
     };
 
     ArriveCtrl.prototype.cancelPickUp = function(event) {
-      return Lungo.Router.section("init_s");
+      return Lungo.Router.section("waiting_s");
     };
 
     ArriveCtrl.prototype.doCall = function(event) {
-      return alert("llamando");
+      alert("llamando");
+      return document.getElementById("fdw").onclick();
     };
 
     return ArriveCtrl;
@@ -151,10 +151,9 @@
 
     ChargeCtrl.prototype.doCharge = function(event) {
       var correcto;
-      alert(this.amount[0].value);
       correcto = this.valideAmount(this.amount[0].value);
       if (correcto) {
-        return Lungo.Router.section("init_s");
+        return Lungo.Router.section("waiting_s");
       }
     };
 
@@ -172,7 +171,6 @@
           amount += ".";
         }
         dectext = amount.substring(amount.indexOf(".") + 1, amount.length);
-        alert(dectext);
         if (dectext.length > decallowed) {
           alert("Por favor, entra un número con " + decallowed + " números decimales.");
           return false;
@@ -212,7 +210,7 @@
       var _this = this;
       ConfirmationCtrl.__super__.constructor.apply(this, arguments);
       timer = setTimeout((function() {
-        return Lungo.Router.section("init_s");
+        return Lungo.Router.section("waiting_s");
       }), 5000);
     }
 
@@ -224,7 +222,7 @@
 
     ConfirmationCtrl.prototype.rejectConfirmation = function(event) {
       this.stopTimer();
-      return Lungo.Router.section("init_s");
+      return Lungo.Router.section("waiting_s");
     };
 
     ConfirmationCtrl.prototype.stopTimer = function() {
@@ -243,7 +241,8 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.LoginCtrl = (function(_super) {
-    var credentials, db;
+    var credentials, db, initialize, latitude, longitude, manageErrors, map,
+      _this = this;
 
     __extends(LoginCtrl, _super);
 
@@ -251,18 +250,29 @@
 
     credentials = void 0;
 
+    map = void 0;
+
+    latitude = 43.3256502;
+
+    longitude = -2.990092699999991;
+
     LoginCtrl.prototype.elements = {
       "#login_username": "username",
       "#login_password": "password"
     };
 
     LoginCtrl.prototype.events = {
-      "tap #login_login_b": "doLogin"
+      "tap #login_login_b": "doLogin",
+      "tap #location": "doLocation"
     };
 
     function LoginCtrl() {
+      this.doLocation = __bind(this.doLocation, this);
       this.read = __bind(this.read, this);
       this.drop = __bind(this.drop, this);
+      this.updatePosition = __bind(this.updatePosition, this);
+      this.currentPosition = __bind(this.currentPosition, this);
+      this.checkPosition = __bind(this.checkPosition, this);
       this.valideCredentials = __bind(this.valideCredentials, this);
       this.doLogin = __bind(this.doLogin, this);
       var _this = this;
@@ -275,20 +285,12 @@
     }
 
     LoginCtrl.prototype.doLogin = function(event) {
-      var date,
-        _this = this;
+      var date;
       if (this.username[0].value && this.password[0].value) {
         this.drop();
         date = new Date("1/1/1970").toISOString().substring(0, 19);
         date = date.replace("T", " ");
-        this.db.transaction(function(tx) {
-          var sql;
-          sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('" + _this.username[0].value + "','" + _this.password[0].value + "');";
-          return tx.executeSql(sql);
-        });
-        Lungo.Cache.set("login", true);
-        __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
-        return Lungo.Router.section("confirmation_s");
+        return this.valideCredentials(this.username[0].value, this.password[0].value, date);
       } else {
         return alert("Debe rellenar el email y la contraseña");
       }
@@ -297,6 +299,7 @@
     LoginCtrl.prototype.valideCredentials = function(email, pass) {
       var server,
         _this = this;
+      alert("valideCredentials");
       server = Lungo.Cache.get("server");
       return $$.ajax({
         type: "POST",
@@ -319,15 +322,86 @@
     };
 
     LoginCtrl.prototype.parseResponse = function(result) {
-      var _this = this;
+      var driver,
+        _this = this;
       this.db.transaction(function(tx) {
         var sql;
         sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('" + _this.username[0].value + "','" + _this.password[0].value + "');";
         return tx.executeSql(sql);
       });
-      Lungo.Cache.set("login", true);
-      __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
-      return Lungo.Router.section("confirmation_s");
+      Lungo.Cache.set("logged", true);
+      driver = new Object();
+      driver.nombre = "Fermin";
+      driver.apellidos = "Querejeta Mendo";
+      driver.getDriver = function() {
+        return this.apellidos + ", " + this.nombre;
+      };
+      Lungo.Cache.set("driver", driver);
+      __Controller.waiting = new __Controller.WaitingCtrl("section#waiting_s");
+      return Lungo.Router.section("waiting_s");
+    };
+
+    LoginCtrl.prototype.checkPosition = function() {
+      var timer,
+        _this = this;
+      return timer = setTimeout((function() {
+        return _this.currentPosition();
+      }), 5000);
+    };
+
+    LoginCtrl.prototype.currentPosition = function() {
+      var options;
+      if (navigator.geolocation) {
+        options = {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        };
+        navigator.geolocation.getCurrentPosition(initialize, manageErrors);
+      }
+      return this.checkPosition();
+    };
+
+    initialize = function(location) {
+      alert("Latitude location: " + location.coords.latitude);
+      alert("Longitude location: " + location.coords.longitude);
+      alert("latitudeCache: " + latitudeCache);
+      alert("longitudeCache: " + longitudeCache);
+      return LoginCtrl.updatePosition("conductor@gmail.com", location.coords.latitude, location.coords.longitude);
+    };
+
+    manageErrors = function(err) {
+      var _this = this;
+      console.log("Error de localización GPS");
+      return setTimeout((function() {
+        return navigator.geolocation.getCurrentPosition(initialize, manageErrors);
+      }), 5000);
+    };
+
+    LoginCtrl.prototype.updatePosition = function(email, latitude, longitude) {
+      var server,
+        _this = this;
+      alert("update position");
+      server = Lungo.Cache.get("server");
+      alert(server);
+      $$.ajax({
+        type: "POST",
+        url: server + "driver/updateDriverPosition",
+        data: {
+          email: "conductor@gmail.com",
+          latitude: 43.3256503,
+          longitude: -2.990092699999933
+        }
+      });
+      return {
+        success: function(result) {
+          return {
+            error: function(xhr, type) {
+              return alert(type.response);
+            }
+          };
+        }
+      };
     };
 
     LoginCtrl.prototype.drop = function() {
@@ -351,7 +425,140 @@
       });
     };
 
+    LoginCtrl.prototype.doLocation = function() {
+      return this.updatePosition("conductor@gmail.com", 43.3256503, -2.990092699999933);
+    };
+
     return LoginCtrl;
+
+  }).call(this, Monocle.Controller);
+
+}).call(this);
+
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  __Controller.WaitingCtrl = (function(_super) {
+    var errorHandler, showLocation, timer;
+
+    __extends(WaitingCtrl, _super);
+
+    timer = null;
+
+    WaitingCtrl.prototype.events = {
+      "tap #waiting_logout": "logOut",
+      "tap #waiting_confirmation": "goConfirmation",
+      "tap #waiting_prueba1": "doLocation",
+      "tap #waiting_prueba2": "doAvailable"
+    };
+
+    WaitingCtrl.prototype.elements = {
+      "#waiting_driver": "driver"
+    };
+
+    function WaitingCtrl() {
+      this.doAvailable = __bind(this.doAvailable, this);
+      this.updatePosition = __bind(this.updatePosition, this);
+      this.doLocation = __bind(this.doLocation, this);
+      this.goConfirmation = __bind(this.goConfirmation, this);
+      this.logOut = __bind(this.logOut, this);
+      var driver;
+      WaitingCtrl.__super__.constructor.apply(this, arguments);
+      alert("waiting");
+      driver = Lungo.Cache.get("driver");
+      this.driver[0].innerText = driver.apellidos + ", " + driver.nombre;
+      console.log(driver.nombre);
+    }
+
+    WaitingCtrl.prototype.logOut = function() {
+      alert("logout");
+      Lungo.Cache.set("nombre", "");
+      Lungo.Cache.set("apellidos", "");
+      return Lungo.Router.section("login_s");
+    };
+
+    WaitingCtrl.prototype.goConfirmation = function() {
+      __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
+      return Lungo.Router.section("confirmation_s");
+    };
+
+    WaitingCtrl.prototype.doLocation = function() {
+      return this.getLocationUpdate();
+    };
+
+    WaitingCtrl.prototype.getLocationUpdate = function() {
+      var geoLoc, options, watchID;
+      if (navigator.geolocation) {
+        options = {
+          timeout: 60000
+        };
+        geoLoc = navigator.geolocation;
+        return watchID = geoLoc.watchPosition(showLocation, errorHandler, options);
+      } else {
+        return alert("Sorry, browser does not support geolocation!");
+      }
+    };
+
+    showLocation = function(position) {
+      var latitude, longitude;
+      latitude = position.coords.latitude;
+      longitude = position.coords.longitude;
+      alert("Latitude : " + latitude + " Longitude: " + longitude);
+      return this.updatePosition("conductor@gmail.com", latitude, longitude);
+    };
+
+    errorHandler = function(err) {
+      if (err.code === 1) {
+        return alert("Error: Access is denied!");
+      } else {
+        if (err.code === 2) {
+          return alert("Error: Position is unavailable!");
+        }
+      }
+    };
+
+    WaitingCtrl.prototype.updatePosition = function(email, latitude, longitude) {
+      var server,
+        _this = this;
+      alert("update position");
+      server = Lungo.Cache.get("server");
+      return $$.ajax({
+        type: "POST",
+        url: server + "driver/updateDriverPosition",
+        data: {
+          email: email,
+          latitude: latitude,
+          longitude: longitude
+        },
+        success: function(result) {},
+        error: function(xhr, type) {
+          return alert(type.response);
+        }
+      });
+    };
+
+    WaitingCtrl.prototype.doAvailable = function() {
+      var server,
+        _this = this;
+      alert("Available");
+      server = Lungo.Cache.get("server");
+      return $$.ajax({
+        type: "POST",
+        url: server + "driver/updateDriverAvailable",
+        data: {
+          email: "conductor@gmail.com",
+          available: true
+        },
+        success: function(result) {},
+        error: function(xhr, type) {
+          return alert(type.response);
+        }
+      });
+    };
+
+    return WaitingCtrl;
 
   })(Monocle.Controller);
 

@@ -10,10 +10,9 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     super
     
   doCharge: (event) =>
-    alert @amount[0].value
     correcto = @valideAmount(@amount[0].value)
     if correcto
-      Lungo.Router.section "init_s"
+      Lungo.Router.section "waiting_s"
 
   valideAmount: (amount) =>
     # how many decimals are allowed?
@@ -27,7 +26,6 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     else
       amount += "."  if amount.indexOf(".") is -1
       dectext = amount.substring(amount.indexOf(".") + 1, amount.length)
-      alert dectext
       if dectext.length > decallowed
         alert "Por favor, entra un número con " + decallowed + " números decimales."
         return false

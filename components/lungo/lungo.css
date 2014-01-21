@@ -660,7 +660,7 @@ margin: 5px auto;
 	.street .location{margin-right:  5%; margin-left: 5%}
 	.street button{height:400px; width: 40%; font-size:30px; float: left; margin-right:  5%;margin-left: 5%}
 	.street .location input{height:40px; font-size:30px; padding-left:5px; padding-right:5px;}	
-	.street .location #confirmation_question{font-size:30px;}
+	.street .location #confirmation_question{font-size:16px;}
 }
 
 /*
@@ -675,7 +675,8 @@ margin: 5px auto;
 
 */
 .arrive .location input{position: absolute; z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; margin-top: 1%; left: 10px;}
-.arrive .location button{position: absolute; z-index:1!important; font-family:'Open Sans'; outline:none; border-radius:6px;}
+.arrive .location button,
+.arrive .location a{position: absolute; z-index:1!important; font-family:'Open Sans'; outline:none; border-radius:6px;}
 /*
 .arrive .location input{font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; margin-top: 1%; float: left;}
 .arrive button{font-family:'Open Sans'; outline:none; border-radius:6px; float: left;}
@@ -685,9 +686,9 @@ margin: 5px auto;
 	z-index:1!important; font-family:'Open Sans'; outline:none; border-radius:6px;}
 */
 /*@media screen and (max-width: 480) and (orientation: portrait){*/
-.arrive .marker {bottom: 50%;left: 50%; position: absolute;z-index: 2; margin-left:-24px; }
 
-.arrive .location button#arrive_call{margin-top: 1%; right: 5px; background-color: green;}
+/*.arrive .location button#arrive_call{margin-top: 1%; right: 5px; background-color: green;}*/
+.arrive .location a#arrive_call{margin-top: 1%; right: 5px; background-color: green;}
 
 .arrive .location button#arrive_pickup,
 .arrive .location button#arrive_cancel{margin-top: 1%; font-size:20px; bottom: 5px; width: 48%;}
@@ -698,7 +699,7 @@ margin: 5px auto;
 /*.arrive button#arrive_call{background-color: green; color: black;}*/
 @media screen and (orientation: portrait){
 	/*.arrive button {margin: 1% 2.5%; height:220px; font-size:30px; width: 45%; }*/
-	.arrive .location button#arrive_call{height:40px; width: 40px;}
+	.arrive .location a#arrive_call{height:40px; width: 40px;}
 	.arrive .location input{height:40px; font-size:28px; width:85%;} 
 	.arrive .location button#arrive_pickup,
 	.arrive .location button#arrive_cancel{height:60px;}
@@ -706,7 +707,7 @@ margin: 5px auto;
 	.arrive button#arrive_call a {height: 150px;}*/
 }
 @media screen and (orientation: landscape){
-	.arrive .location button#arrive_call{height:50px; width: 50px;}
+	.arrive .location a#arrive_call{height:50px; width: 50px;}
 	.arrive .location{margin-left: 5%;}
 	.arrive .location input{height:50px; font-size:30px; width: 90%;}	
 	.arrive .location button#arrive_pickup,
@@ -740,3 +741,7 @@ body > section > article.splash .logo img {max-width:80%;margin:50px auto; float
 body > section > article.splash .load{position:absolute; left:0px;bottom:30%; width:100%;}
 body > section > article.splash .name{bottom:15px; position:absolute; text-align: center; left:0px; width:100%; font-size:1em; color:#444; letter-spacing: 0px;}
 .initial_form {position:absolute; width:80%; left: 10%; right: 10%; bottom:15%;}
+
+#waiting_driver{color:black;}
+#waiting_logout{}
+#waiting_logoutdiv{float: right;}

@@ -7,7 +7,7 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
 
   constructor: ->
     super
-    timer = setTimeout((=>Lungo.Router.section "init_s") , 5000)
+    timer = setTimeout((=>Lungo.Router.section "waiting_s") , 5000)
     
   acceptConfirmation: (event) =>
     @stopTimer()
@@ -16,7 +16,7 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
     
   rejectConfirmation: (event) =>
     @stopTimer()
-    Lungo.Router.section "init_s"
+    Lungo.Router.section "waiting_s"
 
   stopTimer: =>
     clearTimeout timer
