@@ -76,7 +76,7 @@
     initialize = function(location) {
       var currentLocation, mapOptions, marker;
       if (map === void 0) {
-        currentLocation = new google.maps.LatLng(43.3256502, -2.990092699999991);
+        currentLocation = new google.maps.LatLng(43.32197354474697, -2.9898569638094625);
         mapOptions = {
           center: currentLocation,
           zoom: 16,
@@ -241,8 +241,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.LoginCtrl = (function(_super) {
-    var credentials, db, initialize, latitude, longitude, manageErrors, map,
-      _this = this;
+    var credentials, db;
 
     __extends(LoginCtrl, _super);
 
@@ -250,29 +249,18 @@
 
     credentials = void 0;
 
-    map = void 0;
-
-    latitude = 43.3256502;
-
-    longitude = -2.990092699999991;
-
     LoginCtrl.prototype.elements = {
       "#login_username": "username",
       "#login_password": "password"
     };
 
     LoginCtrl.prototype.events = {
-      "tap #login_login_b": "doLogin",
-      "tap #location": "doLocation"
+      "tap #login_login_b": "doLogin"
     };
 
     function LoginCtrl() {
-      this.doLocation = __bind(this.doLocation, this);
       this.read = __bind(this.read, this);
       this.drop = __bind(this.drop, this);
-      this.updatePosition = __bind(this.updatePosition, this);
-      this.currentPosition = __bind(this.currentPosition, this);
-      this.checkPosition = __bind(this.checkPosition, this);
       this.valideCredentials = __bind(this.valideCredentials, this);
       this.doLogin = __bind(this.doLogin, this);
       var _this = this;
@@ -299,7 +287,6 @@
     LoginCtrl.prototype.valideCredentials = function(email, pass) {
       var server,
         _this = this;
-      alert("valideCredentials");
       server = Lungo.Cache.get("server");
       return $$.ajax({
         type: "POST",
@@ -322,86 +309,25 @@
     };
 
     LoginCtrl.prototype.parseResponse = function(result) {
-      var driver,
+      var driver, email,
         _this = this;
       this.db.transaction(function(tx) {
         var sql;
         sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('" + _this.username[0].value + "','" + _this.password[0].value + "');";
         return tx.executeSql(sql);
       });
-      Lungo.Cache.set("logged", true);
+      if (this.username[0].value !== "") {
+        email = this.username[0].value;
+      } else {
+        email = credentials.email;
+      }
       driver = new Object();
-      driver.nombre = "Fermin";
-      driver.apellidos = "Querejeta Mendo";
-      driver.getDriver = function() {
-        return this.apellidos + ", " + this.nombre;
-      };
+      driver.email = email;
+      driver.first_name = result.first_name;
+      driver.last_name = result.last_name;
       Lungo.Cache.set("driver", driver);
       __Controller.waiting = new __Controller.WaitingCtrl("section#waiting_s");
       return Lungo.Router.section("waiting_s");
-    };
-
-    LoginCtrl.prototype.checkPosition = function() {
-      var timer,
-        _this = this;
-      return timer = setTimeout((function() {
-        return _this.currentPosition();
-      }), 5000);
-    };
-
-    LoginCtrl.prototype.currentPosition = function() {
-      var options;
-      if (navigator.geolocation) {
-        options = {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
-        };
-        navigator.geolocation.getCurrentPosition(initialize, manageErrors);
-      }
-      return this.checkPosition();
-    };
-
-    initialize = function(location) {
-      alert("Latitude location: " + location.coords.latitude);
-      alert("Longitude location: " + location.coords.longitude);
-      alert("latitudeCache: " + latitudeCache);
-      alert("longitudeCache: " + longitudeCache);
-      return LoginCtrl.updatePosition("conductor@gmail.com", location.coords.latitude, location.coords.longitude);
-    };
-
-    manageErrors = function(err) {
-      var _this = this;
-      console.log("Error de localización GPS");
-      return setTimeout((function() {
-        return navigator.geolocation.getCurrentPosition(initialize, manageErrors);
-      }), 5000);
-    };
-
-    LoginCtrl.prototype.updatePosition = function(email, latitude, longitude) {
-      var server,
-        _this = this;
-      alert("update position");
-      server = Lungo.Cache.get("server");
-      alert(server);
-      $$.ajax({
-        type: "POST",
-        url: server + "driver/updateDriverPosition",
-        data: {
-          email: "conductor@gmail.com",
-          latitude: 43.3256503,
-          longitude: -2.990092699999933
-        }
-      });
-      return {
-        success: function(result) {
-          return {
-            error: function(xhr, type) {
-              return alert(type.response);
-            }
-          };
-        }
-      };
     };
 
     LoginCtrl.prototype.drop = function() {
@@ -425,13 +351,9 @@
       });
     };
 
-    LoginCtrl.prototype.doLocation = function() {
-      return this.updatePosition("conductor@gmail.com", 43.3256503, -2.990092699999933);
-    };
-
     return LoginCtrl;
 
-  }).call(this, Monocle.Controller);
+  })(Monocle.Controller);
 
 }).call(this);
 
@@ -441,41 +363,40 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.WaitingCtrl = (function(_super) {
-    var errorHandler, showLocation, timer;
+    var driver, errorHandler, timer, updatePosition;
 
     __extends(WaitingCtrl, _super);
 
     timer = null;
 
+    driver = null;
+
     WaitingCtrl.prototype.events = {
       "tap #waiting_logout": "logOut",
       "tap #waiting_confirmation": "goConfirmation",
       "tap #waiting_prueba1": "doLocation",
-      "tap #waiting_prueba2": "doAvailable"
+      "change #waiting_available": "changeAvailable"
     };
 
     WaitingCtrl.prototype.elements = {
-      "#waiting_driver": "driver"
+      "#waiting_driver": "driver",
+      "#waiting_available": "valorAvailable"
     };
 
     function WaitingCtrl() {
-      this.doAvailable = __bind(this.doAvailable, this);
-      this.updatePosition = __bind(this.updatePosition, this);
+      this.changeAvailable = __bind(this.changeAvailable, this);
+      this.updateAvailable = __bind(this.updateAvailable, this);
+      this.getLocationUpdate = __bind(this.getLocationUpdate, this);
       this.doLocation = __bind(this.doLocation, this);
       this.goConfirmation = __bind(this.goConfirmation, this);
       this.logOut = __bind(this.logOut, this);
-      var driver;
       WaitingCtrl.__super__.constructor.apply(this, arguments);
-      alert("waiting");
       driver = Lungo.Cache.get("driver");
-      this.driver[0].innerText = driver.apellidos + ", " + driver.nombre;
-      console.log(driver.nombre);
+      this.driver[0].innerText = driver.last_name + ", " + driver.first_name;
     }
 
     WaitingCtrl.prototype.logOut = function() {
-      alert("logout");
-      Lungo.Cache.set("nombre", "");
-      Lungo.Cache.set("apellidos", "");
+      Lungo.Cache.set("driver", "");
       return Lungo.Router.section("login_s");
     };
 
@@ -495,18 +416,10 @@
           timeout: 60000
         };
         geoLoc = navigator.geolocation;
-        return watchID = geoLoc.watchPosition(showLocation, errorHandler, options);
+        return watchID = geoLoc.watchPosition(updatePosition, errorHandler, options);
       } else {
         return alert("Sorry, browser does not support geolocation!");
       }
-    };
-
-    showLocation = function(position) {
-      var latitude, longitude;
-      latitude = position.coords.latitude;
-      longitude = position.coords.longitude;
-      alert("Latitude : " + latitude + " Longitude: " + longitude);
-      return this.updatePosition("conductor@gmail.com", latitude, longitude);
     };
 
     errorHandler = function(err) {
@@ -519,18 +432,38 @@
       }
     };
 
-    WaitingCtrl.prototype.updatePosition = function(email, latitude, longitude) {
+    updatePosition = function(position) {
       var server,
         _this = this;
       alert("update position");
       server = Lungo.Cache.get("server");
       return $$.ajax({
         type: "POST",
-        url: server + "driver/updateDriverPosition",
+        url: server + "driver/updatedriverposition",
+        data: {
+          email: driver.email,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        },
+        success: function(result) {
+          return alert("posicion actualizada. Latitud: " + position.coords.latitude + ". Longitud: " + position.coords.longitude);
+        },
+        error: function(xhr, type) {
+          return alert(type.response);
+        }
+      });
+    };
+
+    WaitingCtrl.prototype.updateAvailable = function(email, available) {
+      var server,
+        _this = this;
+      server = Lungo.Cache.get("server");
+      return $$.ajax({
+        type: "POST",
+        url: server + "driver/updatedriveravailable",
         data: {
           email: email,
-          latitude: latitude,
-          longitude: longitude
+          available: available
         },
         success: function(result) {},
         error: function(xhr, type) {
@@ -539,23 +472,8 @@
       });
     };
 
-    WaitingCtrl.prototype.doAvailable = function() {
-      var server,
-        _this = this;
-      alert("Available");
-      server = Lungo.Cache.get("server");
-      return $$.ajax({
-        type: "POST",
-        url: server + "driver/updateDriverAvailable",
-        data: {
-          email: "conductor@gmail.com",
-          available: true
-        },
-        success: function(result) {},
-        error: function(xhr, type) {
-          return alert(type.response);
-        }
-      });
+    WaitingCtrl.prototype.changeAvailable = function() {
+      return this.updateAvailable(driver.email, this.valorAvailable[0].checked);
     };
 
     return WaitingCtrl;

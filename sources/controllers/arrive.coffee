@@ -29,7 +29,7 @@ class __Controller.ArriveCtrl extends Monocle.Controller
     #Lungo.Router.section "home_s"
     if map == undefined
       #currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
-      currentLocation = new google.maps.LatLng(43.3256502, -2.990092699999991)
+      currentLocation = new google.maps.LatLng(43.32197354474697, -2.9898569638094625)
       mapOptions =
         center: currentLocation
         zoom: 16

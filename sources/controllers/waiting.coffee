@@ -1,26 +1,24 @@
 class __Controller.WaitingCtrl extends Monocle.Controller
   timer = null
+  driver = null
 
   events:
     "tap #waiting_logout"                  : "logOut"
     "tap #waiting_confirmation"            : "goConfirmation"
     "tap #waiting_prueba1"                 : "doLocation"
-    "tap #waiting_prueba2"                 : "doAvailable"
+    "change #waiting_available"            : "changeAvailable"
 
   elements:
     "#waiting_driver"                      : "driver"
+    "#waiting_available"                   : "valorAvailable"
 
   constructor: ->
     super
-    alert "waiting"
     driver = Lungo.Cache.get "driver"
-    @driver[0].innerText = driver.apellidos + ", " + driver.nombre
-    console.log driver.nombre
+    @driver[0].innerText = driver.last_name + ", " + driver.first_name
     
   logOut: =>
-    alert "logout"
-    Lungo.Cache.set "nombre", ""
-    Lungo.Cache.set "apellidos", ""
+    Lungo.Cache.set "driver", ""
     Lungo.Router.section "login_s"
     
   goConfirmation: =>
@@ -30,52 +28,48 @@ class __Controller.WaitingCtrl extends Monocle.Controller
   doLocation: =>
     @getLocationUpdate()
 
-  getLocationUpdate: ->
+  getLocationUpdate: =>
+    #@updatePosition("conductor@gmail.com", 43.3256502, -2.990092699999991)
     if navigator.geolocation
       # timeout at 60000 milliseconds (60 seconds)
       options = timeout: 60000
       geoLoc = navigator.geolocation
-      watchID = geoLoc.watchPosition(showLocation, errorHandler, options)
+      watchID = geoLoc.watchPosition(updatePosition, errorHandler, options)
     else
       alert "Sorry, browser does not support geolocation!"
-
-  showLocation = (position) ->
-    latitude = position.coords.latitude
-    longitude = position.coords.longitude
-    alert "Latitude : " + latitude + " Longitude: " + longitude
-    @updatePosition("conductor@gmail.com", latitude, longitude)
 
   errorHandler = (err) ->
     if err.code is 1
       alert "Error: Access is denied!"
     else alert "Error: Position is unavailable!"  if err.code is 2
 
-  updatePosition: (email, latitude, longitude)=>
+  updatePosition = (position)->
     alert "update position"
     server = Lungo.Cache.get "server"
     $$.ajax
       type: "POST"
-      url: server + "driver/updateDriverPosition"
+      url: server + "driver/updatedriverposition"
       data:
-        email: email
-        latitude: latitude 
-        longitude: longitude
+        email: driver.email
+        latitude: position.coords.latitude
+        longitude: position.coords.longitude
       success: (result) =>
-        #alert "posicion actualizada"
+        alert "posicion actualizada. Latitud: " + position.coords.latitude + ". Longitud: " + position.coords.longitude
       error: (xhr, type) =>
         alert type.response
   
-  doAvailable: =>
-    alert "Available"
+  updateAvailable: (email, available) =>
     server = Lungo.Cache.get "server"
     $$.ajax
       type: "POST"
-      url: server + "driver/updateDriverAvailable"
+      url: server + "driver/updatedriveravailable"
       data:
-        email: "conductor@gmail.com"
-        available: true
+        email: email
+        available: available
       success: (result) =>
         #alert "posicion actualizada"
       error: (xhr, type) =>
         alert type.response
-  
+
+  changeAvailable: =>
+    @updateAvailable(driver.email, @valorAvailable[0].checked)

@@ -28,7 +28,6 @@
                   <input id="login_password" type="password" placeholder="Contraseña">
               </fieldset>
               <button id="login_login_b" class="anchor" data-label="Acceder" />
-              <button id="location" class="anchor" data-label="location" />
           </div>
        </article>
     </section>
@@ -38,14 +37,13 @@
           <div id="waiting_logoutdiv">
             <span id="waiting_driver"></span>
             <!--<fieldset><small id ="waiting_driver"></small></fieldset>-->
-            <small>Disponible</small>
+            <small id="waiting_available_label">Disponible</small>
             <input id="waiting_available" type="checkbox" />
             <button id="waiting_logout" data-icon="signout"></button>
           </div>
           <span class="logo"><img src="img/logo.png" alt=""/></span>
           <button id="waiting_confirmation" data-label="Prueba confirmation"></button>
           <button id="waiting_prueba1" data-label="Prueba location"></button>
-          <button id="waiting_prueba2" data-label="Prueba available"></button>
        </article>
     </section>
 
@@ -101,5 +99,6 @@
     <script src="components/lungo/lungo.js"></script>
     <script src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
     <script src="app/taxistaExpress.js"></script>   
+    <!--<script src="cordova.js"></script>-->
 </body>
 </html>

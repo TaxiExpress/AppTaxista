@@ -743,5 +743,5 @@ body > section > article.splash .name{bottom:15px; position:absolute; text-align
 .initial_form {position:absolute; width:80%; left: 10%; right: 10%; bottom:15%;}
 
 #waiting_driver{color:black;}
-#waiting_logout{}
 #waiting_logoutdiv{float: right;}
+#waiting_available_label{color:black;}
