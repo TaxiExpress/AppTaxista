@@ -14,6 +14,25 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     if correcto
       Lungo.Router.section "waiting_s"
 
+      #driver = Lungo.Cache.get "driver"
+      #push = Lungo.Cache.get "push"
+      #server = Lungo.Cache.get "server"
+      #$$.ajax
+      #  type: "POST"
+      #  url: server + "driver/travelcompleted"
+      #  data:
+      #    travelID: push.travelID
+      #    email: driver.email
+      #    destination: preguntar a david
+      #    latitude: ?
+      #    longitude: ?
+      #    appPayment: ?
+      #    cost: @amount[0].value
+      #  success: (result) =>
+      #    Lungo.Router.section "waiting_s"
+      #  error: (xhr, type) =>
+      #    alert type.response        
+
   valideAmount: (amount) =>
     # how many decimals are allowed?
     decallowed = 2 

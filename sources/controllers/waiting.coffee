@@ -1,11 +1,13 @@
 class __Controller.WaitingCtrl extends Monocle.Controller
   timer = null
   driver = null
-
+  disponible = true
+  
   events:
     "tap #waiting_logout"                  : "logOut"
     "tap #waiting_confirmation"            : "goConfirmation"
     "tap #waiting_prueba1"                 : "doLocation"
+    "tap #waiting_prueba2"                 : "doBackground"
     "change #waiting_available"            : "changeAvailable"
 
   elements:
@@ -26,6 +28,7 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     Lungo.Router.section "confirmation_s"
   
   doLocation: =>
+    #setTimeout((=>@getLocationUpdate()) , 30000)
     @getLocationUpdate()
 
   getLocationUpdate: =>
@@ -35,16 +38,17 @@ class __Controller.WaitingCtrl extends Monocle.Controller
       options = timeout: 60000
       geoLoc = navigator.geolocation
       watchID = geoLoc.watchPosition(updatePosition, errorHandler, options)
-    else
-      alert "Sorry, browser does not support geolocation!"
+    #else
+    #  alert "Sorry, browser does not support geolocation!"
+
+    @doLocation()
 
   errorHandler = (err) ->
-    if err.code is 1
-      alert "Error: Access is denied!"
-    else alert "Error: Position is unavailable!"  if err.code is 2
+  #  if err.code is 1
+  #    alert "Error: Access is denied!"
+  #  else alert "Error: Position is unavailable!"  if err.code is 2
 
   updatePosition = (position)->
-    alert "update position"
     server = Lungo.Cache.get "server"
     $$.ajax
       type: "POST"
@@ -54,7 +58,7 @@ class __Controller.WaitingCtrl extends Monocle.Controller
         latitude: position.coords.latitude
         longitude: position.coords.longitude
       success: (result) =>
-        alert "posicion actualizada. Latitud: " + position.coords.latitude + ". Longitud: " + position.coords.longitude
+        #alert "posicion actualizada. Latitud: " + position.coords.latitude + ". Longitud: " + position.coords.longitude
       error: (xhr, type) =>
         alert type.response
   
@@ -73,3 +77,23 @@ class __Controller.WaitingCtrl extends Monocle.Controller
 
   changeAvailable: =>
     @updateAvailable(driver.email, @valorAvailable[0].checked)
+
+  doBackground: =>
+    setTimeout((=>@actAvailable()) , 5000)
+
+
+  actAvailable: =>
+    if disponible
+      disponible = false
+    else
+      disponible = true
+    
+    @updateAvailable(driver.email, disponible)
+
+    @doBackground()
+
+
+      
+
+
+

@@ -55,6 +55,25 @@ class __Controller.ArriveCtrl extends Monocle.Controller
   doPickUp: (event) =>
     __Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
     Lungo.Router.section "charge_s"
+
+    #driver = Lungo.Cache.get "driver"
+    #push = Lungo.Cache.get "push"
+    #server = Lungo.Cache.get "server"
+    #$$.ajax
+    #  type: "POST"
+    #  url: server + "driver/travelstarted"
+    #  data:
+    #    email: driver.email
+    #    travelID: push.travelID
+    #    origin: no se lo que hay que poner
+    #    #estoy a que coger el punto actual por si le ha recogido en otro sitio al inicialmente acordado 
+    #    latitude: 1
+    #    longitude: 1
+    #  success: (result) =>
+    #    __Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
+    #    Lungo.Router.section "charge_s"
+    #  error: (xhr, type) =>
+    #    alert type.response        
     
   cancelPickUp: (event) =>
     Lungo.Router.section "waiting_s"

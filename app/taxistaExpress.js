@@ -192,11 +192,17 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ConfirmationCtrl = (function(_super) {
-    var timer;
+    var push, timer;
 
     __extends(ConfirmationCtrl, _super);
 
     timer = null;
+
+    push = null;
+
+    ConfirmationCtrl.prototype.elements = {
+      "#confirmation_streetField": "streetField"
+    };
 
     ConfirmationCtrl.prototype.events = {
       "tap #confirmation_accept": "acceptConfirmation",
@@ -212,10 +218,21 @@
       timer = setTimeout((function() {
         return Lungo.Router.section("waiting_s");
       }), 5000);
+      push = new Object();
+      push.origin = "Gran Via";
+      push.latitude = 43.32197354474697;
+      push.longitude = -2.9898569638094625;
+      push.travelID = 1;
+      push.valoracion = 4;
+      push.telephone = 666778899;
+      this.streetField[0].value = push.origin;
+      Lungo.Cache.set("push", push);
     }
 
     ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
+      var driver;
       this.stopTimer();
+      driver = Lungo.Cache.get("driver");
       __Controller.arrive = new __Controller.ArriveCtrl("section#arrive_s");
       return Lungo.Router.section("arrive_s");
     };
@@ -363,7 +380,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.WaitingCtrl = (function(_super) {
-    var driver, errorHandler, timer, updatePosition;
+    var disponible, driver, errorHandler, timer, updatePosition;
 
     __extends(WaitingCtrl, _super);
 
@@ -371,10 +388,13 @@
 
     driver = null;
 
+    disponible = true;
+
     WaitingCtrl.prototype.events = {
       "tap #waiting_logout": "logOut",
       "tap #waiting_confirmation": "goConfirmation",
       "tap #waiting_prueba1": "doLocation",
+      "tap #waiting_prueba2": "doBackground",
       "change #waiting_available": "changeAvailable"
     };
 
@@ -384,6 +404,8 @@
     };
 
     function WaitingCtrl() {
+      this.actAvailable = __bind(this.actAvailable, this);
+      this.doBackground = __bind(this.doBackground, this);
       this.changeAvailable = __bind(this.changeAvailable, this);
       this.updateAvailable = __bind(this.updateAvailable, this);
       this.getLocationUpdate = __bind(this.getLocationUpdate, this);
@@ -416,26 +438,16 @@
           timeout: 60000
         };
         geoLoc = navigator.geolocation;
-        return watchID = geoLoc.watchPosition(updatePosition, errorHandler, options);
-      } else {
-        return alert("Sorry, browser does not support geolocation!");
+        watchID = geoLoc.watchPosition(updatePosition, errorHandler, options);
       }
+      return this.doLocation();
     };
 
-    errorHandler = function(err) {
-      if (err.code === 1) {
-        return alert("Error: Access is denied!");
-      } else {
-        if (err.code === 2) {
-          return alert("Error: Position is unavailable!");
-        }
-      }
-    };
+    errorHandler = function(err) {};
 
     updatePosition = function(position) {
       var server,
         _this = this;
-      alert("update position");
       server = Lungo.Cache.get("server");
       return $$.ajax({
         type: "POST",
@@ -445,9 +457,7 @@
           latitude: position.coords.latitude,
           longitude: position.coords.longitude
         },
-        success: function(result) {
-          return alert("posicion actualizada. Latitud: " + position.coords.latitude + ". Longitud: " + position.coords.longitude);
-        },
+        success: function(result) {},
         error: function(xhr, type) {
           return alert(type.response);
         }
@@ -474,6 +484,23 @@
 
     WaitingCtrl.prototype.changeAvailable = function() {
       return this.updateAvailable(driver.email, this.valorAvailable[0].checked);
+    };
+
+    WaitingCtrl.prototype.doBackground = function() {
+      var _this = this;
+      return setTimeout((function() {
+        return _this.actAvailable();
+      }), 5000);
+    };
+
+    WaitingCtrl.prototype.actAvailable = function() {
+      if (disponible) {
+        disponible = false;
+      } else {
+        disponible = true;
+      }
+      this.updateAvailable(driver.email, disponible);
+      return this.doBackground();
     };
 
     return WaitingCtrl;
