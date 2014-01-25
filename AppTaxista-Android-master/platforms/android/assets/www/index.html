@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>TaxiExpress</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link rel="stylesheet" href="components/lungo/lungo.css">
+    <link rel="stylesheet" href="components/lungo/lungo.icon.css">
+    <link rel="stylesheet" href="components/lungo/lungo.theme.css">
+</head>
+<body>  
+    <section id="init_s" data-transition="fade">
+        <article id="init_a" class="splash initial">
+          <span class="logo"><img src="img/logo.png" alt=""/></span>
+          <span class="load"><img src="img/loading.gif" alt="Cargando..." /></span>
+          <span class="name">taxiexpress.com (Versión Taxista)</span>
+       </article>
+    </section>
+
+    <section id="login_s" data-transition="fade">
+        <article id="login_a" class="splash initial">
+          <span class="logo"><img src="img/logo.png" alt=""></span>
+          <div class="form initial_form">
+              <fieldset class="radius-top">
+                  <input id="login_username" type="email" placeholder="Usuario">
+              </fieldset>
+              <fieldset class="radius-bottom" >
+                  <input id="login_password" type="password" placeholder="Contraseña">
+              </fieldset>
+              <button id="login_login_b" class="anchor" data-label="Acceder" />
+          </div>
+       </article>
+    </section>
+
+    <section id="waiting_s" data-transition="fade">
+        <article id="waiting_a" class="splash initial">
+          <div id="waiting_logoutdiv">
+            <span id="waiting_driver"></span>
+            <!--<fieldset><small id ="waiting_driver"></small></fieldset>-->
+            <small id="waiting_available_label">Disponible</small>
+            <input id="waiting_available" type="checkbox" />
+            <button id="waiting_logout" data-icon="signout"></button>
+          </div>
+          <span class="logo"><img src="img/logo.png" alt=""/></span>
+          <button id="waiting_confirmation" data-label="Prueba confirmation"></button>
+          <button id="waiting_prueba1" data-label="Prueba location"></button>
+          <button id="waiting_prueba2" data-label="Prueba Background"></button>
+       </article>
+    </section>
+
+    <section id="confirmation_s" data-transition="fade">
+      <!--<header data-title="¿Desea recoger al cliente en la siguiente calle?"></header>-->
+      <article id="confirmation_a" class="street">
+        <div class="location">
+          <fieldset class="radius-bottom" >
+            <stong id="confirmation_question">¿Desea recoger al cliente en la siguiente dirección?</strong>
+            <input id="confirmation_streetField" type="text" readonly="readonly"/>
+          </fieldset>
+          <!--  <a href="#" data-image="http://www.futbolsalaragon.com/imagenes/alfonsorodriguez2012.JPG">return</a><br>-->
+        </div>
+        <button id="confirmation_accept" data-label="Aceptar"/>
+         <button id="confirmation_reject" data-label="Rechazar"/>
+      </article>
+    </section>
+
+    <section id="arrive_s" data-transition="fade">
+      <!--<article id="arrive_a" class="splash initial">-->
+      <article id="arrive_a" class="arrive">
+        <div class="location">
+          <input id="arrive_streetField" type="text" readonly="readonly" />
+          <a id="arrive_call" class="button" href="tel:8009229999" data-icon="phone"></a>
+          <!--<button id="arrive_call" data-icon="phone" ></button>-->
+          <button id="arrive_pickup" data-label="Recoger"/>
+          <button id="arrive_cancel" data-label="Cancelar"/>
+        </div>
+        <div id="map-canvas" />
+        
+        
+        <!--<button id="arrive_call"><a href=”="tel:8009229999" data-label="Llamar" data-icon="phone"></a></button>-->
+        
+      </article>
+    </section>
+
+    <section id="charge_s" data-transition="fade">
+      <article id="charge_a" class="charge">
+        <fieldset class="radius-bottom" >
+          <div>
+            <label for="option_cash"><input type="radio" name="charge_option" id="option_cash" value="cash" checked> Contado</label>
+            <label for="option_card"><input type="radio" name="charge_option" id="option_card" value="card"> Tarjeta</label>
+          </div>
+          
+          <input id="charge_amount" type="text" placeholder="Importe a cobrar"/>
+          <button id="charge_charge" data-label="Cobrar"/>
+        </fielset>
+      </article>
+    </section>
+
+    <script src="components/quojs/quo.js"></script>
+    <script src="components/monocle/monocle.js"></script>
+    <script src="components/lungo/lungo.js"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
+    <script src="app/taxistaExpress.js"></script>   
+    <script src="cordova.js"></script>
+</body>
+</html>
