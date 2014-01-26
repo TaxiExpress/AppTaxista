@@ -2,7 +2,8 @@ class __Controller.WaitingCtrl extends Monocle.Controller
   timer = null
   driver = null
   disponible = true
-  
+  watchId = undefined
+
   events:
     "tap #waiting_logout"                  : "logOut"
     "tap #waiting_confirmation"            : "goConfirmation"
@@ -19,9 +20,9 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     @driver[0].innerText = driver.last_name + ", " + driver.first_name
     
   logOut: =>
-    navigator.geolocation.clearWatch(watchId);
-    watchId = null;
-
+    navigator.geolocation.clearWatch @watchId
+    @watchId = undefined
+    #AQUI HABRIA QUE HACER UNA PETICION A SERVER PARA QUE TE PONGA A NO DISPONIBLE PARA QUE BORRE EL PUSH ID Y NO RECIBIR NADA
     Lungo.Cache.set "driver", ""
     Lungo.Router.section "login_s"
     
@@ -30,24 +31,23 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     Lungo.Router.section "confirmation_s"
   
   doLocation: =>
-    #setTimeout((=>@getLocationUpdate()) , 30000)
     @getLocationUpdate()
 
   getLocationUpdate: =>
-    #@updatePosition("conductor@gmail.com", 43.3256502, -2.990092699999991)
     if navigator.geolocation
       options = 
         enableHighAccuracy: true
-        timeout: 27000
-        maximumAge : 30000
-      watchID = navigator.geolocation.watchPosition(updatePosition, null, options)
+        timeout: 3000
+        maximumAge : 3000
+      tt = navigator.geolocation.watchPosition updatePosition, manageError, options
+      @watchId = tt
 
   stopWatch: =>
-  if watchId
-    navigator.geolocation.clearWatch(watchId);
-    watchId = null;
+    if @watchId
+      navigator.geolocation.clearWatch(@watchId)
+      @watchId = undefined
   
-  updatePosition = (position)->
+  updatePosition = (position) =>
     server = Lungo.Cache.get "server"
     $$.ajax
       type: "POST"
@@ -60,8 +60,10 @@ class __Controller.WaitingCtrl extends Monocle.Controller
         @
       error: (xhr, type) =>
         @
-        #alert type.response
-  
+
+  manageError = =>
+    console.log "ERROR"
+
   updateAvailable: (email, available) =>
     server = Lungo.Cache.get "server"
     $$.ajax
@@ -81,8 +83,3 @@ class __Controller.WaitingCtrl extends Monocle.Controller
       @getLocationUpdate()
     else
       @stopWatch()
-
-      
-
-
-

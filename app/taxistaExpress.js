@@ -380,7 +380,8 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.WaitingCtrl = (function(_super) {
-    var disponible, driver, timer, updatePosition, watchId;
+    var disponible, driver, manageError, timer, updatePosition, watchId,
+      _this = this;
 
     __extends(WaitingCtrl, _super);
 
@@ -389,6 +390,8 @@
     driver = null;
 
     disponible = true;
+
+    watchId = void 0;
 
     WaitingCtrl.prototype.events = {
       "tap #waiting_logout": "logOut",
@@ -416,9 +419,8 @@
     }
 
     WaitingCtrl.prototype.logOut = function() {
-      var watchId;
-      navigator.geolocation.clearWatch(watchId);
-      watchId = null;
+      navigator.geolocation.clearWatch(this.watchId);
+      this.watchId = void 0;
       Lungo.Cache.set("driver", "");
       return Lungo.Router.section("login_s");
     };
@@ -433,27 +435,27 @@
     };
 
     WaitingCtrl.prototype.getLocationUpdate = function() {
-      var options, watchID;
+      var options, tt;
       if (navigator.geolocation) {
         options = {
           enableHighAccuracy: true,
-          timeout: 27000,
-          maximumAge: 30000
+          timeout: 3000,
+          maximumAge: 3000
         };
-        return watchID = navigator.geolocation.watchPosition(updatePosition, null, options);
+        tt = navigator.geolocation.watchPosition(updatePosition, manageError, options);
+        return this.watchId = tt;
       }
     };
 
-    WaitingCtrl.prototype.stopWatch = function() {};
-
-    if (watchId) {
-      navigator.geolocation.clearWatch(watchId);
-      watchId = null;
-    }
+    WaitingCtrl.prototype.stopWatch = function() {
+      if (this.watchId) {
+        navigator.geolocation.clearWatch(this.watchId);
+        return this.watchId = void 0;
+      }
+    };
 
     updatePosition = function(position) {
-      var server,
-        _this = this;
+      var server;
       server = Lungo.Cache.get("server");
       return $$.ajax({
         type: "POST",
@@ -464,12 +466,16 @@
           longitude: position.coords.longitude
         },
         success: function(result) {
-          return _this;
+          return WaitingCtrl;
         },
         error: function(xhr, type) {
-          return _this;
+          return WaitingCtrl;
         }
       });
+    };
+
+    manageError = function() {
+      return console.log("ERROR");
     };
 
     WaitingCtrl.prototype.updateAvailable = function(email, available) {
@@ -501,6 +507,6 @@
 
     return WaitingCtrl;
 
-  })(Monocle.Controller);
+  }).call(this, Monocle.Controller);
 
 }).call(this);
