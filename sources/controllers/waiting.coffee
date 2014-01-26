@@ -7,7 +7,6 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     "tap #waiting_logout"                  : "logOut"
     "tap #waiting_confirmation"            : "goConfirmation"
     "tap #waiting_prueba1"                 : "doLocation"
-    "tap #waiting_prueba2"                 : "doBackground"
     "change #waiting_available"            : "changeAvailable"
 
   elements:
@@ -20,6 +19,9 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     @driver[0].innerText = driver.last_name + ", " + driver.first_name
     
   logOut: =>
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+
     Lungo.Cache.set "driver", ""
     Lungo.Router.section "login_s"
     
@@ -34,20 +36,17 @@ class __Controller.WaitingCtrl extends Monocle.Controller
   getLocationUpdate: =>
     #@updatePosition("conductor@gmail.com", 43.3256502, -2.990092699999991)
     if navigator.geolocation
-      # timeout at 60000 milliseconds (60 seconds)
-      options = timeout: 60000
-      geoLoc = navigator.geolocation
-      watchID = geoLoc.watchPosition(updatePosition, errorHandler, options)
-    #else
-    #  alert "Sorry, browser does not support geolocation!"
+      options = 
+        enableHighAccuracy: true
+        timeout: 27000
+        maximumAge : 30000
+      watchID = navigator.geolocation.watchPosition(updatePosition, null, options)
 
-    @doLocation()
-
-  errorHandler = (err) ->
-  #  if err.code is 1
-  #    alert "Error: Access is denied!"
-  #  else alert "Error: Position is unavailable!"  if err.code is 2
-
+  stopWatch: =>
+  if watchId
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+  
   updatePosition = (position)->
     server = Lungo.Cache.get "server"
     $$.ajax
@@ -58,9 +57,10 @@ class __Controller.WaitingCtrl extends Monocle.Controller
         latitude: position.coords.latitude
         longitude: position.coords.longitude
       success: (result) =>
-        #alert "posicion actualizada. Latitud: " + position.coords.latitude + ". Longitud: " + position.coords.longitude
+        @
       error: (xhr, type) =>
-        alert type.response
+        @
+        #alert type.response
   
   updateAvailable: (email, available) =>
     server = Lungo.Cache.get "server"
@@ -77,21 +77,10 @@ class __Controller.WaitingCtrl extends Monocle.Controller
 
   changeAvailable: =>
     @updateAvailable(driver.email, @valorAvailable[0].checked)
-
-  doBackground: =>
-    setTimeout((=>@actAvailable()) , 5000)
-
-
-  actAvailable: =>
-    if disponible
-      disponible = false
+    if @valorAvailable[0].checked
+      @getLocationUpdate()
     else
-      disponible = true
-    
-    @updateAvailable(driver.email, disponible)
-
-    @doBackground()
-
+      @stopWatch()
 
       
 

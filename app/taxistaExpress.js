@@ -380,7 +380,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.WaitingCtrl = (function(_super) {
-    var disponible, driver, errorHandler, timer, updatePosition;
+    var disponible, driver, timer, updatePosition, watchId;
 
     __extends(WaitingCtrl, _super);
 
@@ -394,7 +394,6 @@
       "tap #waiting_logout": "logOut",
       "tap #waiting_confirmation": "goConfirmation",
       "tap #waiting_prueba1": "doLocation",
-      "tap #waiting_prueba2": "doBackground",
       "change #waiting_available": "changeAvailable"
     };
 
@@ -404,10 +403,9 @@
     };
 
     function WaitingCtrl() {
-      this.actAvailable = __bind(this.actAvailable, this);
-      this.doBackground = __bind(this.doBackground, this);
       this.changeAvailable = __bind(this.changeAvailable, this);
       this.updateAvailable = __bind(this.updateAvailable, this);
+      this.stopWatch = __bind(this.stopWatch, this);
       this.getLocationUpdate = __bind(this.getLocationUpdate, this);
       this.doLocation = __bind(this.doLocation, this);
       this.goConfirmation = __bind(this.goConfirmation, this);
@@ -418,6 +416,9 @@
     }
 
     WaitingCtrl.prototype.logOut = function() {
+      var watchId;
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
       Lungo.Cache.set("driver", "");
       return Lungo.Router.section("login_s");
     };
@@ -432,18 +433,23 @@
     };
 
     WaitingCtrl.prototype.getLocationUpdate = function() {
-      var geoLoc, options, watchID;
+      var options, watchID;
       if (navigator.geolocation) {
         options = {
-          timeout: 60000
+          enableHighAccuracy: true,
+          timeout: 27000,
+          maximumAge: 30000
         };
-        geoLoc = navigator.geolocation;
-        watchID = geoLoc.watchPosition(updatePosition, errorHandler, options);
+        return watchID = navigator.geolocation.watchPosition(updatePosition, null, options);
       }
-      return this.doLocation();
     };
 
-    errorHandler = function(err) {};
+    WaitingCtrl.prototype.stopWatch = function() {};
+
+    if (watchId) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+    }
 
     updatePosition = function(position) {
       var server,
@@ -457,9 +463,11 @@
           latitude: position.coords.latitude,
           longitude: position.coords.longitude
         },
-        success: function(result) {},
+        success: function(result) {
+          return _this;
+        },
         error: function(xhr, type) {
-          return alert(type.response);
+          return _this;
         }
       });
     };
@@ -483,24 +491,12 @@
     };
 
     WaitingCtrl.prototype.changeAvailable = function() {
-      return this.updateAvailable(driver.email, this.valorAvailable[0].checked);
-    };
-
-    WaitingCtrl.prototype.doBackground = function() {
-      var _this = this;
-      return setTimeout((function() {
-        return _this.actAvailable();
-      }), 5000);
-    };
-
-    WaitingCtrl.prototype.actAvailable = function() {
-      if (disponible) {
-        disponible = false;
+      this.updateAvailable(driver.email, this.valorAvailable[0].checked);
+      if (this.valorAvailable[0].checked) {
+        return this.getLocationUpdate();
       } else {
-        disponible = true;
+        return this.stopWatch();
       }
-      this.updateAvailable(driver.email, disponible);
-      return this.doBackground();
     };
 
     return WaitingCtrl;
