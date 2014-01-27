@@ -41,6 +41,7 @@ class __Controller.LoginCtrl extends Monocle.Controller
       alert "Debe rellenar el email y la contraseña"
 
   valideCredentials: (email, pass)=>
+    pushID = Lungo.Cache.get "pushID"
     server = Lungo.Cache.get "server"
     $$.ajax
       type: "POST"
@@ -48,6 +49,7 @@ class __Controller.LoginCtrl extends Monocle.Controller
       data:
         email: email
         password: pass
+        pushID: pushID
       success: (result) =>
         @parseResponse result
       error: (xhr, type) =>
@@ -70,7 +72,8 @@ class __Controller.LoginCtrl extends Monocle.Controller
     driver.first_name = result.first_name
     driver.last_name = result.last_name
     Lungo.Cache.set "driver", driver
-      
+    
+    __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
     __Controller.waiting = new __Controller.WaitingCtrl "section#waiting_s"
     Lungo.Router.section "waiting_s"
 

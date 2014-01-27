@@ -2,36 +2,55 @@ class __Controller.ChargeCtrl extends Monocle.Controller
 
 	elements:
     "#charge_amount"                 : "amount"
+    "#option_cash"                   : "valorCash"
+    "#option_card"                   : "valorCard"
 
 	events:
     "tap #charge_charge"             : "doCharge"
     
   constructor: ->
     super
+
+  iniLocation = (location) =>
+    currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
+    travel.latitude = location.latitude
+    travel.longitude = location.longitude
+    travel.destination = @getStreet(currentLocation)  
+
+  manageErrors = =>
+    console.log "ERROR"
     
   doCharge: (event) =>
     correcto = @valideAmount(@amount[0].value)
     if correcto
-      Lungo.Router.section "waiting_s"
+      travel = Lungo.Cache.get "travel"
 
-      #driver = Lungo.Cache.get "driver"
-      #push = Lungo.Cache.get "push"
-      #server = Lungo.Cache.get "server"
-      #$$.ajax
-      #  type: "POST"
-      #  url: server + "driver/travelcompleted"
-      #  data:
-      #    travelID: push.travelID
-      #    email: driver.email
-      #    destination: preguntar a david
-      #    latitude: ?
-      #    longitude: ?
-      #    appPayment: ?
-      #    cost: @amount[0].value
-      #  success: (result) =>
-      #    Lungo.Router.section "waiting_s"
-      #  error: (xhr, type) =>
-      #    alert type.response        
+      if navigator.geolocation
+        options =
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        navigator.geolocation.getCurrentPosition iniLocation, manageErrors
+    
+      driver = Lungo.Cache.get "driver"
+      server = Lungo.Cache.get "server"
+      $$.ajax
+        type: "POST"
+        url: server + "driver/travelcompleted"
+        data:
+          travelID: travel.id
+          email: driver.email
+          destination: travel.destination
+          latitude: travel.latitude
+          longitude: travel.longitude
+          appPayment: @valorCard[0].checked
+          cost: @amount[0].value
+        success: (result) =>
+          Lungo.Router.section "waiting_s"
+        error: (xhr, type) =>
+          alert type.response        
+
+      Lungo.Router.section "waiting_s"
 
   valideAmount: (amount) =>
     # how many decimals are allowed?

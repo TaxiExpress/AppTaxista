@@ -18,6 +18,7 @@
 
   $$(function() {
     Lungo.init({});
+    __Controller.push = new __Controller.PushCtrl;
     return __Controller.App = new __Controller.AppCtrl("section#init_s");
   });
 
@@ -29,14 +30,12 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ArriveCtrl = (function(_super) {
-    var initialize, manageErrors, map, street,
+    var getStreet, iniLocation, initialize, manageErrors, map,
       _this = this;
 
     __extends(ArriveCtrl, _super);
 
     map = void 0;
-
-    street = "Aldapabarrena kalea";
 
     ArriveCtrl.prototype.elements = {
       "#arrive_streetField": "streetField"
@@ -52,9 +51,9 @@
       this.doCall = __bind(this.doCall, this);
       this.cancelPickUp = __bind(this.cancelPickUp, this);
       this.doPickUp = __bind(this.doPickUp, this);
-      var options;
+      var options, travel;
       ArriveCtrl.__super__.constructor.apply(this, arguments);
-      this.streetField[0].value = street;
+      travel = Lungo.Cache.get("travel");
       if (navigator.geolocation) {
         options = {
           enableHighAccuracy: true,
@@ -74,11 +73,11 @@
     };
 
     initialize = function(location) {
-      var currentLocation, mapOptions, marker;
+      var arriveLocation, mapOptions, marker;
       if (map === void 0) {
-        currentLocation = new google.maps.LatLng(43.32197354474697, -2.9898569638094625);
+        arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude);
         mapOptions = {
-          center: currentLocation,
+          center: arriveLocation,
           zoom: 16,
           mapTypeId: google.maps.MapTypeId.ROADMAP,
           panControl: false,
@@ -100,16 +99,53 @@
         };
         map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
         return marker = new google.maps.Marker({
-          position: currentLocation,
+          position: arriveLocation,
           map: map,
           title: street
         });
       }
     };
 
+    iniLocation = function(location) {
+      var currentLocation;
+      currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude);
+      travel.latitude = location.latitude;
+      travel.longitude = location.longitude;
+      return travel.newOrigin = ArriveCtrl.getStreet(currentLocation);
+    };
+
     ArriveCtrl.prototype.doPickUp = function(event) {
-      __Controller.charge = new __Controller.ChargeCtrl("section#charge_s");
-      return Lungo.Router.section("charge_s");
+      var driver, options, push, server,
+        _this = this;
+      if (navigator.geolocation) {
+        options = {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        };
+        navigator.geolocation.getCurrentPosition(iniLocation, manageErrors);
+      }
+      driver = Lungo.Cache.get("driver");
+      push = Lungo.Cache.get("push");
+      server = Lungo.Cache.get("server");
+      return $$.ajax({
+        type: "POST",
+        url: server + "driver/travelstarted",
+        data: {
+          email: driver.email,
+          travelID: push.travelID,
+          origin: travel.newOrigin,
+          latitude: travel.latitude,
+          longitude: travel.longitude
+        },
+        success: function(result) {
+          __Controller.charge = new __Controller.ChargeCtrl("section#charge_s");
+          return Lungo.Router.section("charge_s");
+        },
+        error: function(xhr, type) {
+          return alert(type.response);
+        }
+      });
     };
 
     ArriveCtrl.prototype.cancelPickUp = function(event) {
@@ -119,6 +155,28 @@
     ArriveCtrl.prototype.doCall = function(event) {
       alert("llamando");
       return document.getElementById("fdw").onclick();
+    };
+
+    getStreet = function(pos) {
+      var geocoder;
+      geocoder = new google.maps.Geocoder();
+      return geocoder.geocode({
+        latLng: pos
+      }, function(results, status) {
+        if (status === google.maps.GeocoderStatus.OK) {
+          if (results[1]) {
+            if (results[0].address_components[1].short_name === results[0].address_components[0].short_name) {
+              return results[0].address_components[1].short_name;
+            } else {
+              return results[0].address_components[1].short_name + ", " + results[0].address_components[0].short_name;
+            }
+          } else {
+            return 'Calle desconocida';
+          }
+        } else {
+          return 'Calle desconocida';
+        }
+      });
     };
 
     return ArriveCtrl;
@@ -133,10 +191,15 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ChargeCtrl = (function(_super) {
+    var iniLocation, manageErrors,
+      _this = this;
+
     __extends(ChargeCtrl, _super);
 
     ChargeCtrl.prototype.elements = {
-      "#charge_amount": "amount"
+      "#charge_amount": "amount",
+      "#option_cash": "valorCash",
+      "#option_card": "valorCard"
     };
 
     ChargeCtrl.prototype.events = {
@@ -149,10 +212,53 @@
       ChargeCtrl.__super__.constructor.apply(this, arguments);
     }
 
+    iniLocation = function(location) {
+      var currentLocation;
+      currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude);
+      travel.latitude = location.latitude;
+      travel.longitude = location.longitude;
+      return travel.destination = ChargeCtrl.getStreet(currentLocation);
+    };
+
+    manageErrors = function() {
+      return console.log("ERROR");
+    };
+
     ChargeCtrl.prototype.doCharge = function(event) {
-      var correcto;
+      var correcto, driver, options, server, travel,
+        _this = this;
       correcto = this.valideAmount(this.amount[0].value);
       if (correcto) {
+        travel = Lungo.Cache.get("travel");
+        if (navigator.geolocation) {
+          options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          };
+          navigator.geolocation.getCurrentPosition(iniLocation, manageErrors);
+        }
+        driver = Lungo.Cache.get("driver");
+        server = Lungo.Cache.get("server");
+        $$.ajax({
+          type: "POST",
+          url: server + "driver/travelcompleted",
+          data: {
+            travelID: travel.id,
+            email: driver.email,
+            destination: travel.destination,
+            latitude: travel.latitude,
+            longitude: travel.longitude,
+            appPayment: this.valorCard[0].checked,
+            cost: this.amount[0].value
+          },
+          success: function(result) {
+            return Lungo.Router.section("waiting_s");
+          },
+          error: function(xhr, type) {
+            return alert(type.response);
+          }
+        });
         return Lungo.Router.section("waiting_s");
       }
     };
@@ -182,7 +288,7 @@
 
     return ChargeCtrl;
 
-  })(Monocle.Controller);
+  }).call(this, Monocle.Controller);
 
 }).call(this);
 
@@ -192,13 +298,13 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ConfirmationCtrl = (function(_super) {
-    var push, timer;
+    var timer, travel;
 
     __extends(ConfirmationCtrl, _super);
 
     timer = null;
 
-    push = null;
+    travel = null;
 
     ConfirmationCtrl.prototype.elements = {
       "#confirmation_streetField": "streetField"
@@ -218,23 +324,32 @@
       timer = setTimeout((function() {
         return Lungo.Router.section("waiting_s");
       }), 5000);
-      push = new Object();
-      push.origin = "Gran Via";
-      push.latitude = 43.32197354474697;
-      push.longitude = -2.9898569638094625;
-      push.travelID = 1;
-      push.valoracion = 4;
-      push.telephone = 666778899;
-      this.streetField[0].value = push.origin;
-      Lungo.Cache.set("push", push);
+      travel = Lungo.Cache.get("travel");
     }
 
     ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
-      var driver;
-      this.stopTimer();
+      var driver, server,
+        _this = this;
       driver = Lungo.Cache.get("driver");
-      __Controller.arrive = new __Controller.ArriveCtrl("section#arrive_s");
-      return Lungo.Router.section("arrive_s");
+      server = Lungo.Cache.get("server");
+      $$.ajax({
+        type: "POST",
+        url: server + "driver/accepttravel",
+        data: {
+          email: driver.email,
+          travelID: travel.id,
+          latitude: travel.latitude,
+          longitude: travel.longitude
+        },
+        success: function(result) {
+          __Controller.arrive = new __Controller.ArriveCtrl("section#arrive_s");
+          return Lungo.Router.section("arrive_s");
+        },
+        error: function(xhr, type) {
+          return alert(type.response);
+        }
+      });
+      return this.stopTimer();
     };
 
     ConfirmationCtrl.prototype.rejectConfirmation = function(event) {
@@ -302,15 +417,17 @@
     };
 
     LoginCtrl.prototype.valideCredentials = function(email, pass) {
-      var server,
+      var pushID, server,
         _this = this;
+      pushID = Lungo.Cache.get("pushID");
       server = Lungo.Cache.get("server");
       return $$.ajax({
         type: "POST",
         url: server + "driver/login",
         data: {
           email: email,
-          password: pass
+          password: pass,
+          pushID: pushID
         },
         success: function(result) {
           return _this.parseResponse(result);
@@ -343,6 +460,7 @@
       driver.first_name = result.first_name;
       driver.last_name = result.last_name;
       Lungo.Cache.set("driver", driver);
+      __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
       __Controller.waiting = new __Controller.WaitingCtrl("section#waiting_s");
       return Lungo.Router.section("waiting_s");
     };
@@ -379,8 +497,63 @@
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  __Controller.PushCtrl = (function(_super) {
+    var pushNotification;
+
+    __extends(PushCtrl, _super);
+
+    pushNotification = void 0;
+
+    function PushCtrl() {
+      this.handlePush = __bind(this.handlePush, this);
+      this.savePushID = __bind(this.savePushID, this);
+      PushCtrl.__super__.constructor.apply(this, arguments);
+    }
+
+    PushCtrl.prototype.savePushID = function(id) {
+      return Lungo.Cache.set("pushID", id);
+    };
+
+    PushCtrl.prototype.handlePush = function(notification) {
+      var coords, lat, long, pos, travel;
+      switch (notification.code) {
+        case "801":
+        case "802":
+          travel = new Object();
+          travel.id = notification.travelID;
+          travel.origin = notification.origin;
+          travel.startpoint = notification.startpoint;
+          coords = travel.startpoint.substring(7);
+          pos = coords.indexOf(" ");
+          long = coords.substring(0, pos);
+          lat = coords.substring(pos + 1, coords.indexOf(")"));
+          travel.latitude = lat;
+          travel.longitude = long;
+          travel.valuation = notification.valuation;
+          travel.phone = notification.phone;
+          Lungo.Cache.set("travel", travel);
+          Lungo.Router.section("confirmation_s");
+          return navigator.notification.alert("El taxista ha aceptado su solicitud", null, "Taxi Express", "Aceptar");
+        case "803":
+          Lungo.Router.section("waiting_s");
+          return navigator.notification.alert("El pago se ha realizado correctamente", null, "Taxi Express", "Aceptar");
+      }
+    };
+
+    return PushCtrl;
+
+  })(Monocle.Controller);
+
+}).call(this);
+
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
   __Controller.WaitingCtrl = (function(_super) {
-    var disponible, driver, errorHandler, timer, updatePosition;
+    var disponible, driver, manageError, timer, updatePosition, watchId,
+      _this = this;
 
     __extends(WaitingCtrl, _super);
 
@@ -390,11 +563,12 @@
 
     disponible = true;
 
+    watchId = void 0;
+
     WaitingCtrl.prototype.events = {
       "tap #waiting_logout": "logOut",
       "tap #waiting_confirmation": "goConfirmation",
       "tap #waiting_prueba1": "doLocation",
-      "tap #waiting_prueba2": "doBackground",
       "change #waiting_available": "changeAvailable"
     };
 
@@ -404,10 +578,9 @@
     };
 
     function WaitingCtrl() {
-      this.actAvailable = __bind(this.actAvailable, this);
-      this.doBackground = __bind(this.doBackground, this);
       this.changeAvailable = __bind(this.changeAvailable, this);
       this.updateAvailable = __bind(this.updateAvailable, this);
+      this.stopWatch = __bind(this.stopWatch, this);
       this.getLocationUpdate = __bind(this.getLocationUpdate, this);
       this.doLocation = __bind(this.doLocation, this);
       this.goConfirmation = __bind(this.goConfirmation, this);
@@ -418,6 +591,8 @@
     }
 
     WaitingCtrl.prototype.logOut = function() {
+      navigator.geolocation.clearWatch(this.watchId);
+      this.watchId = void 0;
       Lungo.Cache.set("driver", "");
       return Lungo.Router.section("login_s");
     };
@@ -432,22 +607,27 @@
     };
 
     WaitingCtrl.prototype.getLocationUpdate = function() {
-      var geoLoc, options, watchID;
+      var options, tt;
       if (navigator.geolocation) {
         options = {
-          timeout: 60000
+          enableHighAccuracy: true,
+          timeout: 3000,
+          maximumAge: 3000
         };
-        geoLoc = navigator.geolocation;
-        watchID = geoLoc.watchPosition(updatePosition, errorHandler, options);
+        tt = navigator.geolocation.watchPosition(updatePosition, manageError, options);
+        return this.watchId = tt;
       }
-      return this.doLocation();
     };
 
-    errorHandler = function(err) {};
+    WaitingCtrl.prototype.stopWatch = function() {
+      if (this.watchId) {
+        navigator.geolocation.clearWatch(this.watchId);
+        return this.watchId = void 0;
+      }
+    };
 
     updatePosition = function(position) {
-      var server,
-        _this = this;
+      var server;
       server = Lungo.Cache.get("server");
       return $$.ajax({
         type: "POST",
@@ -457,11 +637,17 @@
           latitude: position.coords.latitude,
           longitude: position.coords.longitude
         },
-        success: function(result) {},
+        success: function(result) {
+          return WaitingCtrl;
+        },
         error: function(xhr, type) {
-          return alert(type.response);
+          return WaitingCtrl;
         }
       });
+    };
+
+    manageError = function() {
+      return console.log("ERROR");
     };
 
     WaitingCtrl.prototype.updateAvailable = function(email, available) {
@@ -483,28 +669,16 @@
     };
 
     WaitingCtrl.prototype.changeAvailable = function() {
-      return this.updateAvailable(driver.email, this.valorAvailable[0].checked);
-    };
-
-    WaitingCtrl.prototype.doBackground = function() {
-      var _this = this;
-      return setTimeout((function() {
-        return _this.actAvailable();
-      }), 5000);
-    };
-
-    WaitingCtrl.prototype.actAvailable = function() {
-      if (disponible) {
-        disponible = false;
+      this.updateAvailable(driver.email, this.valorAvailable[0].checked);
+      if (this.valorAvailable[0].checked) {
+        return this.getLocationUpdate();
       } else {
-        disponible = true;
+        return this.stopWatch();
       }
-      this.updateAvailable(driver.email, disponible);
-      return this.doBackground();
     };
 
     return WaitingCtrl;
 
-  })(Monocle.Controller);
+  }).call(this, Monocle.Controller);
 
 }).call(this);

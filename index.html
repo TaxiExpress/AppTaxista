@@ -84,8 +84,8 @@
       <article id="charge_a" class="charge">
         <fieldset class="radius-bottom" >
           <div>
-            <label for="option_cash"><input type="radio" name="charge_option" id="option_cash" value="cash" checked> Contado</label>
-            <label for="option_card"><input type="radio" name="charge_option" id="option_card" value="card"> Tarjeta</label>
+            <label for="option_cash"><input type="radio" name="charge_option" id="option_cash" value="false" checked> Contado</label>
+            <label for="option_card"><input type="radio" name="charge_option" id="option_card" value="true"> Tarjeta</label>
           </div>
           
           <input id="charge_amount" type="text" placeholder="Importe a cobrar"/>
@@ -100,5 +100,95 @@
     <script src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
     <script src="app/taxistaExpress.js"></script>   
     <script src="cordova.js"></script>
+    <script src="PushNotification.js"></script>
+    <script type="text/javascript">
+        var pushNotification;
+        
+        function onDeviceReady() {
+            try 
+            { 
+                pushNotification = window.plugins.pushNotification;
+                pushNotification.register(successHandler, errorHandler, {"senderID":"513061017666","ecb":"onNotificationGCM"});
+            }
+            catch(err) 
+            { 
+                txt="There was an error on this page.\n\n"; 
+                txt+="Error description: " + err.message + "\n\n"; 
+                alert(txt); 
+            } 
+        }
+        
+        // handle APNS notifications for iOS
+        function onNotificationAPN(e) {
+            if (e.alert) {
+                 alert('<li>push-notification: ' + e.alert + '</li>');
+                 navigator.notification.alert(e.alert);
+            }
+                
+            if (e.sound) {
+                var snd = new Media(e.sound);
+                snd.play();
+            }
+            
+            if (e.badge) {
+                pushNotification.setApplicationIconBadgeNumber(successHandler, e.badge);
+            }
+        }
+        
+        // handle GCM notifications for Android
+        function onNotificationGCM(e) {
+            
+            switch( e.event )
+            {
+                case 'registered':
+                if ( e.regid.length > 0 )
+                {
+                    alert("dsa");
+                    alert(e.regid);
+                    __Controller.push.savePushID(e.regid);
+                }
+                break;
+                
+                case 'message':
+                    if (e.foreground)
+                    {
+                        __Controller.push.handlePush(e.payload);
+                        var my_media = new Media("/android_asset/www/"+e.soundname);
+                        my_media.play();
+                    }
+                    else
+                    {   // otherwise we were launched because the user touched a notification in the notification tray.
+                        if (e.coldstart)
+                            alert('<li>--COLDSTART NOTIFICATION--' + '</li>');
+                        else
+                            __Controller.push.handlePush(e.payload);
+                    }
+                break;
+                
+                case 'error':
+                    alert('<li>ERROR -> MSG:' + e.msg + '</li>');
+                break;
+                
+                default:
+                    alert('<li>EVENT -> Unknown, an event was received and we do not know what it is</li>');
+                break;
+            }
+        }
+        
+        function tokenHandler (result) {
+            console.log('<li>token: '+ result +'</li>');
+        }
+        
+        function successHandler (result) {
+            console.log('<li>success:'+ result +'</li>');
+        }
+        
+        function errorHandler (error) {
+            console.log('<li>error:'+ error +'</li>');
+        }
+        
+        document.addEventListener('deviceready', onDeviceReady, true);
+
+    </script>
 </body>
 </html>
