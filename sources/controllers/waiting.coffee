@@ -22,7 +22,9 @@ class __Controller.WaitingCtrl extends Monocle.Controller
   logOut: =>
     navigator.geolocation.clearWatch @watchId
     @watchId = undefined
-    #AQUI HABRIA QUE HACER UNA PETICION A SERVER PARA QUE TE PONGA A NO DISPONIBLE PARA QUE BORRE EL PUSH ID Y NO RECIBIR NADA
+    #AQUI HABRIA QUE HACER UNA PETICION A SERVER PARA QUE TE PONGA A NO DISPONIBLE
+    Lungo.Cache.set "pushID", undefined
+    @updateAvailable(driver.email, false)
     Lungo.Cache.set "driver", ""
     Lungo.Router.section "login_s"
     

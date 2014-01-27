@@ -23,20 +23,6 @@ class __Controller.LoginCtrl extends Monocle.Controller
       date = new Date("1/1/1970").toISOString().substring 0, 19
       date = date.replace "T", " "
       @valideCredentials(@username[0].value, @password[0].value, date)
-          
-
-      # borrarlo cuando active las credenciales
-      #__Controller.waiting = new __Controller.WaitingCtrl "section#waiting_s"
-      #Lungo.Router.section "waiting_s"
-      #@db.transaction (tx) =>
-      #  sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('"+@username[0].value+"','"+@password[0].value+"');"
-      #  tx.executeSql sql
-
-      #__Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
-      #Lungo.Router.section "confirmation_s"
-      #@checkPosition()
-      #@updatePosition(@username[0].value, 43.3256502, -2.990092699999991)
-      # borrar hasta aquí
     else
       alert "Debe rellenar el email y la contraseña"
 

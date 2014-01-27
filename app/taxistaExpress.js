@@ -593,6 +593,8 @@
     WaitingCtrl.prototype.logOut = function() {
       navigator.geolocation.clearWatch(this.watchId);
       this.watchId = void 0;
+      Lungo.Cache.set("pushID", void 0);
+      this.updateAvailable(driver.email, false);
       Lungo.Cache.set("driver", "");
       return Lungo.Router.section("login_s");
     };
