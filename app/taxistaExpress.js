@@ -420,26 +420,33 @@
       var pushID, server,
         _this = this;
       pushID = Lungo.Cache.get("pushID");
-      server = Lungo.Cache.get("server");
-      return $$.ajax({
-        type: "POST",
-        url: server + "driver/login",
-        data: {
-          email: email,
-          password: pass,
-          pushID: pushID
-        },
-        success: function(result) {
-          return _this.parseResponse(result);
-        },
-        error: function(xhr, type) {
-          setTimeout((function() {
-            return Lungo.Router.section("login_s");
-          }), 500);
-          _this.password[0].value = "";
-          return alert(type.response);
-        }
-      });
+      if (pushID === void 0) {
+        return setTimeout((function() {
+          pushID = Lungo.Cache.get("pushID");
+          return _this.valideCredentials(email, pass, pushID);
+        }), 500);
+      } else {
+        server = Lungo.Cache.get("server");
+        return $$.ajax({
+          type: "POST",
+          url: server + "driver/login",
+          data: {
+            email: email,
+            password: pass,
+            pushID: pushID
+          },
+          success: function(result) {
+            return _this.parseResponse(result);
+          },
+          error: function(xhr, type) {
+            setTimeout((function() {
+              return Lungo.Router.section("login_s");
+            }), 500);
+            _this.password[0].value = "";
+            return alert(type.response);
+          }
+        });
+      }
     };
 
     LoginCtrl.prototype.parseResponse = function(result) {

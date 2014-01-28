@@ -420,26 +420,38 @@
       var pushID, server,
         _this = this;
       pushID = Lungo.Cache.get("pushID");
-      server = Lungo.Cache.get("server");
-      return $$.ajax({
-        type: "POST",
-        url: server + "driver/login",
-        data: {
-          email: email,
-          password: pass,
-          pushID: pushID
-        },
-        success: function(result) {
-          return _this.parseResponse(result);
-        },
-        error: function(xhr, type) {
-          setTimeout((function() {
-            return Lungo.Router.section("login_s");
-          }), 500);
-          _this.password[0].value = "";
-          return alert(type.response);
-        }
-      });
+      alert("validate  " + pushID);
+      if (pushID === void 0) {
+        alert("pushID undefined");
+        return setTimeout((function() {
+          pushID = Lungo.Cache.get("pushID");
+          alert(pushID);
+          alert(pushID.toString());
+          return _this.valideCredentials(email, pass, pushID.toString());
+        }), 500);
+      } else {
+        alert("pushID OK");
+        server = Lungo.Cache.get("server");
+        return $$.ajax({
+          type: "POST",
+          url: server + "driver/login",
+          data: {
+            email: email,
+            password: pass,
+            pushID: pushID
+          },
+          success: function(result) {
+            return _this.parseResponse(result);
+          },
+          error: function(xhr, type) {
+            setTimeout((function() {
+              return Lungo.Router.section("login_s");
+            }), 500);
+            _this.password[0].value = "";
+            return alert(type.response);
+          }
+        });
+      }
     };
 
     LoginCtrl.prototype.parseResponse = function(result) {
@@ -511,7 +523,7 @@
     }
 
     PushCtrl.prototype.savePushID = function(id) {
-      return Lungo.Cache.set("pushID", id);
+      return Lungo.Cache.set("pushID", id.toString());
     };
 
     PushCtrl.prototype.handlePush = function(notification) {
@@ -593,6 +605,8 @@
     WaitingCtrl.prototype.logOut = function() {
       navigator.geolocation.clearWatch(this.watchId);
       this.watchId = void 0;
+      Lungo.Cache.set("pushID", void 0);
+      this.updateAvailable(driver.email, false);
       Lungo.Cache.set("driver", "");
       return Lungo.Router.section("login_s");
     };
