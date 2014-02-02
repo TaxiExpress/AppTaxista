@@ -647,6 +647,8 @@ display:block;
 margin: 5px auto;
 */
 
+
+
 .street button{z-index:1!important; font-family:'Open Sans'; outline:none; display: block; border-radius:6px; }
 .street button#confirmation_accept{color: #444}
 .street button#confirmation_reject{background-color: #444; color: #ffcc00}
@@ -663,31 +665,10 @@ margin: 5px auto;
 	.street .location #confirmation_question{font-size:16px;}
 }
 
-/*
-.street .location button{z-index:1!important; font-family:'Open Sans'; outline:none; position:absolute!important; color: #444; left:10px; right: 10px; height:80px; width:auto!important; font-size:30px; border-radius:6px; }
-.street .location #confirmation_accept{bottom:105px;}
-.street .location #confirmation_reject{bottom:10px;}
-.street .location input{z-index:1!important; font-family:'Open Sans'; outline:none; position:absolute; bottom:200px; left:10px; right: 10px; height:80px; width:auto; font-size:24px; padding-left:5px; padding-right:5px; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden;}
-.arrive button{z-index:1!important; font-family:'Open Sans'; outline:none; position:absolute!important; color: #444; left:10px; right: 10px; height:150px; width:auto!important; font-size:30px; border-radius:6px; }
-.arrive #arrive_pickup{bottom:450px;}
-.arrive #arrive_cancel{bottom:250px;}
-.arrive #arrive_call{bottom:50px;}
-
-*/
 .arrive .location input{position: absolute; z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; margin-top: 1%; left: 10px;}
 .arrive .location button,
 .arrive .location a{position: absolute; z-index:1!important; font-family:'Open Sans'; outline:none; border-radius:6px;}
-/*
-.arrive .location input{font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; margin-top: 1%; float: left;}
-.arrive button{font-family:'Open Sans'; outline:none; border-radius:6px; float: left;}
-.arrive button{
-	display: table-cell;
-	vertical-align: middle;
-	z-index:1!important; font-family:'Open Sans'; outline:none; border-radius:6px;}
-*/
-/*@media screen and (max-width: 480) and (orientation: portrait){*/
 
-/*.arrive .location button#arrive_call{margin-top: 1%; right: 5px; background-color: green;}*/
 .arrive .location a#arrive_call{margin-top: 1%; right: 5px; background-color: green;}
 
 .arrive .location button#arrive_pickup,
@@ -696,15 +677,11 @@ margin: 5px auto;
 .arrive .location button#arrive_pickup{color: #444; left: 5px;}
 .arrive .location button#arrive_cancel{background-color: #444; color: #ffcc00; right: 5px;}
 
-/*.arrive button#arrive_call{background-color: green; color: black;}*/
 @media screen and (orientation: portrait){
-	/*.arrive button {margin: 1% 2.5%; height:220px; font-size:30px; width: 45%; }*/
 	.arrive .location a#arrive_call{height:40px; width: 40px;}
 	.arrive .location input{height:40px; font-size:28px; width:85%;} 
 	.arrive .location button#arrive_pickup,
 	.arrive .location button#arrive_cancel{height:60px;}
-	/*.arrive button {margin: 5% auto; height:150px; width: 100%;}
-	.arrive button#arrive_call a {height: 150px;}*/
 }
 @media screen and (orientation: landscape){
 	.arrive .location a#arrive_call{height:50px; width: 50px;}
@@ -712,13 +689,7 @@ margin: 5px auto;
 	.arrive .location input{height:50px; font-size:30px; width: 90%;}	
 	.arrive .location button#arrive_pickup,
 	.arrive .location button#arrive_cancel{height:50px}
-	/*.arrive button {margin: 2%; height:350px; width: 29.3%; float: left;}
-	.arrive button#arrive_call a {height: 350px;display: table-cell;vertical-align: middle;}*/
 }
-/*
-	#arrive_call{bottom:50px; background-size: 200px 20px; background-image:url("../../img/phone.jpg"); background-repeat:no-repeat; background-position:center}
-	background-size -> sirve para definir como quieres que se adapte la img al elemento
-*/
 
 div.chage{height: 100px;}
 .charge input[type="radio"]{color: #444}
@@ -742,6 +713,8 @@ body > section > article.splash .load{position:absolute; left:0px;bottom:30%; wi
 body > section > article.splash .name{bottom:15px; position:absolute; text-align: center; left:0px; width:100%; font-size:1em; color:#444; letter-spacing: 0px;}
 .initial_form {position:absolute; width:80%; left: 10%; right: 10%; bottom:15%;}
 
-#waiting_driver{color:black;}
-#waiting_logoutdiv{float: right;}
+#waiting_driver{text-align: center;}
+#waiting_logout{color:#888; width: 100%}
 #waiting_available_label{color:black;}
+#waiting_a{background: #fff;}
+#waiting_a fieldset{text-align: left;}

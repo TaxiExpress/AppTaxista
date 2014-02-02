@@ -12,38 +12,39 @@ class __Controller.LoginCtrl extends Monocle.Controller
 
   constructor: ->
     super
-    @db = window.openDatabase("TaxiExpressDriver", "1.0", "description", 2 * 1024 * 1024) #2MB
+    @db = window.openDatabase "TaxiExpressDriver", "1.0", "description", 2 * 1024 * 1024
     @db.transaction (tx) =>
       tx.executeSql "CREATE TABLE IF NOT EXISTS accessDataDriver (email STRING NOT NULL PRIMARY KEY, pass STRING NOT NULL)"
     @read()
 
   doLogin: (event) =>
-    if (@username[0].value && @password[0].value)
+    if @username[0].value && @password[0].value
       @drop()
-      date = new Date("1/1/1970").toISOString().substring 0, 19
-      date = date.replace "T", " "
-      @valideCredentials(@username[0].value, @password[0].value, date)
+      @valideCredentials @username[0].value, @password[0].value
     else
       alert "Debe rellenar el email y la contraseña"
 
   valideCredentials: (email, pass)=>
     pushID = Lungo.Cache.get "pushID"
-    
     if pushID == undefined
       setTimeout((=> 
         pushID = Lungo.Cache.get "pushID"
-        @valideCredentials email, pass, pushID
+        @valideCredentials email, pass
       ) , 500)
     else
+      device = Lungo.Cache.get "pushDevice"
       server = Lungo.Cache.get "server"
+      data = 
+        email: email
+        password: pass
+        pushID: pushID
+        pushDevice: device
 
+      server = Lungo.Cache.get "server"
       $$.ajax
         type: "POST"
         url: server + "driver/login"
-        data:
-          email: email
-          password: pass
-          pushID: pushID
+        data:  data
         success: (result) =>
           @parseResponse result
         error: (xhr, type) =>
@@ -52,23 +53,28 @@ class __Controller.LoginCtrl extends Monocle.Controller
           alert type.response        
 
   parseResponse: (result) ->
-    @db.transaction (tx) =>
-      sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('"+@username[0].value+"','"+@password[0].value+"');"
-      tx.executeSql sql
-       
-    unless @username[0].value is ""
-      email = @username[0].value
-    else
+    if @username[0].value == ""
       email = credentials.email
+      pass = credentials.pass
+    else
+      email = @username[0].value
+      pass = @password[0].value
 
-    driver = new Object()
-    driver.email = email
-    driver.first_name = result.first_name
-    driver.last_name = result.last_name
-    Lungo.Cache.set "driver", driver
+    @db.transaction (tx) =>
+      sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('"+email+"','"+pass+"');"
+      tx.executeSql sql
+    driver =
+      email: email
+      first_name: result.first_name
+      last_name: result.last_name
     
+    console.log driver
+    Lungo.Cache.set "driver", driver    
     __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
+    __Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
+    __Controller.arrive = new __Controller.ArriveCtrl "section#arrive_s"
     __Controller.waiting = new __Controller.WaitingCtrl "section#waiting_s"
+    __Controller.waiting.getLocationUpdate()
     Lungo.Router.section "waiting_s"
 
   drop: =>
@@ -84,6 +90,3 @@ class __Controller.LoginCtrl extends Monocle.Controller
         else
           Lungo.Router.section "login_s"
       ), null
-
-    
-

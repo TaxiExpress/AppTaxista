@@ -51,18 +51,22 @@
       this.doCall = __bind(this.doCall, this);
       this.cancelPickUp = __bind(this.cancelPickUp, this);
       this.doPickUp = __bind(this.doPickUp, this);
-      var options, travel;
       ArriveCtrl.__super__.constructor.apply(this, arguments);
+    }
+
+    ArriveCtrl.prototype.iniArrive = function() {
+      var options, travel;
       travel = Lungo.Cache.get("travel");
+      this.streetField[0].value = travel.origin;
       if (navigator.geolocation) {
         options = {
           enableHighAccuracy: true,
           timeout: 5000,
           maximumAge: 0
         };
-        navigator.geolocation.getCurrentPosition(initialize, manageErrors);
+        return navigator.geolocation.getCurrentPosition(initialize, manageErrors);
       }
-    }
+    };
 
     manageErrors = function(err) {
       var _this = this;
@@ -115,7 +119,7 @@
     };
 
     ArriveCtrl.prototype.doPickUp = function(event) {
-      var driver, options, push, server,
+      var driver, options, server, travel,
         _this = this;
       if (navigator.geolocation) {
         options = {
@@ -126,20 +130,19 @@
         navigator.geolocation.getCurrentPosition(iniLocation, manageErrors);
       }
       driver = Lungo.Cache.get("driver");
-      push = Lungo.Cache.get("push");
+      travel = Lungo.Cache.get("travel");
       server = Lungo.Cache.get("server");
       return $$.ajax({
         type: "POST",
         url: server + "driver/travelstarted",
         data: {
           email: driver.email,
-          travelID: push.travelID,
+          travelID: travel.travelID,
           origin: travel.newOrigin,
           latitude: travel.latitude,
           longitude: travel.longitude
         },
         success: function(result) {
-          __Controller.charge = new __Controller.ChargeCtrl("section#charge_s");
           return Lungo.Router.section("charge_s");
         },
         error: function(xhr, type) {
@@ -319,18 +322,24 @@
       this.stopTimer = __bind(this.stopTimer, this);
       this.rejectConfirmation = __bind(this.rejectConfirmation, this);
       this.acceptConfirmation = __bind(this.acceptConfirmation, this);
-      var _this = this;
       ConfirmationCtrl.__super__.constructor.apply(this, arguments);
-      timer = setTimeout((function() {
+    }
+
+    ConfirmationCtrl.prototype.loadTravel = function(travel) {
+      var _this = this;
+      this.streetField[0].value = travel.origin;
+      Lungo.Cache.set("travel", travel);
+      return timer = setTimeout((function() {
         return Lungo.Router.section("waiting_s");
       }), 5000);
-      travel = Lungo.Cache.get("travel");
-    }
+    };
 
     ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
       var driver, server,
         _this = this;
       driver = Lungo.Cache.get("driver");
+      travel = Lungo.Cache.get("travel");
+      Lungo.Router.section("arrive_s");
       server = Lungo.Cache.get("server");
       $$.ajax({
         type: "POST",
@@ -342,7 +351,7 @@
           longitude: travel.longitude
         },
         success: function(result) {
-          __Controller.arrive = new __Controller.ArriveCtrl("section#arrive_s");
+          __Controller.arrive.iniArrive();
           return Lungo.Router.section("arrive_s");
         },
         error: function(xhr, type) {
@@ -405,41 +414,37 @@
     }
 
     LoginCtrl.prototype.doLogin = function(event) {
-      var date;
       if (this.username[0].value && this.password[0].value) {
         this.drop();
-        date = new Date("1/1/1970").toISOString().substring(0, 19);
-        date = date.replace("T", " ");
-        return this.valideCredentials(this.username[0].value, this.password[0].value, date);
+        return this.valideCredentials(this.username[0].value, this.password[0].value);
       } else {
         return alert("Debe rellenar el email y la contraseña");
       }
     };
 
     LoginCtrl.prototype.valideCredentials = function(email, pass) {
-      var pushID, server,
+      var data, device, pushID, server,
         _this = this;
       pushID = Lungo.Cache.get("pushID");
-      alert("validate  " + pushID);
       if (pushID === void 0) {
-        alert("pushID undefined");
         return setTimeout((function() {
           pushID = Lungo.Cache.get("pushID");
-          alert(pushID);
-          alert(pushID.toString());
-          return _this.valideCredentials(email, pass, pushID.toString());
+          return _this.valideCredentials(email, pass);
         }), 500);
       } else {
-        alert("pushID OK");
+        device = Lungo.Cache.get("pushDevice");
+        server = Lungo.Cache.get("server");
+        data = {
+          email: email,
+          password: pass,
+          pushID: pushID,
+          pushDevice: "prueba"
+        };
         server = Lungo.Cache.get("server");
         return $$.ajax({
           type: "POST",
           url: server + "driver/login",
-          data: {
-            email: email,
-            password: pass,
-            pushID: pushID
-          },
+          data: data,
           success: function(result) {
             return _this.parseResponse(result);
           },
@@ -455,24 +460,29 @@
     };
 
     LoginCtrl.prototype.parseResponse = function(result) {
-      var driver, email,
+      var driver, email, pass,
         _this = this;
+      if (this.username[0].value === "") {
+        email = credentials.email;
+        pass = credentials.pass;
+      } else {
+        email = this.username[0].value;
+        pass = this.password[0].value;
+      }
       this.db.transaction(function(tx) {
         var sql;
-        sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('" + _this.username[0].value + "','" + _this.password[0].value + "');";
+        sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('" + email + "','" + pass + "');";
         return tx.executeSql(sql);
       });
-      if (this.username[0].value !== "") {
-        email = this.username[0].value;
-      } else {
-        email = credentials.email;
-      }
-      driver = new Object();
-      driver.email = email;
-      driver.first_name = result.first_name;
-      driver.last_name = result.last_name;
+      driver = {
+        email: email,
+        first_name: result.first_name,
+        last_name: result.last_name
+      };
       Lungo.Cache.set("driver", driver);
       __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
+      __Controller.charge = new __Controller.ArriveCtrl("section#charge_s");
+      __Controller.arrive = new __Controller.ArriveCtrl("section#arrive_s");
       __Controller.waiting = new __Controller.WaitingCtrl("section#waiting_s");
       return Lungo.Router.section("waiting_s");
     };
@@ -522,8 +532,9 @@
       PushCtrl.__super__.constructor.apply(this, arguments);
     }
 
-    PushCtrl.prototype.savePushID = function(id) {
-      return Lungo.Cache.set("pushID", id.toString());
+    PushCtrl.prototype.savePushID = function(id, device) {
+      Lungo.Cache.set("pushID", id);
+      return Lungo.Cache.set("pushDevice", device);
     };
 
     PushCtrl.prototype.handlePush = function(notification) {
@@ -531,21 +542,23 @@
       switch (notification.code) {
         case "801":
         case "802":
-          travel = new Object();
-          travel.id = notification.travelID;
-          travel.origin = notification.origin;
-          travel.startpoint = notification.startpoint;
-          coords = travel.startpoint.substring(7);
+          coords = notification.substring(7);
           pos = coords.indexOf(" ");
           long = coords.substring(0, pos);
           lat = coords.substring(pos + 1, coords.indexOf(")"));
-          travel.latitude = lat;
-          travel.longitude = long;
-          travel.valuation = notification.valuation;
-          travel.phone = notification.phone;
+          travel = {
+            id: notification.travelID,
+            origin: notification.origin,
+            startpoint: notification.startpoint,
+            latitude: lat,
+            longitude: long,
+            valuation: notification.valuation,
+            phone: notification.phone
+          };
           Lungo.Cache.set("travel", travel);
+          __Controller.confirmation.loadTravel(travel);
           Lungo.Router.section("confirmation_s");
-          return navigator.notification.alert("El taxista ha aceptado su solicitud", null, "Taxi Express", "Aceptar");
+          return navigator.notification.alert("Nueva solicitud", null, "Taxi Express", "Aceptar");
         case "803":
           Lungo.Router.section("waiting_s");
           return navigator.notification.alert("El pago se ha realizado correctamente", null, "Taxi Express", "Aceptar");
@@ -612,7 +625,6 @@
     };
 
     WaitingCtrl.prototype.goConfirmation = function() {
-      __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
       return Lungo.Router.section("confirmation_s");
     };
 

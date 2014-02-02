@@ -11,38 +11,43 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
 
   constructor: ->
     super
-    timer = setTimeout((=>Lungo.Router.section "waiting_s") , 5000)
-    travel = Lungo.Cache.get "travel"
-    #@streetField[0].value = travel.origin
-
+    
     #prueba push
-    #travel = new Object()
-    #travel.id = 11
-    #travel.origin = "Mi casaaaaa"
-    #travel.startpoint = notification.startpoint
-    ##travel.latitude = 43.32197354474697
-    #travel.longitude = -2.9898569638094625
-    #travel.valuation = 4
-    #travel.phone = 666778899
+    #travel = 
+    #  id: 4
+    #  origin: "Mi casaaaaa"
+    #  latitude: 43.32197354474697
+    #  longitude: -2.9898569638094625
+    #  valuation: 4
+    #  phone: 666778899
 
+  loadTravel: (travel) ->
+    @streetField[0].value = travel.origin
+    Lungo.Cache.set "travel", travel
+    timer = setTimeout((=>Lungo.Router.section "waiting_s") , 5000)
+    
   acceptConfirmation: (event) =>
-    
     driver = Lungo.Cache.get "driver"
-    
+    travel = Lungo.Cache.get "travel"
     #__Controller.arrive = new __Controller.ArriveCtrl "section#arrive_s"
     #Lungo.Router.section "arrive_s"
+
+    #alert "Confirmation latitude: " + travel.latitude
+    #alert "Confirmation longitude: " + travel.longitude  
+
+    data = 
+      email: driver.email
+      travelID: travel.travelID 
+      latitude: travel.latitude
+      longitude: travel.longitude  
     
     server = Lungo.Cache.get "server"
     $$.ajax
       type: "POST"
       url: server + "driver/accepttravel"
-      data:
-        email: driver.email
-        travelID: travel.id 
-        latitude: travel.latitude
-        longitude: travel.longitude 
+      data: data
       success: (result) =>
-        __Controller.arrive = new __Controller.ArriveCtrl "section#arrive_s"
+        __Controller.arrive.iniArrive()
         Lungo.Router.section "arrive_s"
       error: (xhr, type) =>
         alert type.response        

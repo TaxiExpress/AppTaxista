@@ -33,22 +33,26 @@
     </section>
 
     <section id="waiting_s" data-transition="fade">
-        <article id="waiting_a" class="splash initial">
-          <div id="waiting_logoutdiv">
-            <span id="waiting_driver"></span>
-            <!--<fieldset><small id ="waiting_driver"></small></fieldset>-->
-            <small id="waiting_available_label">Disponible</small>
-            <input id="waiting_available" type="checkbox" checked/>
-            <button id="waiting_logout" data-icon="signout"></button>
-          </div>
-          <span class="logo"><img src="img/logo.png" alt=""/></span>
-          <button id="waiting_confirmation" data-label="Prueba confirmation"></button>
-          <button id="waiting_prueba1" data-label="Prueba location"></button>
-       </article>
+      <header data-title="Esperando Solicitud" id="waiting_driver"></header>      
+      <article id="waiting_a" class="splash initial">
+        <div class="form list">
+          <fieldset> 
+              <small id="waiting_available_label">Disponible para recibir peticiones de los clientes</small>
+              <input id="waiting_available" type="checkbox" checked/>
+          </fieldset> 
+          <!--<button id="waiting_logout" data-icon="signout"></button>-->
+        </div>
+          <!--<span class="logo"><img src="img/logo.png" alt=""/></span>-->
+        <button id="waiting_confirmation" data-label="Prueba confirmation"></button>
+        <button id="waiting_prueba1" data-label="Prueba location"></button>
+        <button id="waiting_prueba2" data-label="Prueba Post"></button>
+        <button id="waiting_prueba3" data-label="Prueba Pago"></button>
+        <button id="waiting_logout" class="anchor">Cerrar Sesión</button>
+      </article>
     </section>
 
     <section id="confirmation_s" data-transition="fade">
-      <!--<header data-title="¿Desea recoger al cliente en la siguiente calle?"></header>-->
+      <header data-title="Petición Cliente"></header>
       <article id="confirmation_a" class="street">
         <div class="location">
           <fieldset class="radius-bottom" >
@@ -63,7 +67,7 @@
     </section>
 
     <section id="arrive_s" data-transition="fade">
-      <!--<article id="arrive_a" class="splash initial">-->
+      <header data-title="Solicitud Aceptada"></header>
       <article id="arrive_a" class="arrive">
         <div class="location">
           <input id="arrive_streetField" type="text" readonly="readonly" />
@@ -73,14 +77,11 @@
           <button id="arrive_cancel" data-label="Cancelar"/>
         </div>
         <div id="map-canvas" />
-        
-        
-        <!--<button id="arrive_call"><a href=”="tel:8009229999" data-label="Llamar" data-icon="phone"></a></button>-->
-        
       </article>
     </section>
 
     <section id="charge_s" data-transition="fade">
+      <header data-title="Cobro Trayecto"></header>
       <article id="charge_a" class="charge">
         <fieldset class="radius-bottom" >
           <div>
@@ -101,90 +102,78 @@
     <script src="app/taxistaExpress.js"></script>   
     <script src="cordova.js"></script>
     <script src="PushNotification.js"></script>
+    <script src='fastclick.js'></script>
     <script type="text/javascript">
-        var pushNotification;
-        
+        window.addEventListener('load', function() {
+            FastClick.attach(document.body);
+        }, false);
+        var pushNotification;        
         function onDeviceReady() {
-            try 
-            { 
+            try { 
                 pushNotification = window.plugins.pushNotification;
-                pushNotification.register(successHandler, errorHandler, {"senderID":"513061017666","ecb":"onNotificationGCM"});
-            }
-            catch(err) 
-            { 
+                if (device.platform == 'android' || device.platform == 'Android') {
+                    pushNotification.register(successHandler, errorHandler, {"senderID":"513061017666","ecb":"onNotificationGCM"});
+                } else {
+                    pushNotification.register(tokenHandler, errorHandler, {"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"});
+                }
+            } catch(err) { 
                 txt="There was an error on this page.\n\n"; 
                 txt+="Error description: " + err.message + "\n\n"; 
-                alert(txt); 
+                console.log(txt); 
             } 
         }
         
-        // handle APNS notifications for iOS
         function onNotificationAPN(e) {
             if (e.alert) {
-                 alert('<li>push-notification: ' + e.alert + '</li>');
-                 navigator.notification.alert(e.alert);
-            }
-                
+                __Controller.push.handlePush(e);
+            }                
             if (e.sound) {
                 var snd = new Media(e.sound);
                 snd.play();
-            }
-            
+            }            
             if (e.badge) {
                 pushNotification.setApplicationIconBadgeNumber(successHandler, e.badge);
             }
         }
         
-        // handle GCM notifications for Android
         function onNotificationGCM(e) {
-            
-            switch( e.event )
-            {
+            switch( e.event ) {
                 case 'registered':
-                if ( e.regid.length > 0 )
-                {
-                    alert("dsa");
-                    alert(e.regid);
-                    __Controller.push.savePushID(e.regid);
+                if ( e.regid.length > 0 ) {
+                    __Controller.push.savePushID(e.regid, "ANDROID");
                 }
-                break;
-                
+                break;                
                 case 'message':
-                    if (e.foreground)
-                    {
+                    if (e.foreground) {
                         __Controller.push.handlePush(e.payload);
                         var my_media = new Media("/android_asset/www/"+e.soundname);
                         my_media.play();
-                    }
-                    else
-                    {   // otherwise we were launched because the user touched a notification in the notification tray.
+                    } else {   // otherwise we were launched because the user touched a notification in the notification tray.
                         if (e.coldstart)
-                            alert('<li>--COLDSTART NOTIFICATION--' + '</li>');
+                            console.log('<li>--COLDSTART NOTIFICATION--' + '</li>');
                         else
                             __Controller.push.handlePush(e.payload);
                     }
                 break;
-                
                 case 'error':
-                    alert('<li>ERROR -> MSG:' + e.msg + '</li>');
+                    console.log('ERROR -> MSG:' + e.msg + '</li>');
                 break;
-                
                 default:
-                    alert('<li>EVENT -> Unknown, an event was received and we do not know what it is</li>');
+                    console.log('<li>EVENT -> Unknown, an event was received and we do not know what it is</li>');
                 break;
             }
         }
         
         function tokenHandler (result) {
-            console.log('<li>token: '+ result +'</li>');
+            __Controller.push.savePushID(result,"IOS");
         }
         
         function successHandler (result) {
-            console.log('<li>success:'+ result +'</li>');
+            console.log('success:'+ result);
         }
         
         function errorHandler (error) {
-            console.log('<li>error:'+ error +'</li>');
+            console.log('Error:'+ error);
         }
         
         document.addEventListener('deviceready', onDeviceReady, true);

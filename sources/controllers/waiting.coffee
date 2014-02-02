@@ -8,6 +8,8 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     "tap #waiting_logout"                  : "logOut"
     "tap #waiting_confirmation"            : "goConfirmation"
     "tap #waiting_prueba1"                 : "doLocation"
+    "tap #waiting_prueba2"                 : "doPost"
+    "tap #waiting_prueba3"                 : "doPago"
     "change #waiting_available"            : "changeAvailable"
 
   elements:
@@ -18,6 +20,36 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     super
     driver = Lungo.Cache.get "driver"
     @driver[0].innerText = driver.last_name + ", " + driver.first_name
+
+  doPago: =>
+    server = Lungo.Cache.get "server"
+    $$.ajax
+      type: "POST"
+      url: server + "driver/travelcompleted"
+      data:
+        travelID: 84
+        email: "conductor@gmail.com"
+        destination: "Mi otraaaa cassssaa"
+        latitude: 44.2641160000000013
+        longitude: -4.9237662000000002
+        appPayment: true
+        cost: 33.42
+      success: (result) =>
+        Lungo.Router.section "waiting_s"
+      error: (xhr, type) =>
+        alert type.response        
+
+    Lungo.Router.section "waiting_s"
+      
+  doPost: =>
+    notification=
+      code: "801"
+      travelID: 132
+      origin: "Mi casaaaaa"
+      startpoint: "66.2641160000000013, -6.9237662000000002"
+      valuation: 3
+      phone: 666666666
+    __Controller.push.handlePush(notification)
     
   logOut: =>
     navigator.geolocation.clearWatch @watchId
@@ -29,7 +61,7 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     Lungo.Router.section "login_s"
     
   goConfirmation: =>
-    __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
+    #__Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
     Lungo.Router.section "confirmation_s"
   
   doLocation: =>

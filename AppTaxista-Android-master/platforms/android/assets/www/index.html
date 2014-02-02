@@ -33,13 +33,20 @@
     </section>
 
     <section id="waiting_s" data-transition="fade">
+      <header data-title="Esperando Solicitud"> 
+        <button id="waiting_logout" data-icon="signout"></button>
+      </header>      
         <article id="waiting_a" class="splash initial">
-          <div id="waiting_logoutdiv">
+          <div id="waiting_logoutdiv" class="form list">
             <span id="waiting_driver"></span>
             <!--<fieldset><small id ="waiting_driver"></small></fieldset>-->
+            <fieldset> 
+                <small>Disponible</small>
+                <input id="waiting_available" type="checkbox" />
+            </fieldset> 
             <small id="waiting_available_label">Disponible</small>
             <input id="waiting_available" type="checkbox" checked/>
-            <button id="waiting_logout" data-icon="signout"></button>
+            <!--<button id="waiting_logout" data-icon="signout"></button>-->
           </div>
           <span class="logo"><img src="img/logo.png" alt=""/></span>
           <button id="waiting_confirmation" data-label="Prueba confirmation"></button>

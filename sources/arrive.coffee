@@ -4,7 +4,6 @@ class __Controller.ArriveCtrl extends Monocle.Controller
   
   elements:
     "#arrive_streetField"            : "streetField"
-    "#arrive_call"                   : "telephone"
   
   events:
     "tap #arrive_pickup"             : "doPickUp"
@@ -13,22 +12,47 @@ class __Controller.ArriveCtrl extends Monocle.Controller
 
   constructor: ->
     super
+    console.log "arrive"
 
   iniArrive: ->
+    console.log "iniArrive" 
     travel = Lungo.Cache.get "travel"
     @streetField[0].value = travel.origin
-    @telephone[0].href = travel.phone
 
-    #alert "travelID: " + travel.travelID 
-    #alert "latitude: " + travel.latitude
-    #alert "longitude: " + travel.longitude  
+    alert "travelID: " + travel.travelID 
+    alert "latitude: " + travel.latitude
+    alert "longitude: " + travel.longitude  
 
-    if navigator.geolocation
-      options =
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0
-      navigator.geolocation.getCurrentPosition initialize, manageErrors
+    arriveLocation = new google.maps.LatLng(44.2641160000000013, -2.9237662000000002)
+    console.log arriveLocation
+    mapOptions =
+      center: arriveLocation
+      zoom: 16
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+      panControl: false
+      streetViewControl:false
+      overviewMapControl:false
+      mapTypeControl:false
+      zoomControl:false
+      styles: [
+        featureType: "poi.business"
+        elementType: "labels"
+        stylers: [visibility: "off"]
+      ]
+    map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
+    console.log map
+    marker = new google.maps.Marker(
+      position: arriveLocation
+      map: map
+      title: travel.origin
+    )
+
+    #if navigator.geolocation
+    #  options =
+    #    enableHighAccuracy: true,
+    #    timeout: 5000,
+    #    maximumAge: 0
+    #  navigator.geolocation.getCurrentPosition initialize, manageErrors
 
   manageErrors = (err) ->
     alert "Error de localización GPS"
@@ -60,25 +84,18 @@ class __Controller.ArriveCtrl extends Monocle.Controller
       marker = new google.maps.Marker(
         position: arriveLocation
         map: map
-        title: @streetField[0].value
+        title: travel.origin
       )
 
   iniLocation = (location) =>
-    travel = Lungo.Cache.get "travel"
-
     currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
-    #alert "Latitude: " + travel.latitude + ".  Nueva Latitude: " + location.coords.latitude
-    travel.latitude = location.coords.latitude
-    #alert "Longitude: " + travel.longitude + ".  Nueva Longitude: " + location.coords.longitude
-    travel.longitude = location.coords.longitude
-    #travel.newOrigin = getStreet(currentLocation)
-    travel.newOrigin = "mi calleeeeeee"
-    
-    Lungo.Cache.set "travel", travel
+    travel.latitude = location.latitude
+    travel.longitude = location.longitude
+    travel.newOrigin = @getStreet(currentLocation)
 
   doPickUp: (event) =>
-   # __Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
-   # Lungo.Router.section "charge_s"
+    __Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
+    Lungo.Router.section "charge_s"
 
     if navigator.geolocation
       options =
@@ -87,56 +104,37 @@ class __Controller.ArriveCtrl extends Monocle.Controller
         maximumAge: 0
       navigator.geolocation.getCurrentPosition iniLocation, manageErrors
 
-    Lungo.Router.section "init_s"
-      
-    setTimeout((=>
-      driver = Lungo.Cache.get "driver"
-      travel = Lungo.Cache.get "travel"
-      server = Lungo.Cache.get "server"
 
-      #alert "Arrive travelID: " + travel.travelID 
-      #alert "Arrive latitude: " + travel.latitude
-      #alert "Arrive longitude: " + travel.longitude  
-      travel.newOrigin = "Mi casaaaaa 22222"
-      #console.log(travel)
-      
-      $$.ajax
-        type: "POST"
-        url: server + "driver/travelstarted"
-        data:
-          email: driver.email
-          travelID: travel.travelID
-          origin: travel.newOrigin
-          latitude: travel.latitude
-          longitude: travel.longitude
-        success: (result) =>
-          #__Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
-          Lungo.Router.section "charge_s"
-        error: (xhr, type) =>
-          alert type.response 
-          Lungo.Router.section "arrive_s"       
-    ) , 5000)
-      
-    
-  cancelPickUp: (event) =>
     driver = Lungo.Cache.get "driver"
     travel = Lungo.Cache.get "travel"
     server = Lungo.Cache.get "server"
-    alert travel.travelID
-    alert driver.email
+
+    alert "travelID: " + travel.travelID 
+    alert "latitude: " + travel.latitude
+    alert "longitude: " + travel.longitude  
+    travel.newOrigin = "Mi casaaaaa 22222"
+    console.log(travel)
+    
     $$.ajax
       type: "POST"
-      url: server + "driver/canceltravel"
+      url: server + "driver/travelstarted"
       data:
-        travelID: travel.travelID
         email: driver.email
+        travelID: travel.travelID
+        origin: travel.newOrigin
+        latitude: travel.latitude
+        longitude: travel.longitude
       success: (result) =>
         #__Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
-        Lungo.Router.section "waiting_s"
+        Lungo.Router.section "charge_s"
       error: (xhr, type) =>
         alert type.response        
+    
+  cancelPickUp: (event) =>
+    Lungo.Router.section "waiting_s"
 
   doCall: (event) =>
+    alert "llamando"
     document.getElementById("fdw").onclick();
 
   getStreet = (pos) =>
