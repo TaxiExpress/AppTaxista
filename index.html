@@ -37,7 +37,7 @@
       <article id="waiting_a" class="splash initial">
         <div class="form list">
           <fieldset> 
-              <small id="waiting_available_label">Disponible para recibir peticiones de los clientes</small>
+              <small id="waiting_available_label">Disponible para recibir peticiones</small>
               <input id="waiting_available" type="checkbox" checked/>
           </fieldset> 
           <!--<button id="waiting_logout" data-icon="signout"></button>-->
@@ -46,8 +46,6 @@
         <button id="waiting_confirmation" data-label="Prueba confirmation"></button>
         <button id="waiting_prueba1" data-label="Prueba location"></button>
         <button id="waiting_prueba2" data-label="Prueba Post"></button>
-        <button id="waiting_prueba3" data-label="Prueba Pago"></button>
-        <button id="waiting_prueba4" data-label="Prueba Street"></button>
         <button id="waiting_logout" class="anchor">Cerrar Sesión</button>
       </article>
     </section>
@@ -84,6 +82,20 @@
     <section id="charge_s" data-transition="fade">
       <header data-title="Cobro Trayecto"></header>
       <article id="charge_a" class="charge">
+        <div class="form list">
+          <fieldset> 
+              <small id="charge_cash_label">Contado</small>
+              <input id="charge_cash" type="checkbox" checked/>
+          </fieldset> 
+          <fieldset> 
+              <strong id="charge_app_label">Mediante la aplicación</strong>
+              <input id="charge_app" type="checkbox"/>
+          </fieldset> 
+        </div>
+        <input id="charge_amount" type="text" placeholder="Importe a cobrar"/>
+        <button id="charge_charge" data-label="Cobrar"/>
+          
+        <!--
         <fieldset class="radius-bottom" >
           <div>
             <label for="option_cash"><input type="radio" name="charge_option" id="option_cash" value="false" checked> Contado</label>
@@ -92,8 +104,7 @@
           
           <input id="charge_amount" type="text" placeholder="Importe a cobrar"/>
           <button id="charge_charge" data-label="Cobrar"/>
-          <button id="charge_prueba1" data-label="Borrar Datos"></button>
-        </fielset>
+        </fielset>-->
       </article>
     </section>
 

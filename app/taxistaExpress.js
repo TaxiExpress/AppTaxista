@@ -437,24 +437,40 @@
     ChargeCtrl.prototype.elements = {
       "#charge_amount": "amount",
       "#option_cash": "valorCash",
-      "#option_card": "valorCard"
+      "#option_card": "valorCard",
+      "#charge_cash": "optionCash",
+      "#charge_app": "optionApp"
     };
 
     ChargeCtrl.prototype.events = {
       "tap #charge_charge": "doCharge",
-      "tap #charge_prueba1": "doBorrarDatos"
+      "change #charge_app": "changeCash",
+      "change #charge_cash": "changeApp"
     };
 
     function ChargeCtrl() {
       this.valideAmount = __bind(this.valideAmount, this);
       this.travelCompleted = __bind(this.travelCompleted, this);
       this.doCharge = __bind(this.doCharge, this);
-      this.doBorrarDatos = __bind(this.doBorrarDatos, this);
+      this.changeApp = __bind(this.changeApp, this);
+      this.changeCash = __bind(this.changeCash, this);
       ChargeCtrl.__super__.constructor.apply(this, arguments);
     }
 
-    ChargeCtrl.prototype.doBorrarDatos = function() {
-      return this.amount[0].value = "";
+    ChargeCtrl.prototype.changeCash = function() {
+      if (this.optionApp[0].checked) {
+        return this.optionCash[0].checked = false;
+      } else {
+        return this.optionCash[0].checked = true;
+      }
+    };
+
+    ChargeCtrl.prototype.changeApp = function() {
+      if (this.optionCash[0].checked) {
+        return this.optionApp[0].checked = false;
+      } else {
+        return this.optionApp[0].checked = true;
+      }
     };
 
     iniLocation = function(location) {
@@ -511,7 +527,7 @@
           destination: travel.destination,
           latitude: travel.latitude,
           longitude: travel.longitude,
-          appPayment: this.valorCard[0].checked,
+          appPayment: this.optionApp[0].checked,
           cost: this.amount[0].value
         },
         success: function(result) {
@@ -639,7 +655,8 @@
           return Lungo.Router.section("arrive_s");
         },
         error: function(xhr, type) {
-          return alert(type.response);
+          alert(type.response);
+          return Lungo.Router.section("waiting_s");
         }
       });
       return this.stopTimer();
@@ -816,7 +833,6 @@
       this.handlePush = __bind(this.handlePush, this);
       this.savePushID = __bind(this.savePushID, this);
       PushCtrl.__super__.constructor.apply(this, arguments);
-      this.savePushID("APA91bHdfAsMRF1C3YXJhv0AGOSUFN8tr66zue3J6HdVtUlcZYk9OAoix2ZNzHuIKZ9khVxKvxRR25OTwnFKu9WlACi8IvnPaD4qfts8Jjih4259AoR0u52HdaMLhkBq4NCpDcOZl5a2RJYAuQaFs9Gl8FwTtrodo2jdSdoVItbYaIixV2cfKXI", "ANDROID");
     }
 
     PushCtrl.prototype.savePushID = function(id, device) {
@@ -865,7 +881,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.WaitingCtrl = (function(_super) {
-    var disponible, driver, getStreet, iniLocation, manageError, manageErrors, timer, updatePosition, watchId,
+    var disponible, driver, manageError, timer, updatePosition, watchId,
       _this = this;
 
     __extends(WaitingCtrl, _super);
@@ -883,8 +899,6 @@
       "tap #waiting_confirmation": "goConfirmation",
       "tap #waiting_prueba1": "doLocation",
       "tap #waiting_prueba2": "doPost",
-      "tap #waiting_prueba3": "doPago",
-      "tap #waiting_prueba4": "doStreet",
       "change #waiting_available": "changeAvailable"
     };
 
@@ -894,7 +908,6 @@
     };
 
     function WaitingCtrl() {
-      this.doStreet = __bind(this.doStreet, this);
       this.changeAvailable = __bind(this.changeAvailable, this);
       this.updateAvailable = __bind(this.updateAvailable, this);
       this.stopWatch = __bind(this.stopWatch, this);
@@ -903,44 +916,17 @@
       this.goConfirmation = __bind(this.goConfirmation, this);
       this.logOut = __bind(this.logOut, this);
       this.doPost = __bind(this.doPost, this);
-      this.doPago = __bind(this.doPago, this);
       WaitingCtrl.__super__.constructor.apply(this, arguments);
       driver = Lungo.Cache.get("driver");
       this.driver[0].innerText = driver.last_name + ", " + driver.first_name;
       this.getLocationUpdate();
     }
 
-    WaitingCtrl.prototype.doPago = function() {
-      var server,
-        _this = this;
-      server = Lungo.Cache.get("server");
-      $$.ajax({
-        type: "POST",
-        url: server + "driver/travelcompleted",
-        data: {
-          travelID: 84,
-          email: "conductor@gmail.com",
-          destination: "Mi otraaaa cassssaa",
-          latitude: 44.2641160000000013,
-          longitude: -4.9237662000000002,
-          appPayment: true,
-          cost: 33.42
-        },
-        success: function(result) {
-          return Lungo.Router.section("waiting_s");
-        },
-        error: function(xhr, type) {
-          return alert(type.response);
-        }
-      });
-      return Lungo.Router.section("waiting_s");
-    };
-
     WaitingCtrl.prototype.doPost = function() {
       var notification;
       notification = {
         code: "801",
-        travelID: 167,
+        travelID: 204,
         origin: "Mi casaaaaa",
         startpoint: "66.2641160000000013, -6.9237662000000002",
         valuation: 3,
@@ -1038,62 +1024,6 @@
       } else {
         return this.stopWatch();
       }
-    };
-
-    WaitingCtrl.prototype.doStreet = function() {
-      var options;
-      alert("street");
-      if (navigator.geolocation) {
-        options = {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
-        };
-        return navigator.geolocation.getCurrentPosition(iniLocation, manageErrors);
-      }
-    };
-
-    iniLocation = function(location) {
-      var currentLocation;
-      alert("ini");
-      currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude);
-      alert(currentLocation);
-      getStreet(currentLocation);
-      return alert(Lungo.Cache.get("calle"));
-    };
-
-    manageErrors = function() {
-      return console.log("ERROR CHARGE");
-    };
-
-    getStreet = function(pos) {
-      var geocoder;
-      alert("street");
-      geocoder = new google.maps.Geocoder();
-      return geocoder.geocode({
-        latLng: pos
-      }, function(results, status) {
-        var calle;
-        if (status === google.maps.GeocoderStatus.OK) {
-          if (results[1]) {
-            if (results[0].address_components[1].short_name === results[0].address_components[0].short_name) {
-              alert("1 : " + results[0].address_components[1].short_name);
-              calle = results[0].address_components[1].short_name;
-            } else {
-              alert("2: " + results[0].address_components[1].short_name + ", " + results[0].address_components[0].short_name);
-              calle = results[0].address_components[1].short_name + ", " + results[0].address_components[0].short_name;
-            }
-          } else {
-            alert('Calle desconocida');
-            calle = 'Calle desconocida';
-          }
-        } else {
-          alert('Calle desconocida');
-          calle = 'Calle desconocida';
-        }
-        alert(calle);
-        return Lungo.Cache.set("calle", calle);
-      });
     };
 
     return WaitingCtrl;

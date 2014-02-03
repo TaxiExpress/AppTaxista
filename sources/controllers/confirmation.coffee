@@ -50,7 +50,8 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
         __Controller.arrive.iniArrive()
         Lungo.Router.section "arrive_s"
       error: (xhr, type) =>
-        alert type.response        
+        alert type.response
+        Lungo.Router.section "waiting_s"        
 
     @stopTimer()
 

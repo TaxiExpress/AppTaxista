@@ -4,7 +4,7 @@ class __Controller.PushCtrl extends Monocle.Controller
 
   constructor: ->
     super
-    @savePushID("APA91bHdfAsMRF1C3YXJhv0AGOSUFN8tr66zue3J6HdVtUlcZYk9OAoix2ZNzHuIKZ9khVxKvxRR25OTwnFKu9WlACi8IvnPaD4qfts8Jjih4259AoR0u52HdaMLhkBq4NCpDcOZl5a2RJYAuQaFs9Gl8FwTtrodo2jdSdoVItbYaIixV2cfKXI", "ANDROID")
+    #@savePushID("APA91bHdfAsMRF1C3YXJhv0AGOSUFN8tr66zue3J6HdVtUlcZYk9OAoix2ZNzHuIKZ9khVxKvxRR25OTwnFKu9WlACi8IvnPaD4qfts8Jjih4259AoR0u52HdaMLhkBq4NCpDcOZl5a2RJYAuQaFs9Gl8FwTtrodo2jdSdoVItbYaIixV2cfKXI", "ANDROID")
 
 
   savePushID: (id, device) =>
@@ -16,6 +16,7 @@ class __Controller.PushCtrl extends Monocle.Controller
   handlePush: (notification) =>
     #alert "travelID: " + notification.travelID
     #alert "push code: " + notification.code
+    #alert "origin: " + notification.origin
     switch notification.code
       when "801", "802" #Recibo push del cliente pidiendo un servicio
         #alert "startpoint: " + notification.startpoint

@@ -4,16 +4,28 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     "#charge_amount"                 : "amount"
     "#option_cash"                   : "valorCash"
     "#option_card"                   : "valorCard"
+    "#charge_cash"                   : "optionCash"
+    "#charge_app"                    : "optionApp"
 
 	events:
     "tap #charge_charge"             : "doCharge"
-    "tap #charge_prueba1"            : "doBorrarDatos"
+    "change #charge_app"             : "changeCash"
+    "change #charge_cash"            : "changeApp"
     
   constructor: ->
     super
 
-  doBorrarDatos: =>
-    @amount[0].value = ""
+  changeCash: => 
+    if @optionApp[0].checked
+      @optionCash[0].checked = false
+    else
+      @optionCash[0].checked = true
+
+  changeApp: =>
+    if @optionCash[0].checked 
+      @optionApp[0].checked = false
+    else
+      @optionApp[0].checked = true
 
   iniLocation = (location) =>
     travel = Lungo.Cache.get "travel"
@@ -59,7 +71,7 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         destination: travel.destination
         latitude: travel.latitude
         longitude: travel.longitude
-        appPayment: @valorCard[0].checked
+        appPayment: @optionApp[0].checked
         cost: @amount[0].value
       success: (result) =>
         @amount[0].value = ""

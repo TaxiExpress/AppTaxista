@@ -647,20 +647,24 @@ display:block;
 margin: 5px auto;
 */
 
-
+#waiting_driver{text-align: center;}
+#waiting_logout{color:#888; width: 100%}
+#waiting_available_label{color: #555;}
+#waiting_a{background: #fff;}
+#waiting_a fieldset{text-align: left;}
 
 .street button{z-index:1!important; font-family:'Open Sans'; outline:none; display: block; border-radius:6px; }
 .street button#confirmation_accept{color: #444}
 .street button#confirmation_reject{background-color: #444; color: #ffcc00}
 .street .location input{z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; width:100%; margin-top: 1%;}
 @media screen and (orientation: portrait){
-	.street button{margin: 5% auto; height:220px; font-size:30px; width: 100%}
+	.street button{margin: 5% auto; height:190px; font-size:30px; width: 100%}
 	.street .location input{height:60px; font-size:24px; padding-left:5px; padding-right:5px;}
 	.street .location #confirmation_question{font-size:24px}
 }
 @media screen and (orientation: landscape){
 	.street .location{margin-right:  5%; margin-left: 5%}
-	.street button{height:400px; width: 40%; font-size:30px; float: left; margin-right:  5%;margin-left: 5%}
+	.street button{height:190px; width: 40%; font-size:30px; float: left; margin-right:  5%;margin-left: 5%}
 	.street .location input{height:40px; font-size:30px; padding-left:5px; padding-right:5px;}	
 	.street .location #confirmation_question{font-size:16px;}
 }
@@ -694,18 +698,31 @@ margin: 5px auto;
 div.chage{height: 100px;}
 .charge input[type="radio"]{color: #444}
 .charge label{font-family:'Open Sans'; color: #555; margin: 1% auto;display: block; text-align: left;}
-#charge_amount{z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; width:100%; margin-top: 5%;}
+#charge_amount{z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; width:100%; margin-top: 2%;}
+/*#charge_amount{z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; width:100%; margin-top: 5%;}*/
+#charge_charge{z-index:1!important; font-family:'Open Sans'; outline:none; color: #444; font-size:40px; width: 100%; margin-top: 2%;}
 @media screen and (orientation: portrait){
 	.charge input[type="radio"]{height: 12px; width: 12px;}
 	.charge label{font-size:20px; width: 35%; }	
 	#charge_amount{height:50px; font-size:30px;}
+	#charge_charge{height:150px;}
 }
 @media screen and (orientation: landscape){
 	.charge input[type="radio"]{height: 20px; width: 20px;}
 	.charge label{font-size:50px; width: 35%;text-align: left;}	
 	#charge_amount{height:60px; font-size:50px;}
+	#charge_charge{height:120px;}
 }
-#charge_charge{z-index:1!important; font-family:'Open Sans'; outline:none; color: #444; font-size:30px; border-radius:6px; height:150px; width: 100%; margin-top: 5%;}
+
+/*#charge_charge{z-index:1!important; font-family:'Open Sans'; outline:none; color: #444; font-size:30px; border-radius:6px; height:150px; width: 100%; margin-top: 5%;}*/
+.charge fieldset {height: 35px; font-size: 25px; color: #444;}
+
+@media screen and (orientation: portrait){
+	header {font-size: 20px;}
+}
+@media screen and (orientation: landscape){
+	header {font-size: 30px;}
+}
 
 body > section > article.splash .logo{left:0px;bottom:55%; width:100%;}
 body > section > article.splash .logo img {max-width:80%;margin:50px auto; float:center; position:relative;max-height:25%}
@@ -713,8 +730,3 @@ body > section > article.splash .load{position:absolute; left:0px;bottom:30%; wi
 body > section > article.splash .name{bottom:15px; position:absolute; text-align: center; left:0px; width:100%; font-size:1em; color:#444; letter-spacing: 0px;}
 .initial_form {position:absolute; width:80%; left: 10%; right: 10%; bottom:15%;}
 
-#waiting_driver{text-align: center;}
-#waiting_logout{color:#888; width: 100%}
-#waiting_available_label{color:black;}
-#waiting_a{background: #fff;}
-#waiting_a fieldset{text-align: left;}
