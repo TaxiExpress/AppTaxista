@@ -253,6 +253,7 @@
 
     function ArriveCtrl() {
       this.doCall = __bind(this.doCall, this);
+      this.canceltravel = __bind(this.canceltravel, this);
       this.cancelPickUp = __bind(this.cancelPickUp, this);
       this.doPickUp = __bind(this.doPickUp, this);
       ArriveCtrl.__super__.constructor.apply(this, arguments);
@@ -262,7 +263,7 @@
       var arriveLocation, mapOptions, marker, travel;
       travel = Lungo.Cache.get("travel");
       this.streetField[0].value = travel.origin;
-      this.telephone[0].href = travel.phone;
+      this.telephone[0].href = "tel:" + travel.phone;
       if (navigator.geolocation) {
         travel = Lungo.Cache.get("travel");
         arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude);
@@ -356,6 +357,29 @@
     };
 
     ArriveCtrl.prototype.cancelPickUp = function(event) {
+      return Lungo.Notification.confirm({
+        title: "¿Esta seguro que desea cancelar el viaje?",
+        description: "",
+        accept: {
+          label: "Si",
+          callback: (function(_this) {
+            return function() {
+              return _this.canceltravel();
+            };
+          })(this)
+        },
+        cancel: {
+          label: "No",
+          callback: (function(_this) {
+            return function() {
+              return _this;
+            };
+          })(this)
+        }
+      });
+    };
+
+    ArriveCtrl.prototype.canceltravel = function() {
       var driver, server, travel;
       driver = Lungo.Cache.get("driver");
       travel = Lungo.Cache.get("travel");
@@ -865,7 +889,7 @@
       this.handlePush = __bind(this.handlePush, this);
       this.savePushID = __bind(this.savePushID, this);
       PushCtrl.__super__.constructor.apply(this, arguments);
-      this.savePushID("APA91bHdfAsMRF1C3YXJhv0AGOSUFN8tr66zue3J6HdVtUlcZYk9OAoix2ZNzHuIKZ9khVxKvxRR25OTwnFKu9WlACi8IvnPaD4qfts8Jjih4259AoR0u52HdaMLhkBq4NCpDcOZl5a2RJYAuQaFs9Gl8FwTtrodo2jdSdoVItbYaIixV2cfKXI", "ANDROID");
+      this.savePushID("APAKXI", "ANDROID");
     }
 
     PushCtrl.prototype.savePushID = function(id, device) {
@@ -958,7 +982,7 @@
       var notification;
       notification = {
         code: "801",
-        travelID: 256,
+        travelID: 255,
         origin: "Mi casaaaaa",
         startpoint: "66.2641160000000013, -6.9237662000000002",
         valuation: 3,

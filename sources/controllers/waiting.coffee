@@ -24,7 +24,7 @@ class __Controller.WaitingCtrl extends Monocle.Controller
   doPost: =>
     notification=
       code: "801"
-      travelID: 256
+      travelID: 255
       origin: "Mi casaaaaa"
       startpoint: "66.2641160000000013, -6.9237662000000002"
       valuation: 3

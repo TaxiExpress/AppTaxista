@@ -17,7 +17,7 @@ class __Controller.ArriveCtrl extends Monocle.Controller
   iniArrive: ->
     travel = Lungo.Cache.get "travel"
     @streetField[0].value = travel.origin
-    @telephone[0].href = travel.phone
+    @telephone[0].href = "tel:" + travel.phone
 
     if navigator.geolocation
       #if map == undefined
@@ -105,6 +105,19 @@ class __Controller.ArriveCtrl extends Monocle.Controller
       
     
   cancelPickUp: (event) =>
+    Lungo.Notification.confirm
+      title: "¿Esta seguro que desea cancelar el viaje?"
+      description: ""
+      accept:
+        label: "Si"
+        callback: =>
+          @canceltravel()
+      cancel:
+        label: "No"
+        callback: =>
+          @
+
+  canceltravel: =>
     driver = Lungo.Cache.get "driver"
     travel = Lungo.Cache.get "travel"
     server = Lungo.Cache.get "server"
