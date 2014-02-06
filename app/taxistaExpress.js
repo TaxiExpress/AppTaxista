@@ -4,234 +4,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ArriveCtrl = (function(_super) {
-    var getStreet, iniLocation, initialize, manageErrors, map,
-      _this = this;
-
-    __extends(ArriveCtrl, _super);
-
-    map = void 0;
-
-    ArriveCtrl.prototype.elements = {
-      "#arrive_streetField": "streetField"
-    };
-
-    ArriveCtrl.prototype.events = {
-      "tap #arrive_pickup": "doPickUp",
-      "tap #arrive_cancel": "cancelPickUp",
-      "tap #arrive_call": "doCall"
-    };
-
-    function ArriveCtrl() {
-      this.doCall = __bind(this.doCall, this);
-      this.cancelPickUp = __bind(this.cancelPickUp, this);
-      this.doPickUp = __bind(this.doPickUp, this);
-      ArriveCtrl.__super__.constructor.apply(this, arguments);
-      console.log("arrive");
-    }
-
-    ArriveCtrl.prototype.iniArrive = function() {
-      var arriveLocation, mapOptions, marker, travel;
-      console.log("iniArrive");
-      travel = Lungo.Cache.get("travel");
-      this.streetField[0].value = travel.origin;
-      alert("travelID: " + travel.travelID);
-      alert("latitude: " + travel.latitude);
-      alert("longitude: " + travel.longitude);
-      arriveLocation = new google.maps.LatLng(44.2641160000000013, -2.9237662000000002);
-      console.log(arriveLocation);
-      mapOptions = {
-        center: arriveLocation,
-        zoom: 16,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        panControl: false,
-        streetViewControl: false,
-        overviewMapControl: false,
-        mapTypeControl: false,
-        zoomControl: false,
-        styles: [
-          {
-            featureType: "poi.business",
-            elementType: "labels",
-            stylers: [
-              {
-                visibility: "off"
-              }
-            ]
-          }
-        ]
-      };
-      map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-      console.log(map);
-      return marker = new google.maps.Marker({
-        position: arriveLocation,
-        map: map,
-        title: travel.origin
-      });
-    };
-
-    manageErrors = function(err) {
-      var _this = this;
-      alert("Error de localización GPS");
-      return setTimeout((function() {
-        return navigator.geolocation.getCurrentPosition(initialize, manageErrors);
-      }), 5000);
-    };
-
-    initialize = function(location) {
-      var arriveLocation, mapOptions, marker;
-      console.log("initialize");
-      if (map === void 0) {
-        arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude);
-        console.log(arriveLocation);
-        mapOptions = {
-          center: arriveLocation,
-          zoom: 16,
-          mapTypeId: google.maps.MapTypeId.ROADMAP,
-          panControl: false,
-          streetViewControl: false,
-          overviewMapControl: false,
-          mapTypeControl: false,
-          zoomControl: false,
-          styles: [
-            {
-              featureType: "poi.business",
-              elementType: "labels",
-              stylers: [
-                {
-                  visibility: "off"
-                }
-              ]
-            }
-          ]
-        };
-        map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-        return marker = new google.maps.Marker({
-          position: arriveLocation,
-          map: map,
-          title: travel.origin
-        });
-      }
-    };
-
-    iniLocation = function(location) {
-      var currentLocation;
-      currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude);
-      travel.latitude = location.latitude;
-      travel.longitude = location.longitude;
-      return travel.newOrigin = ArriveCtrl.getStreet(currentLocation);
-    };
-
-    ArriveCtrl.prototype.doPickUp = function(event) {
-      var driver, options, server, travel,
-        _this = this;
-      __Controller.charge = new __Controller.ChargeCtrl("section#charge_s");
-      Lungo.Router.section("charge_s");
-      if (navigator.geolocation) {
-        options = {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
-        };
-        navigator.geolocation.getCurrentPosition(iniLocation, manageErrors);
-      }
-      driver = Lungo.Cache.get("driver");
-      travel = Lungo.Cache.get("travel");
-      server = Lungo.Cache.get("server");
-      alert("travelID: " + travel.travelID);
-      alert("latitude: " + travel.latitude);
-      alert("longitude: " + travel.longitude);
-      travel.newOrigin = "Mi casaaaaa 22222";
-      console.log(travel);
-      return $$.ajax({
-        type: "POST",
-        url: server + "driver/travelstarted",
-        data: {
-          email: driver.email,
-          travelID: travel.travelID,
-          origin: travel.newOrigin,
-          latitude: travel.latitude,
-          longitude: travel.longitude
-        },
-        success: function(result) {
-          return Lungo.Router.section("charge_s");
-        },
-        error: function(xhr, type) {
-          return alert(type.response);
-        }
-      });
-    };
-
-    ArriveCtrl.prototype.cancelPickUp = function(event) {
-      return Lungo.Router.section("waiting_s");
-    };
-
-    ArriveCtrl.prototype.doCall = function(event) {
-      alert("llamando");
-      return document.getElementById("fdw").onclick();
-    };
-
-    getStreet = function(pos) {
-      var geocoder;
-      geocoder = new google.maps.Geocoder();
-      return geocoder.geocode({
-        latLng: pos
-      }, function(results, status) {
-        if (status === google.maps.GeocoderStatus.OK) {
-          if (results[1]) {
-            if (results[0].address_components[1].short_name === results[0].address_components[0].short_name) {
-              return results[0].address_components[1].short_name;
-            } else {
-              return results[0].address_components[1].short_name + ", " + results[0].address_components[0].short_name;
-            }
-          } else {
-            return 'Calle desconocida';
-          }
-        } else {
-          return 'Calle desconocida';
-        }
-      });
-    };
-
-    return ArriveCtrl;
-
-  }).call(this, Monocle.Controller);
-
-}).call(this);
-
-(function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  __Controller.AppCtrl = (function(_super) {
-    __extends(AppCtrl, _super);
-
-    function AppCtrl() {
-      AppCtrl.__super__.constructor.apply(this, arguments);
-      Lungo.Cache.set("phone", "669338946");
-      Lungo.Cache.set("server", "http://TaxiLoadBalancer-638315338.us-east-1.elb.amazonaws.com/");
-      __Controller.login = new __Controller.LoginCtrl("section#login_s");
-    }
-
-    return AppCtrl;
-
-  })(Monocle.Controller);
-
-  $$(function() {
-    Lungo.init({});
-    __Controller.push = new __Controller.PushCtrl;
-    return __Controller.App = new __Controller.AppCtrl("section#init_s");
-  });
-
-}).call(this);
-
-(function() {
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  __Controller.ArriveCtrl = (function(_super) {
-    var getStreet, iniLocation, initialize, manageErrors, map,
-      _this = this;
+    var getStreet, iniLocation, initialize, manageErrors, map;
 
     __extends(ArriveCtrl, _super);
 
@@ -266,22 +39,24 @@
           timeout: 5000,
           maximumAge: 0
         };
-        return navigator.geolocation.getCurrentPosition(initialize, manageErrors);
+        return navigator.geolocation.getCurrentPosition(initialize, manageErrors, options);
       }
     };
 
     manageErrors = function(err) {
-      var _this = this;
       alert("Error de localización GPS");
-      return setTimeout((function() {
-        return navigator.geolocation.getCurrentPosition(initialize, manageErrors);
-      }), 5000);
+      return setTimeout(((function(_this) {
+        return function() {
+          return navigator.geolocation.getCurrentPosition(initialize, manageErrors);
+        };
+      })(this)), 5000);
     };
 
     initialize = function(location) {
-      var arriveLocation, mapOptions, marker;
+      var arriveLocation, mapOptions, marker, travel;
       console.log("initialize");
       if (map === void 0) {
+        travel = Lungo.Cache.get("travel");
         arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude);
         console.log(arriveLocation);
         mapOptions = {
@@ -325,8 +100,7 @@
     };
 
     ArriveCtrl.prototype.doPickUp = function(event) {
-      var options,
-        _this = this;
+      var options;
       if (navigator.geolocation) {
         options = {
           enableHighAccuracy: true,
@@ -336,40 +110,41 @@
         navigator.geolocation.getCurrentPosition(iniLocation, manageErrors);
       }
       Lungo.Router.section("init_s");
-      return setTimeout((function() {
-        var driver, server, travel;
-        driver = Lungo.Cache.get("driver");
-        travel = Lungo.Cache.get("travel");
-        server = Lungo.Cache.get("server");
-        travel.origin = Lungo.Cache.get("origin");
-        if (travel.origin === 'undefined') {
-          travel.origin = "";
-        }
-        Lungo.Cache.set("travel", travel);
-        return $$.ajax({
-          type: "POST",
-          url: server + "driver/travelstarted",
-          data: {
-            email: driver.email,
-            travelID: travel.travelID,
-            origin: travel.origin,
-            latitude: travel.latitude,
-            longitude: travel.longitude
-          },
-          success: function(result) {
-            return Lungo.Router.section("charge_s");
-          },
-          error: function(xhr, type) {
-            alert(type.response);
-            return Lungo.Router.section("arrive_s");
+      return setTimeout(((function(_this) {
+        return function() {
+          var driver, server, travel;
+          driver = Lungo.Cache.get("driver");
+          travel = Lungo.Cache.get("travel");
+          server = Lungo.Cache.get("server");
+          travel.origin = Lungo.Cache.get("origin");
+          if (travel.origin === 'undefined') {
+            travel.origin = "";
           }
-        });
-      }), 5000);
+          Lungo.Cache.set("travel", travel);
+          return $$.ajax({
+            type: "POST",
+            url: server + "driver/travelstarted",
+            data: {
+              email: driver.email,
+              travelID: travel.travelID,
+              origin: travel.origin,
+              latitude: travel.latitude,
+              longitude: travel.longitude
+            },
+            success: function(result) {
+              return Lungo.Router.section("charge_s");
+            },
+            error: function(xhr, type) {
+              alert(type.response);
+              return Lungo.Router.section("arrive_s");
+            }
+          });
+        };
+      })(this)), 5000);
     };
 
     ArriveCtrl.prototype.cancelPickUp = function(event) {
-      var driver, server, travel,
-        _this = this;
+      var driver, server, travel;
       driver = Lungo.Cache.get("driver");
       travel = Lungo.Cache.get("travel");
       server = Lungo.Cache.get("server");
@@ -380,12 +155,16 @@
           travelID: travel.travelID,
           email: driver.email
         },
-        success: function(result) {
-          return Lungo.Router.section("waiting_s");
-        },
-        error: function(xhr, type) {
-          return alert(type.response);
-        }
+        success: (function(_this) {
+          return function(result) {
+            return Lungo.Router.section("waiting_s");
+          };
+        })(this),
+        error: (function(_this) {
+          return function(xhr, type) {
+            return alert(type.response);
+          };
+        })(this)
       });
     };
 
@@ -419,7 +198,220 @@
 
     return ArriveCtrl;
 
-  }).call(this, Monocle.Controller);
+  })(Monocle.Controller);
+
+}).call(this);
+
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  __Controller.AppCtrl = (function(_super) {
+    __extends(AppCtrl, _super);
+
+    function AppCtrl() {
+      AppCtrl.__super__.constructor.apply(this, arguments);
+      Lungo.Cache.set("phone", "669338946");
+      Lungo.Cache.set("server", "http://TaxiLoadBalancer-638315338.us-east-1.elb.amazonaws.com/");
+      __Controller.login = new __Controller.LoginCtrl("section#login_s");
+    }
+
+    return AppCtrl;
+
+  })(Monocle.Controller);
+
+  $$(function() {
+    Lungo.init({});
+    __Controller.push = new __Controller.PushCtrl;
+    return __Controller.App = new __Controller.AppCtrl("section#init_s");
+  });
+
+}).call(this);
+
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  __Controller.ArriveCtrl = (function(_super) {
+    var getStreet, iniLocation, manageErrors, map;
+
+    __extends(ArriveCtrl, _super);
+
+    map = void 0;
+
+    ArriveCtrl.prototype.elements = {
+      "#arrive_streetField": "streetField",
+      "#arrive_call": "telephone"
+    };
+
+    ArriveCtrl.prototype.events = {
+      "tap #arrive_pickup": "doPickUp",
+      "tap #arrive_cancel": "cancelPickUp",
+      "tap #arrive_call": "doCall"
+    };
+
+    function ArriveCtrl() {
+      this.doCall = __bind(this.doCall, this);
+      this.cancelPickUp = __bind(this.cancelPickUp, this);
+      this.doPickUp = __bind(this.doPickUp, this);
+      ArriveCtrl.__super__.constructor.apply(this, arguments);
+    }
+
+    ArriveCtrl.prototype.iniArrive = function() {
+      var arriveLocation, mapOptions, marker, travel;
+      travel = Lungo.Cache.get("travel");
+      this.streetField[0].value = travel.origin;
+      this.telephone[0].href = travel.phone;
+      if (navigator.geolocation) {
+        travel = Lungo.Cache.get("travel");
+        arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude);
+        mapOptions = {
+          center: arriveLocation,
+          zoom: 16,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          panControl: false,
+          streetViewControl: false,
+          overviewMapControl: false,
+          mapTypeControl: false,
+          zoomControl: false,
+          styles: [
+            {
+              featureType: "poi",
+              elementType: "labels",
+              stylers: [
+                {
+                  visibility: "off"
+                }
+              ]
+            }
+          ]
+        };
+        map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+        return marker = new google.maps.Marker({
+          position: arriveLocation,
+          map: map,
+          title: travel.origin
+        });
+      }
+    };
+
+    manageErrors = function(err) {
+      return console.log("error gps arrive");
+    };
+
+    iniLocation = function(location) {
+      var currentLocation, travel;
+      travel = Lungo.Cache.get("travel");
+      currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude);
+      travel.latitude = location.coords.latitude;
+      travel.longitude = location.coords.longitude;
+      getStreet(currentLocation);
+      return Lungo.Cache.set("travel", travel);
+    };
+
+    ArriveCtrl.prototype.doPickUp = function(event) {
+      var options;
+      if (navigator.geolocation) {
+        options = {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        };
+        navigator.geolocation.getCurrentPosition(iniLocation, manageErrors);
+      }
+      Lungo.Router.section("init_s");
+      return setTimeout(((function(_this) {
+        return function() {
+          var driver, server, travel;
+          driver = Lungo.Cache.get("driver");
+          travel = Lungo.Cache.get("travel");
+          server = Lungo.Cache.get("server");
+          travel.origin = Lungo.Cache.get("origin");
+          if (travel.origin === 'undefined') {
+            travel.origin = "";
+          }
+          Lungo.Cache.set("travel", travel);
+          return $$.ajax({
+            type: "POST",
+            url: server + "driver/travelstarted",
+            data: {
+              email: driver.email,
+              travelID: travel.travelID,
+              origin: travel.origin,
+              latitude: travel.latitude,
+              longitude: travel.longitude
+            },
+            success: function(result) {
+              __Controller.charge.initialize();
+              return Lungo.Router.section("charge_s");
+            },
+            error: function(xhr, type) {
+              alert(type.response);
+              return Lungo.Router.section("arrive_s");
+            }
+          });
+        };
+      })(this)), 5000);
+    };
+
+    ArriveCtrl.prototype.cancelPickUp = function(event) {
+      var driver, server, travel;
+      driver = Lungo.Cache.get("driver");
+      travel = Lungo.Cache.get("travel");
+      server = Lungo.Cache.get("server");
+      return $$.ajax({
+        type: "POST",
+        url: server + "driver/canceltravel",
+        data: {
+          travelID: travel.travelID,
+          email: driver.email
+        },
+        success: (function(_this) {
+          return function(result) {
+            return Lungo.Router.section("waiting_s");
+          };
+        })(this),
+        error: (function(_this) {
+          return function(xhr, type) {
+            return alert(type.response);
+          };
+        })(this)
+      });
+    };
+
+    ArriveCtrl.prototype.doCall = function(event) {
+      return document.getElementById("fdw").onclick();
+    };
+
+    getStreet = function(pos) {
+      var geocoder;
+      geocoder = new google.maps.Geocoder();
+      return geocoder.geocode({
+        latLng: pos
+      }, function(results, status) {
+        var street;
+        if (status === google.maps.GeocoderStatus.OK) {
+          if (results[1]) {
+            if (results[0].address_components[1].short_name === results[0].address_components[0].short_name) {
+              street = results[0].address_components[1].short_name;
+            } else {
+              street = results[0].address_components[1].short_name + ", " + results[0].address_components[0].short_name;
+            }
+          } else {
+            street = 'Calle desconocida';
+          }
+        } else {
+          street = 'Calle desconocida';
+        }
+        Lungo.Cache.remove("origin");
+        return Lungo.Cache.set("origin", street);
+      });
+    };
+
+    return ArriveCtrl;
+
+  })(Monocle.Controller);
 
 }).call(this);
 
@@ -429,8 +421,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ChargeCtrl = (function(_super) {
-    var getStreet, iniLocation, manageErrors,
-      _this = this;
+    var getStreet, iniLocation, manageErrors;
 
     __extends(ChargeCtrl, _super);
 
@@ -454,22 +445,42 @@
       this.doCharge = __bind(this.doCharge, this);
       this.changeApp = __bind(this.changeApp, this);
       this.changeCash = __bind(this.changeCash, this);
+      this.initialize = __bind(this.initialize, this);
       ChargeCtrl.__super__.constructor.apply(this, arguments);
     }
 
+    ChargeCtrl.prototype.initialize = function() {
+      var driver;
+      this.optionCash[0].checked = true;
+      this.optionApp[0].checked = false;
+      driver = Lungo.Cache.get("driver");
+      alert("appPayment: " + driver.appPayment);
+      if (driver.appPayment === false) {
+        return this.optionApp[0].disabled = true;
+      }
+    };
+
     ChargeCtrl.prototype.changeCash = function() {
-      if (this.optionApp[0].checked) {
-        return this.optionCash[0].checked = false;
-      } else {
-        return this.optionCash[0].checked = true;
+      var driver;
+      driver = Lungo.Cache.get("driver");
+      if (driver.appPayment === true) {
+        if (this.optionApp[0].checked === true) {
+          return this.optionCash[0].checked = false;
+        } else {
+          return this.optionCash[0].checked = true;
+        }
       }
     };
 
     ChargeCtrl.prototype.changeApp = function() {
-      if (this.optionCash[0].checked) {
-        return this.optionApp[0].checked = false;
-      } else {
-        return this.optionApp[0].checked = true;
+      var driver;
+      driver = Lungo.Cache.get("driver");
+      if (driver.appPayment === true) {
+        if (this.optionCash[0].checked === true) {
+          return this.optionApp[0].checked = false;
+        } else {
+          return this.optionApp[0].checked = true;
+        }
       }
     };
 
@@ -488,8 +499,7 @@
     };
 
     ChargeCtrl.prototype.doCharge = function(event) {
-      var correcto, options, travel,
-        _this = this;
+      var correcto, options, travel;
       correcto = this.valideAmount(this.amount[0].value);
       if (correcto) {
         travel = Lungo.Cache.get("travel");
@@ -503,14 +513,15 @@
         }
       }
       Lungo.Router.section("init_s");
-      return setTimeout((function() {
-        return _this.travelCompleted();
-      }), 6000);
+      return setTimeout(((function(_this) {
+        return function() {
+          return _this.travelCompleted();
+        };
+      })(this)), 5000);
     };
 
     ChargeCtrl.prototype.travelCompleted = function() {
-      var driver, server, travel,
-        _this = this;
+      var driver, server, travel;
       driver = Lungo.Cache.get("driver");
       server = Lungo.Cache.get("server");
       travel = Lungo.Cache.get("travel");
@@ -530,14 +541,20 @@
           appPayment: this.optionApp[0].checked,
           cost: this.amount[0].value
         },
-        success: function(result) {
-          _this.amount[0].value = "";
-          return Lungo.Router.section("waiting_s");
-        },
-        error: function(xhr, type) {
-          alert(type.response);
-          return Lungo.Router.section("charge_s");
-        }
+        success: (function(_this) {
+          return function(result) {
+            _this.amount[0].value = "";
+            if (_this.optionCash[0].checked) {
+              return Lungo.Router.section("waiting_s");
+            }
+          };
+        })(this),
+        error: (function(_this) {
+          return function(xhr, type) {
+            alert(type.response);
+            return Lungo.Router.section("charge_s");
+          };
+        })(this)
       });
       return Lungo.Router.section("waiting_s");
     };
@@ -562,6 +579,7 @@
         } else {
           street = 'Calle desconocida';
         }
+        Lungo.Cache.remove("destination");
         return Lungo.Cache.set("destination", street);
       });
     };
@@ -591,7 +609,7 @@
 
     return ChargeCtrl;
 
-  }).call(this, Monocle.Controller);
+  })(Monocle.Controller);
 
 }).call(this);
 
@@ -626,17 +644,17 @@
     }
 
     ConfirmationCtrl.prototype.loadTravel = function(travel) {
-      var _this = this;
       this.streetField[0].value = travel.origin;
       Lungo.Cache.set("travel", travel);
-      return timer = setTimeout((function() {
-        return Lungo.Router.section("waiting_s");
-      }), 5000);
+      return timer = setTimeout(((function(_this) {
+        return function() {
+          return Lungo.Router.section("waiting_s");
+        };
+      })(this)), 15000);
     };
 
     ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
-      var data, driver, server,
-        _this = this;
+      var data, driver, server;
       driver = Lungo.Cache.get("driver");
       travel = Lungo.Cache.get("travel");
       data = {
@@ -650,14 +668,18 @@
         type: "POST",
         url: server + "driver/accepttravel",
         data: data,
-        success: function(result) {
-          __Controller.arrive.iniArrive();
-          return Lungo.Router.section("arrive_s");
-        },
-        error: function(xhr, type) {
-          alert(type.response);
-          return Lungo.Router.section("waiting_s");
-        }
+        success: (function(_this) {
+          return function(result) {
+            __Controller.arrive.iniArrive();
+            return Lungo.Router.section("arrive_s");
+          };
+        })(this),
+        error: (function(_this) {
+          return function(xhr, type) {
+            alert(type.response);
+            return Lungo.Router.section("waiting_s");
+          };
+        })(this)
       });
       return this.stopTimer();
     };
@@ -705,12 +727,13 @@
       this.drop = __bind(this.drop, this);
       this.valideCredentials = __bind(this.valideCredentials, this);
       this.doLogin = __bind(this.doLogin, this);
-      var _this = this;
       LoginCtrl.__super__.constructor.apply(this, arguments);
       this.db = window.openDatabase("TaxiExpressDriver", "1.0", "description", 2 * 1024 * 1024);
-      this.db.transaction(function(tx) {
-        return tx.executeSql("CREATE TABLE IF NOT EXISTS accessDataDriver (email STRING NOT NULL PRIMARY KEY, pass STRING NOT NULL)");
-      });
+      this.db.transaction((function(_this) {
+        return function(tx) {
+          return tx.executeSql("CREATE TABLE IF NOT EXISTS accessDataDriver (email STRING NOT NULL PRIMARY KEY, pass STRING NOT NULL)");
+        };
+      })(this));
       this.read();
     }
 
@@ -724,14 +747,15 @@
     };
 
     LoginCtrl.prototype.valideCredentials = function(email, pass) {
-      var data, device, pushID, server,
-        _this = this;
+      var data, device, pushID, server;
       pushID = Lungo.Cache.get("pushID");
       if (pushID === void 0) {
-        return setTimeout((function() {
-          pushID = Lungo.Cache.get("pushID");
-          return _this.valideCredentials(email, pass);
-        }), 500);
+        return setTimeout(((function(_this) {
+          return function() {
+            pushID = Lungo.Cache.get("pushID");
+            return _this.valideCredentials(email, pass);
+          };
+        })(this)), 500);
       } else {
         device = Lungo.Cache.get("pushDevice");
         server = Lungo.Cache.get("server");
@@ -746,23 +770,26 @@
           type: "POST",
           url: server + "driver/login",
           data: data,
-          success: function(result) {
-            return _this.parseResponse(result);
-          },
-          error: function(xhr, type) {
-            setTimeout((function() {
-              return Lungo.Router.section("login_s");
-            }), 500);
-            _this.password[0].value = "";
-            return alert(type.response);
-          }
+          success: (function(_this) {
+            return function(result) {
+              return _this.parseResponse(result);
+            };
+          })(this),
+          error: (function(_this) {
+            return function(xhr, type) {
+              setTimeout((function() {
+                return Lungo.Router.section("login_s");
+              }), 500);
+              _this.password[0].value = "";
+              return alert(type.response);
+            };
+          })(this)
         });
       }
     };
 
     LoginCtrl.prototype.parseResponse = function(result) {
-      var driver, email, pass,
-        _this = this;
+      var driver, email, pass;
       if (this.username[0].value === "") {
         email = credentials.email;
         pass = credentials.pass;
@@ -770,15 +797,18 @@
         email = this.username[0].value;
         pass = this.password[0].value;
       }
-      this.db.transaction(function(tx) {
-        var sql;
-        sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('" + email + "','" + pass + "');";
-        return tx.executeSql(sql);
-      });
+      this.db.transaction((function(_this) {
+        return function(tx) {
+          var sql;
+          sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('" + email + "','" + pass + "');";
+          return tx.executeSql(sql);
+        };
+      })(this));
       driver = {
         email: email,
         first_name: result.first_name,
-        last_name: result.last_name
+        last_name: result.last_name,
+        appPayment: result.appPayment
       };
       console.log(driver);
       Lungo.Cache.set("driver", driver);
@@ -791,24 +821,26 @@
     };
 
     LoginCtrl.prototype.drop = function() {
-      var _this = this;
-      return this.db.transaction(function(tx) {
-        return tx.executeSql("DELETE FROM accessDataDriver");
-      });
+      return this.db.transaction((function(_this) {
+        return function(tx) {
+          return tx.executeSql("DELETE FROM accessDataDriver");
+        };
+      })(this));
     };
 
     LoginCtrl.prototype.read = function() {
-      var _this = this;
-      return this.db.transaction(function(tx) {
-        return tx.executeSql("SELECT * FROM accessDataDriver", [], (function(tx, results) {
-          if (results.rows.length > 0) {
-            credentials = results.rows.item(0);
-            return _this.valideCredentials(credentials.email, credentials.pass);
-          } else {
-            return Lungo.Router.section("login_s");
-          }
-        }), null);
-      });
+      return this.db.transaction((function(_this) {
+        return function(tx) {
+          return tx.executeSql("SELECT * FROM accessDataDriver", [], (function(tx, results) {
+            if (results.rows.length > 0) {
+              credentials = results.rows.item(0);
+              return _this.valideCredentials(credentials.email, credentials.pass);
+            } else {
+              return Lungo.Router.section("login_s");
+            }
+          }), null);
+        };
+      })(this));
     };
 
     return LoginCtrl;
@@ -833,6 +865,7 @@
       this.handlePush = __bind(this.handlePush, this);
       this.savePushID = __bind(this.savePushID, this);
       PushCtrl.__super__.constructor.apply(this, arguments);
+      this.savePushID("APA91bHdfAsMRF1C3YXJhv0AGOSUFN8tr66zue3J6HdVtUlcZYk9OAoix2ZNzHuIKZ9khVxKvxRR25OTwnFKu9WlACi8IvnPaD4qfts8Jjih4259AoR0u52HdaMLhkBq4NCpDcOZl5a2RJYAuQaFs9Gl8FwTtrodo2jdSdoVItbYaIixV2cfKXI", "ANDROID");
     }
 
     PushCtrl.prototype.savePushID = function(id, device) {
@@ -881,8 +914,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.WaitingCtrl = (function(_super) {
-    var disponible, driver, manageError, timer, updatePosition, watchId,
-      _this = this;
+    var disponible, driver, manageError, timer, updatePosition, watchId;
 
     __extends(WaitingCtrl, _super);
 
@@ -926,7 +958,7 @@
       var notification;
       notification = {
         code: "801",
-        travelID: 204,
+        travelID: 256,
         origin: "Mi casaaaaa",
         startpoint: "66.2641160000000013, -6.9237662000000002",
         valuation: 3,
@@ -998,8 +1030,7 @@
     };
 
     WaitingCtrl.prototype.updateAvailable = function(email, available) {
-      var server,
-        _this = this;
+      var server;
       server = Lungo.Cache.get("server");
       return $$.ajax({
         type: "POST",
@@ -1008,12 +1039,16 @@
           email: email,
           available: available
         },
-        success: function(result) {
-          return _this;
-        },
-        error: function(xhr, type) {
-          return alert(type.response);
-        }
+        success: (function(_this) {
+          return function(result) {
+            return _this;
+          };
+        })(this),
+        error: (function(_this) {
+          return function(xhr, type) {
+            return alert(type.response);
+          };
+        })(this)
       });
     };
 
@@ -1028,6 +1063,6 @@
 
     return WaitingCtrl;
 
-  }).call(this, Monocle.Controller);
+  })(Monocle.Controller);
 
 }).call(this);

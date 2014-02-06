@@ -20,11 +20,11 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     driver = Lungo.Cache.get "driver"
     @driver[0].innerText = driver.last_name + ", " + driver.first_name
     @getLocationUpdate()
-      
+
   doPost: =>
     notification=
       code: "801"
-      travelID: 204
+      travelID: 256
       origin: "Mi casaaaaa"
       startpoint: "66.2641160000000013, -6.9237662000000002"
       valuation: 3
@@ -34,7 +34,6 @@ class __Controller.WaitingCtrl extends Monocle.Controller
   logOut: =>
     navigator.geolocation.clearWatch @watchId
     @watchId = undefined
-    #AQUI HABRIA QUE HACER UNA PETICION A SERVER PARA QUE TE PONGA A NO DISPONIBLE
     Lungo.Cache.set "pushID", undefined
     @updateAvailable(driver.email, false)
     Lungo.Cache.set "driver", ""

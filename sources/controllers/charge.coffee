@@ -15,17 +15,33 @@ class __Controller.ChargeCtrl extends Monocle.Controller
   constructor: ->
     super
 
-  changeCash: => 
-    if @optionApp[0].checked
-      @optionCash[0].checked = false
-    else
-      @optionCash[0].checked = true
+  initialize: =>
+    @optionCash[0].checked = true
+    @optionApp[0].checked = false
+
+    driver = Lungo.Cache.get "driver"
+    #driver.appPayment = false
+    alert "appPayment: " + driver.appPayment
+    @optionApp[0].disabled = true if driver.appPayment is false
+    
+
+  changeCash: =>
+    driver = Lungo.Cache.get "driver"
+
+    if driver.appPayment is true
+      if @optionApp[0].checked is true
+        @optionCash[0].checked = false
+      else
+        @optionCash[0].checked = true
 
   changeApp: =>
-    if @optionCash[0].checked 
-      @optionApp[0].checked = false
-    else
-      @optionApp[0].checked = true
+    driver = Lungo.Cache.get "driver"
+
+    if driver.appPayment is true
+      if @optionCash[0].checked is true
+        @optionApp[0].checked = false
+      else
+        @optionApp[0].checked = true
 
   iniLocation = (location) =>
     travel = Lungo.Cache.get "travel"
@@ -52,7 +68,7 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         navigator.geolocation.getCurrentPosition iniLocation, manageErrors
 
     Lungo.Router.section "init_s"
-    setTimeout((=> @travelCompleted()) , 6000)
+    setTimeout((=> @travelCompleted()) , 5000)
 
   travelCompleted: =>
     driver = Lungo.Cache.get "driver"
@@ -75,7 +91,8 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         cost: @amount[0].value
       success: (result) =>
         @amount[0].value = ""
-        Lungo.Router.section "waiting_s"
+        if @optionCash[0].checked
+          Lungo.Router.section "waiting_s"
       error: (xhr, type) =>
         alert type.response        
         Lungo.Router.section "charge_s"
@@ -96,6 +113,7 @@ class __Controller.ChargeCtrl extends Monocle.Controller
           street = 'Calle desconocida'
       else
         street = 'Calle desconocida'
+      Lungo.Cache.remove "destination"  
       Lungo.Cache.set "destination", street
 
   valideAmount: (amount) =>

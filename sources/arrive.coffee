@@ -4,6 +4,7 @@ class __Controller.ArriveCtrl extends Monocle.Controller
   
   elements:
     "#arrive_streetField"            : "streetField"
+    "#arrive_call"                   : "telephone"
   
   events:
     "tap #arrive_pickup"             : "doPickUp"
@@ -12,47 +13,18 @@ class __Controller.ArriveCtrl extends Monocle.Controller
 
   constructor: ->
     super
-    console.log "arrive"
 
   iniArrive: ->
-    console.log "iniArrive" 
     travel = Lungo.Cache.get "travel"
     @streetField[0].value = travel.origin
+    @telephone[0].href = travel.phone
 
-    alert "travelID: " + travel.travelID 
-    alert "latitude: " + travel.latitude
-    alert "longitude: " + travel.longitude  
-
-    arriveLocation = new google.maps.LatLng(44.2641160000000013, -2.9237662000000002)
-    console.log arriveLocation
-    mapOptions =
-      center: arriveLocation
-      zoom: 16
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-      panControl: false
-      streetViewControl:false
-      overviewMapControl:false
-      mapTypeControl:false
-      zoomControl:false
-      styles: [
-        featureType: "poi.business"
-        elementType: "labels"
-        stylers: [visibility: "off"]
-      ]
-    map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
-    console.log map
-    marker = new google.maps.Marker(
-      position: arriveLocation
-      map: map
-      title: travel.origin
-    )
-
-    #if navigator.geolocation
-    #  options =
-    #    enableHighAccuracy: true,
-    #    timeout: 5000,
-    #    maximumAge: 0
-    #  navigator.geolocation.getCurrentPosition initialize, manageErrors
+    if navigator.geolocation
+      options =
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      navigator.geolocation.getCurrentPosition initialize, manageErrors, options
 
   manageErrors = (err) ->
     alert "Error de localización GPS"
@@ -63,6 +35,7 @@ class __Controller.ArriveCtrl extends Monocle.Controller
     #Lungo.Router.section "home_s"
     if map == undefined
       #currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
+      travel = Lungo.Cache.get "travel"
       arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude)
       console.log arriveLocation
       mapOptions =
@@ -84,18 +57,22 @@ class __Controller.ArriveCtrl extends Monocle.Controller
       marker = new google.maps.Marker(
         position: arriveLocation
         map: map
-        title: travel.origin
+        title: @streetField[0].value
       )
 
   iniLocation = (location) =>
+    travel = Lungo.Cache.get "travel"
+
     currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
-    travel.latitude = location.latitude
-    travel.longitude = location.longitude
-    travel.newOrigin = @getStreet(currentLocation)
+    travel.latitude = location.coords.latitude
+    travel.longitude = location.coords.longitude
+    getStreet(currentLocation)  
+    
+    Lungo.Cache.set "travel", travel
 
   doPickUp: (event) =>
-    __Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
-    Lungo.Router.section "charge_s"
+   # __Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
+   # Lungo.Router.section "charge_s"
 
     if navigator.geolocation
       options =
@@ -104,37 +81,53 @@ class __Controller.ArriveCtrl extends Monocle.Controller
         maximumAge: 0
       navigator.geolocation.getCurrentPosition iniLocation, manageErrors
 
+    Lungo.Router.section "init_s"
+      
+    setTimeout((=>
+      driver = Lungo.Cache.get "driver"
+      travel = Lungo.Cache.get "travel"
+      server = Lungo.Cache.get "server"
 
+      travel.origin = Lungo.Cache.get "origin"
+      travel.origin = ""  if travel.origin is 'undefined'
+      
+      Lungo.Cache.set "travel", travel
+
+      $$.ajax
+        type: "POST"
+        url: server + "driver/travelstarted"
+        data:
+          email: driver.email
+          travelID: travel.travelID
+          origin: travel.origin
+          latitude: travel.latitude
+          longitude: travel.longitude
+        success: (result) =>
+          #__Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
+          Lungo.Router.section "charge_s"
+        error: (xhr, type) =>
+          alert type.response 
+          Lungo.Router.section "arrive_s"       
+    ) , 5000)
+      
+    
+  cancelPickUp: (event) =>
     driver = Lungo.Cache.get "driver"
     travel = Lungo.Cache.get "travel"
     server = Lungo.Cache.get "server"
-
-    alert "travelID: " + travel.travelID 
-    alert "latitude: " + travel.latitude
-    alert "longitude: " + travel.longitude  
-    travel.newOrigin = "Mi casaaaaa 22222"
-    console.log(travel)
-    
     $$.ajax
       type: "POST"
-      url: server + "driver/travelstarted"
+      url: server + "driver/canceltravel"
       data:
-        email: driver.email
         travelID: travel.travelID
-        origin: travel.newOrigin
-        latitude: travel.latitude
-        longitude: travel.longitude
+        email: driver.email
       success: (result) =>
         #__Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
-        Lungo.Router.section "charge_s"
+        Lungo.Router.section "waiting_s"
       error: (xhr, type) =>
         alert type.response        
-    
-  cancelPickUp: (event) =>
-    Lungo.Router.section "waiting_s"
 
   doCall: (event) =>
-    alert "llamando"
     document.getElementById("fdw").onclick();
 
   getStreet = (pos) =>
@@ -145,12 +138,12 @@ class __Controller.ArriveCtrl extends Monocle.Controller
       if status is google.maps.GeocoderStatus.OK
         if results[1]
           if results[0].address_components[1].short_name == results[0].address_components[0].short_name
-            results[0].address_components[1].short_name
+            street = results[0].address_components[1].short_name
           else 
-            results[0].address_components[1].short_name + ", " +results[0].address_components[0].short_name
+            street = results[0].address_components[1].short_name + ", " +results[0].address_components[0].short_name
         else
-          'Calle desconocida'
+          street = 'Calle desconocida'
       else
-        'Calle desconocida'
-
+        street = 'Calle desconocida'
+      Lungo.Cache.set "origin", street
   

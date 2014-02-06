@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>TaxiExpress</title>
-    <meta name="viewport" content="width=device-width, user-scalable=no">
     <link rel="stylesheet" href="components/lungo/lungo.css">
     <link rel="stylesheet" href="components/lungo/lungo.icon.css">
     <link rel="stylesheet" href="components/lungo/lungo.theme.css">
+    <meta name="viewport" content="width=device-width, user-scalable=no, height=device-height, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="HandheldFriendly" content="True">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="cleartype" content="on">
 </head>
 <body>  
     <section id="init_s" data-transition="fade">
@@ -46,6 +50,7 @@
         <button id="waiting_confirmation" data-label="Prueba confirmation"></button>
         <button id="waiting_prueba1" data-label="Prueba location"></button>
         <button id="waiting_prueba2" data-label="Prueba Post"></button>
+        
         <button id="waiting_logout" class="anchor">Cerrar Sesión</button>
       </article>
     </section>
@@ -85,7 +90,7 @@
         <div class="form list">
           <fieldset> 
               <small id="charge_cash_label">Contado</small>
-              <input id="charge_cash" type="checkbox" checked/>
+              <input id="charge_cash" type="checkbox"/>
           </fieldset> 
           <fieldset> 
               <strong id="charge_app_label">Mediante la aplicación</strong>

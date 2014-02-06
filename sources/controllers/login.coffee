@@ -67,7 +67,8 @@ class __Controller.LoginCtrl extends Monocle.Controller
       email: email
       first_name: result.first_name
       last_name: result.last_name
-    
+      appPayment: result.appPayment
+
     console.log driver
     Lungo.Cache.set "driver", driver    
     __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"

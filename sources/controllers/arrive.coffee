@@ -20,23 +20,12 @@ class __Controller.ArriveCtrl extends Monocle.Controller
     @telephone[0].href = travel.phone
 
     if navigator.geolocation
-      options =
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0
-      navigator.geolocation.getCurrentPosition initialize, manageErrors
-
-  manageErrors = (err) ->
-    alert "Error de localización GPS"
-    setTimeout((=> navigator.geolocation.getCurrentPosition initialize, manageErrors) , 5000)
-
-  initialize = (location) =>
-    console.log "initialize"
-    #Lungo.Router.section "home_s"
-    if map == undefined
+      #if map == undefined
+      travel = Lungo.Cache.get "travel"
       #currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
+      #alert "Latitude: " + travel.latitude + "  Longitude: " + travel.longitude
       arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude)
-      console.log arriveLocation
+      #arriveLocation = new google.maps.LatLng(43.32193910000, -2.9891883999999997)
       mapOptions =
         center: arriveLocation
         zoom: 16
@@ -47,17 +36,21 @@ class __Controller.ArriveCtrl extends Monocle.Controller
         mapTypeControl:false
         zoomControl:false
         styles: [
-          featureType: "poi.business"
+          featureType: "poi"
           elementType: "labels"
           stylers: [visibility: "off"]
         ]
+
       map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
 
       marker = new google.maps.Marker(
-        position: arriveLocation
+        position: arriveLocation 
         map: map
-        title: @streetField[0].value
+        title: travel.origin
       )
+
+  manageErrors = (err) ->
+    console.log "error gps arrive"
 
   iniLocation = (location) =>
     travel = Lungo.Cache.get "travel"
@@ -103,6 +96,7 @@ class __Controller.ArriveCtrl extends Monocle.Controller
           longitude: travel.longitude
         success: (result) =>
           #__Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
+          __Controller.charge.initialize()
           Lungo.Router.section "charge_s"
         error: (xhr, type) =>
           alert type.response 
@@ -144,5 +138,6 @@ class __Controller.ArriveCtrl extends Monocle.Controller
           street = 'Calle desconocida'
       else
         street = 'Calle desconocida'
+      Lungo.Cache.remove "origin"  
       Lungo.Cache.set "origin", street
   

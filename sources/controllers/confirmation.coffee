@@ -24,7 +24,7 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
   loadTravel: (travel) ->
     @streetField[0].value = travel.origin
     Lungo.Cache.set "travel", travel
-    timer = setTimeout((=>Lungo.Router.section "waiting_s") , 5000)
+    timer = setTimeout((=>Lungo.Router.section "waiting_s") , 15000)
     
   acceptConfirmation: (event) =>
     driver = Lungo.Cache.get "driver"
@@ -32,9 +32,9 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
     #__Controller.arrive = new __Controller.ArriveCtrl "section#arrive_s"
     #Lungo.Router.section "arrive_s"
 
+    #alert "Travel confirmation:" + travel.travelID
     #alert "Confirmation latitude: " + travel.latitude
     #alert "Confirmation longitude: " + travel.longitude  
-
     data = 
       email: driver.email
       travelID: travel.travelID 
