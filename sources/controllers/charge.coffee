@@ -20,28 +20,31 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     @optionApp[0].checked = false
 
     driver = Lungo.Cache.get "driver"
-    #driver.appPayment = false
-    alert "appPayment: " + driver.appPayment
+    #alert "appPayment: " + driver.appPayment
     @optionApp[0].disabled = true if driver.appPayment is false
-    
-
+ 
   changeCash: =>
     driver = Lungo.Cache.get "driver"
 
+    #alert "App: " + @optionApp[0].value
+    #alert "Cash: " + @optionCash[0].value
     if driver.appPayment is true
       if @optionApp[0].checked is true
         @optionCash[0].checked = false
       else
         @optionCash[0].checked = true
-
+    #alert "New Cash: " + @optionCash[0].value
   changeApp: =>
     driver = Lungo.Cache.get "driver"
 
+    #alert "Cash: " + @optionCash[0].checked
+    #alert "App: " + @optionApp[0].checked
     if driver.appPayment is true
       if @optionCash[0].checked is true
         @optionApp[0].checked = false
       else
         @optionApp[0].checked = true
+    #alert "New App: " + @optionApp[0].checked
 
   iniLocation = (location) =>
     travel = Lungo.Cache.get "travel"
@@ -67,8 +70,8 @@ class __Controller.ChargeCtrl extends Monocle.Controller
           maximumAge: 0
         navigator.geolocation.getCurrentPosition iniLocation, manageErrors
 
-    Lungo.Router.section "init_s"
-    setTimeout((=> @travelCompleted()) , 5000)
+      Lungo.Router.section "init_s"
+      setTimeout((=> @travelCompleted()) , 5000)
 
   travelCompleted: =>
     driver = Lungo.Cache.get "driver"
@@ -94,7 +97,7 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         if @optionCash[0].checked
           Lungo.Router.section "waiting_s"
       error: (xhr, type) =>
-        alert type.response        
+        navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
         Lungo.Router.section "charge_s"
      Lungo.Router.section "waiting_s"
 
@@ -120,15 +123,18 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     # how many decimals are allowed?
     decallowed = 2 
     if isNaN(amount)
-      alert "El importe introducido no es correcto."
+      #navigator.notification.alert "El importe introducido no es correcto", null, "Taxi Express", "Aceptar"
+      alert "El importe introducido no es correcto"
       return false
     else if amount is ""
-      alert "El importe no puede estar vacío"  
+      #navigator.notification.alert "El importe no puede estar vacío", null, "Taxi Express", "Aceptar"
+      alert "El importe no puede estar vacío"
       return false
     else
       amount += "."  if amount.indexOf(".") is -1
       dectext = amount.substring(amount.indexOf(".") + 1, amount.length)
       if dectext.length > decallowed
+        #navigator.notification.alert "Por favor, entra un número con " + decallowed + " números decimales.", null, "Taxi Express", "Aceptar"
         alert "Por favor, entra un número con " + decallowed + " números decimales."
         return false
       else

@@ -20,6 +20,16 @@ class __Controller.ArriveCtrl extends Monocle.Controller
     @telephone[0].href = "tel:" + travel.phone
 
     if navigator.geolocation
+      unless map is undefined
+        mapCanvas = document.getElementById("map-canvas")
+        padre = mapCanvas.parentNode
+        padre.removeChild mapCanvas
+        
+        eDIV = document.createElement("div");
+        eDIV.setAttribute "id", "map-canvas"
+        console.log eDIV
+        document.getElementById("arrive_s").appendChild(eDIV);
+
       #if map == undefined
       travel = Lungo.Cache.get "travel"
       #currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
@@ -80,6 +90,8 @@ class __Controller.ArriveCtrl extends Monocle.Controller
       travel = Lungo.Cache.get "travel"
       server = Lungo.Cache.get "server"
 
+      #alert "Latitude: " + travel.latitude + ". Longitude: " + travel.latitude
+
       travel.origin = Lungo.Cache.get "origin"
       travel.origin = ""  if travel.origin is 'undefined'
       
@@ -99,7 +111,7 @@ class __Controller.ArriveCtrl extends Monocle.Controller
           __Controller.charge.initialize()
           Lungo.Router.section "charge_s"
         error: (xhr, type) =>
-          alert type.response 
+          navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
           Lungo.Router.section "arrive_s"       
     ) , 5000)
       
@@ -131,7 +143,7 @@ class __Controller.ArriveCtrl extends Monocle.Controller
         #__Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
         Lungo.Router.section "waiting_s"
       error: (xhr, type) =>
-        alert type.response        
+        navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
 
   doCall: (event) =>
     document.getElementById("fdw").onclick();

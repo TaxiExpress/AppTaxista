@@ -22,7 +22,7 @@ class __Controller.LoginCtrl extends Monocle.Controller
       @drop()
       @valideCredentials @username[0].value, @password[0].value
     else
-      alert "Debe rellenar el email y la contraseña"
+      navigator.notification.alert "Debe rellenar el email y la contraseña", null, "Taxi Express", "Aceptar"
 
   valideCredentials: (email, pass)=>
     pushID = Lungo.Cache.get "pushID"
@@ -50,7 +50,7 @@ class __Controller.LoginCtrl extends Monocle.Controller
         error: (xhr, type) =>
           setTimeout((=>Lungo.Router.section "login_s") , 500)
           @password[0].value = ""
-          alert type.response        
+          navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
 
   parseResponse: (result) ->
     if @username[0].value == ""

@@ -260,11 +260,20 @@
     }
 
     ArriveCtrl.prototype.iniArrive = function() {
-      var arriveLocation, mapOptions, marker, travel;
+      var arriveLocation, eDIV, mapCanvas, mapOptions, marker, padre, travel;
       travel = Lungo.Cache.get("travel");
       this.streetField[0].value = travel.origin;
       this.telephone[0].href = "tel:" + travel.phone;
       if (navigator.geolocation) {
+        if (map !== void 0) {
+          mapCanvas = document.getElementById("map-canvas");
+          padre = mapCanvas.parentNode;
+          padre.removeChild(mapCanvas);
+          eDIV = document.createElement("div");
+          eDIV.setAttribute("id", "map-canvas");
+          console.log(eDIV);
+          document.getElementById("arrive_s").appendChild(eDIV);
+        }
         travel = Lungo.Cache.get("travel");
         arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude);
         mapOptions = {
@@ -348,7 +357,7 @@
               return Lungo.Router.section("charge_s");
             },
             error: function(xhr, type) {
-              alert(type.response);
+              navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
               return Lungo.Router.section("arrive_s");
             }
           });
@@ -398,7 +407,7 @@
         })(this),
         error: (function(_this) {
           return function(xhr, type) {
-            return alert(type.response);
+            return navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
           };
         })(this)
       });
@@ -478,7 +487,6 @@
       this.optionCash[0].checked = true;
       this.optionApp[0].checked = false;
       driver = Lungo.Cache.get("driver");
-      alert("appPayment: " + driver.appPayment);
       if (driver.appPayment === false) {
         return this.optionApp[0].disabled = true;
       }
@@ -535,13 +543,13 @@
           };
           navigator.geolocation.getCurrentPosition(iniLocation, manageErrors);
         }
+        Lungo.Router.section("init_s");
+        return setTimeout(((function(_this) {
+          return function() {
+            return _this.travelCompleted();
+          };
+        })(this)), 5000);
       }
-      Lungo.Router.section("init_s");
-      return setTimeout(((function(_this) {
-        return function() {
-          return _this.travelCompleted();
-        };
-      })(this)), 5000);
     };
 
     ChargeCtrl.prototype.travelCompleted = function() {
@@ -575,7 +583,7 @@
         })(this),
         error: (function(_this) {
           return function(xhr, type) {
-            alert(type.response);
+            navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
             return Lungo.Router.section("charge_s");
           };
         })(this)
@@ -612,7 +620,7 @@
       var decallowed, dectext;
       decallowed = 2;
       if (isNaN(amount)) {
-        alert("El importe introducido no es correcto.");
+        alert("El importe introducido no es correcto");
         return false;
       } else if (amount === "") {
         alert("El importe no puede estar vacío");
@@ -700,7 +708,7 @@
         })(this),
         error: (function(_this) {
           return function(xhr, type) {
-            alert(type.response);
+            navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
             return Lungo.Router.section("waiting_s");
           };
         })(this)
@@ -766,7 +774,7 @@
         this.drop();
         return this.valideCredentials(this.username[0].value, this.password[0].value);
       } else {
-        return alert("Debe rellenar el email y la contraseña");
+        return navigator.notification.alert("Debe rellenar el email y la contraseña", null, "Taxi Express", "Aceptar");
       }
     };
 
@@ -805,7 +813,7 @@
                 return Lungo.Router.section("login_s");
               }), 500);
               _this.password[0].value = "";
-              return alert(type.response);
+              return navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
             };
           })(this)
         });
@@ -913,6 +921,8 @@
             startpoint: notification.startpoint,
             latitude: lat,
             longitude: long,
+            latitude: 43.3219708000000026,
+            longitude: -2.9892685999999999,
             valuation: notification.valuation,
             phone: notification.phone
           };
@@ -982,7 +992,7 @@
       var notification;
       notification = {
         code: "801",
-        travelID: 255,
+        travelID: 254,
         origin: "Mi casaaaaa",
         startpoint: "66.2641160000000013, -6.9237662000000002",
         valuation: 3,
@@ -1070,7 +1080,7 @@
         })(this),
         error: (function(_this) {
           return function(xhr, type) {
-            return alert(type.response);
+            return navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
           };
         })(this)
       });

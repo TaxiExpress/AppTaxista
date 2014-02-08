@@ -24,7 +24,7 @@ class __Controller.WaitingCtrl extends Monocle.Controller
   doPost: =>
     notification=
       code: "801"
-      travelID: 255
+      travelID: 254
       origin: "Mi casaaaaa"
       startpoint: "66.2641160000000013, -6.9237662000000002"
       valuation: 3
@@ -90,7 +90,8 @@ class __Controller.WaitingCtrl extends Monocle.Controller
         @
         #alert "posicion actualizada"
       error: (xhr, type) =>
-        alert type.response
+        navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
+
 
   changeAvailable: =>
     @updateAvailable(driver.email, @valorAvailable[0].checked)
