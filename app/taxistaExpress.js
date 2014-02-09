@@ -620,10 +620,10 @@
       var decallowed, dectext;
       decallowed = 2;
       if (isNaN(amount)) {
-        alert("El importe introducido no es correcto");
+        navigator.notification.alert("El importe introducido no es correcto", null, "Taxi Express", "Aceptar");
         return false;
       } else if (amount === "") {
-        alert("El importe no puede estar vacío");
+        navigator.notification.alert("El importe no puede estar vacío", null, "Taxi Express", "Aceptar");
         return false;
       } else {
         if (amount.indexOf(".") === -1) {
@@ -631,7 +631,7 @@
         }
         dectext = amount.substring(amount.indexOf(".") + 1, amount.length);
         if (dectext.length > decallowed) {
-          alert("Por favor, entra un número con " + decallowed + " números decimales.");
+          navigator.notification.alert("Por favor, entra un número con " + decallowed + " números decimales.", null, "Taxi Express", "Aceptar");
           return false;
         } else {
           return true;
@@ -651,13 +651,11 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ConfirmationCtrl = (function(_super) {
-    var timer, travel;
+    var timer;
 
     __extends(ConfirmationCtrl, _super);
 
     timer = null;
-
-    travel = null;
 
     ConfirmationCtrl.prototype.elements = {
       "#confirmation_streetField": "streetField"
@@ -686,7 +684,7 @@
     };
 
     ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
-      var data, driver, server;
+      var data, driver, server, travel;
       driver = Lungo.Cache.get("driver");
       travel = Lungo.Cache.get("travel");
       data = {
@@ -842,7 +840,6 @@
         last_name: result.last_name,
         appPayment: result.appPayment
       };
-      console.log(driver);
       Lungo.Cache.set("driver", driver);
       __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
       __Controller.charge = new __Controller.ChargeCtrl("section#charge_s");
@@ -921,8 +918,6 @@
             startpoint: notification.startpoint,
             latitude: lat,
             longitude: long,
-            latitude: 43.3219708000000026,
-            longitude: -2.9892685999999999,
             valuation: notification.valuation,
             phone: notification.phone
           };
@@ -948,23 +943,16 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.WaitingCtrl = (function(_super) {
-    var disponible, driver, manageError, timer, updatePosition, watchId;
+    var driver, manageError, updatePosition, watchId;
 
     __extends(WaitingCtrl, _super);
 
-    timer = null;
-
     driver = null;
-
-    disponible = true;
 
     watchId = void 0;
 
     WaitingCtrl.prototype.events = {
       "tap #waiting_logout": "logOut",
-      "tap #waiting_confirmation": "goConfirmation",
-      "tap #waiting_prueba1": "doLocation",
-      "tap #waiting_prueba2": "doPost",
       "change #waiting_available": "changeAvailable"
     };
 
@@ -974,49 +962,15 @@
     };
 
     function WaitingCtrl() {
+      this.logOut = __bind(this.logOut, this);
       this.changeAvailable = __bind(this.changeAvailable, this);
       this.updateAvailable = __bind(this.updateAvailable, this);
       this.stopWatch = __bind(this.stopWatch, this);
       this.getLocationUpdate = __bind(this.getLocationUpdate, this);
-      this.doLocation = __bind(this.doLocation, this);
-      this.goConfirmation = __bind(this.goConfirmation, this);
-      this.logOut = __bind(this.logOut, this);
-      this.doPost = __bind(this.doPost, this);
       WaitingCtrl.__super__.constructor.apply(this, arguments);
       driver = Lungo.Cache.get("driver");
       this.driver[0].innerText = driver.last_name + ", " + driver.first_name;
-      this.getLocationUpdate();
     }
-
-    WaitingCtrl.prototype.doPost = function() {
-      var notification;
-      notification = {
-        code: "801",
-        travelID: 254,
-        origin: "Mi casaaaaa",
-        startpoint: "66.2641160000000013, -6.9237662000000002",
-        valuation: 3,
-        phone: 666666666
-      };
-      return __Controller.push.handlePush(notification);
-    };
-
-    WaitingCtrl.prototype.logOut = function() {
-      navigator.geolocation.clearWatch(this.watchId);
-      this.watchId = void 0;
-      Lungo.Cache.set("pushID", void 0);
-      this.updateAvailable(driver.email, false);
-      Lungo.Cache.set("driver", "");
-      return Lungo.Router.section("login_s");
-    };
-
-    WaitingCtrl.prototype.goConfirmation = function() {
-      return Lungo.Router.section("confirmation_s");
-    };
-
-    WaitingCtrl.prototype.doLocation = function() {
-      return this.getLocationUpdate();
-    };
 
     WaitingCtrl.prototype.getLocationUpdate = function() {
       var options, tt;
@@ -1093,6 +1047,14 @@
       } else {
         return this.stopWatch();
       }
+    };
+
+    WaitingCtrl.prototype.logOut = function() {
+      this.stopWatch();
+      Lungo.Cache.set("pushID", void 0);
+      this.updateAvailable(driver.email, false);
+      Lungo.Cache.set("driver", "");
+      return Lungo.Router.section("login_s");
     };
 
     return WaitingCtrl;

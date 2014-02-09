@@ -6,7 +6,6 @@ class __Controller.PushCtrl extends Monocle.Controller
     super
     @savePushID("APAKXI", "ANDROID")
 
-
   savePushID: (id, device) =>
     Lungo.Cache.remove "pushID"  
     Lungo.Cache.set "pushID", id
@@ -26,8 +25,8 @@ class __Controller.PushCtrl extends Monocle.Controller
           startpoint: notification.startpoint
           latitude: lat
           longitude: long
-          latitude: 43.3219708000000026 
-          longitude: -2.9892685999999999
+          #latitude: 43.3219708000000026 
+          #longitude: -2.9892685999999999
           valuation: notification.valuation
           phone: notification.phone
         Lungo.Cache.set "travel", travel

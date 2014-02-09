@@ -30,12 +30,8 @@ class __Controller.ArriveCtrl extends Monocle.Controller
         console.log eDIV
         document.getElementById("arrive_s").appendChild(eDIV);
 
-      #if map == undefined
       travel = Lungo.Cache.get "travel"
-      #currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
-      #alert "Latitude: " + travel.latitude + "  Longitude: " + travel.longitude
       arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude)
-      #arriveLocation = new google.maps.LatLng(43.32193910000, -2.9891883999999997)
       mapOptions =
         center: arriveLocation
         zoom: 16
@@ -73,9 +69,6 @@ class __Controller.ArriveCtrl extends Monocle.Controller
     Lungo.Cache.set "travel", travel
 
   doPickUp: (event) =>
-   # __Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
-   # Lungo.Router.section "charge_s"
-
     if navigator.geolocation
       options =
         enableHighAccuracy: true,
@@ -89,8 +82,6 @@ class __Controller.ArriveCtrl extends Monocle.Controller
       driver = Lungo.Cache.get "driver"
       travel = Lungo.Cache.get "travel"
       server = Lungo.Cache.get "server"
-
-      #alert "Latitude: " + travel.latitude + ". Longitude: " + travel.latitude
 
       travel.origin = Lungo.Cache.get "origin"
       travel.origin = ""  if travel.origin is 'undefined'
@@ -107,7 +98,6 @@ class __Controller.ArriveCtrl extends Monocle.Controller
           latitude: travel.latitude
           longitude: travel.longitude
         success: (result) =>
-          #__Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
           __Controller.charge.initialize()
           Lungo.Router.section "charge_s"
         error: (xhr, type) =>
@@ -140,7 +130,6 @@ class __Controller.ArriveCtrl extends Monocle.Controller
         travelID: travel.travelID
         email: driver.email
       success: (result) =>
-        #__Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
         Lungo.Router.section "waiting_s"
       error: (xhr, type) =>
         navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"

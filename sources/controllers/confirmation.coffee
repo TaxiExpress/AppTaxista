@@ -1,6 +1,5 @@
 class __Controller.ConfirmationCtrl extends Monocle.Controller
   timer = null
-  travel = null
 
   elements:
     "#confirmation_streetField"           : "streetField"
@@ -20,8 +19,6 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
   acceptConfirmation: (event) =>
     driver = Lungo.Cache.get "driver"
     travel = Lungo.Cache.get "travel"
-    #__Controller.arrive = new __Controller.ArriveCtrl "section#arrive_s"
-    #Lungo.Router.section "arrive_s"
 
     data = 
       email: driver.email

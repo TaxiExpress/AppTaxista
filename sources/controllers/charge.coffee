@@ -20,31 +20,24 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     @optionApp[0].checked = false
 
     driver = Lungo.Cache.get "driver"
-    #alert "appPayment: " + driver.appPayment
     @optionApp[0].disabled = true if driver.appPayment is false
  
   changeCash: =>
     driver = Lungo.Cache.get "driver"
 
-    #alert "App: " + @optionApp[0].value
-    #alert "Cash: " + @optionCash[0].value
     if driver.appPayment is true
       if @optionApp[0].checked is true
         @optionCash[0].checked = false
       else
         @optionCash[0].checked = true
-    #alert "New Cash: " + @optionCash[0].value
   changeApp: =>
     driver = Lungo.Cache.get "driver"
 
-    #alert "Cash: " + @optionCash[0].checked
-    #alert "App: " + @optionApp[0].checked
     if driver.appPayment is true
       if @optionCash[0].checked is true
         @optionApp[0].checked = false
       else
         @optionApp[0].checked = true
-    #alert "New App: " + @optionApp[0].checked
 
   iniLocation = (location) =>
     travel = Lungo.Cache.get "travel"
@@ -123,19 +116,16 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     # how many decimals are allowed?
     decallowed = 2 
     if isNaN(amount)
-      #navigator.notification.alert "El importe introducido no es correcto", null, "Taxi Express", "Aceptar"
-      alert "El importe introducido no es correcto"
+      navigator.notification.alert "El importe introducido no es correcto", null, "Taxi Express", "Aceptar"
       return false
     else if amount is ""
-      #navigator.notification.alert "El importe no puede estar vacío", null, "Taxi Express", "Aceptar"
-      alert "El importe no puede estar vacío"
+      navigator.notification.alert "El importe no puede estar vacío", null, "Taxi Express", "Aceptar"
       return false
     else
       amount += "."  if amount.indexOf(".") is -1
       dectext = amount.substring(amount.indexOf(".") + 1, amount.length)
       if dectext.length > decallowed
-        #navigator.notification.alert "Por favor, entra un número con " + decallowed + " números decimales.", null, "Taxi Express", "Aceptar"
-        alert "Por favor, entra un número con " + decallowed + " números decimales."
+        navigator.notification.alert "Por favor, entra un número con " + decallowed + " números decimales.", null, "Taxi Express", "Aceptar"
         return false
       else
         return true
