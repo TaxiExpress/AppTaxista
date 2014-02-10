@@ -636,29 +636,16 @@ body[data-device="tablet"] > section[data-transition="slide"][data-direction="ba
 html { height: 100% }
 body { height: 100%; margin: 0; padding: 0 }
 #map-canvas { height: 100%; position:relative;}
-/*.locate {z-index:1!important; position:absolute; bottom:10px; right:10px; color:#444;}*/
-
-/*
-margin-top: 2.5%;
-height: 30%;
-position:relative;
-display:block;
-
-margin: 5px auto;
-*/
 
 #waiting_driver{text-align: center;}
 #waiting_logout{color:#888; width: 100%}
 #waiting_available_label{color: #555;}
-
 @media screen and (orientation: portrait){
 	#waiting_available_label{font-size: large;}
 }
 @media screen and (orientation: landscape){
 	#waiting_available_label{font-size: x-large;}
 }
-
-
 #waiting_a{background: #fff;}
 #waiting_a fieldset{text-align: left;}
 

@@ -376,7 +376,7 @@ body > section > [data-control="pull"] a {
 }
 body > section > article.splash,
 body > section > [data-control="pull"].splash {
-  background: #fff url('../../img/background.png');
+  background: #fff;
   background-repeat: no-repeat;
   background-size: 100% 100%;
   background-position: 50% 50%;

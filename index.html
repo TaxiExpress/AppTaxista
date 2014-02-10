@@ -46,7 +46,7 @@
           </fieldset> 
         </div>
         <span class="logo"><img src="img/logo.png" alt=""/></span>
-        <button id="waiting_logout" class="anchor">Cerrar Sesión</button>
+        <!--<button id="waiting_logout" class="anchor">Cerrar Sesión</button>-->
       </article>
     </section>
 
@@ -58,7 +58,6 @@
             <stong id="confirmation_question">¿Desea recoger al cliente en la siguiente dirección?</strong>
             <input id="confirmation_streetField" type="text" readonly="readonly"/>
           </fieldset>
-          <!--  <a href="#" data-image="http://www.futbolsalaragon.com/imagenes/alfonsorodriguez2012.JPG">return</a><br>-->
         </div>
         <button id="confirmation_accept" data-label="Aceptar"/>
          <button id="confirmation_reject" data-label="Rechazar"/>
@@ -71,7 +70,6 @@
         <div class="location">
           <input id="arrive_streetField" type="text" readonly="readonly" />
           <a id="arrive_call" class="button" href="tel:8009229999" data-icon="phone"></a>
-          <!--<button id="arrive_call" data-icon="phone" ></button>-->
           <button id="arrive_pickup" data-label="Recoger"/>
           <button id="arrive_cancel" data-label="Cancelar"/>
         </div>
@@ -87,24 +85,13 @@
               <small id="charge_cash_label">Contado</small>
               <input id="charge_cash" type="checkbox"/>
           </fieldset> 
-          <fieldset> 
+          <fieldset id="charge_app_fieldset"> 
               <strong id="charge_app_label">Mediante la aplicación</strong>
               <input id="charge_app" type="checkbox"/>
           </fieldset> 
         </div>
         <input id="charge_amount" type="text" placeholder="Importe a cobrar"/>
         <button id="charge_charge" data-label="Cobrar"/>
-          
-        <!--
-        <fieldset class="radius-bottom" >
-          <div>
-            <label for="option_cash"><input type="radio" name="charge_option" id="option_cash" value="false" checked> Contado</label>
-            <label for="option_card"><input type="radio" name="charge_option" id="option_card" value="true"> Tarjeta</label>
-          </div>
-          
-          <input id="charge_amount" type="text" placeholder="Importe a cobrar"/>
-          <button id="charge_charge" data-label="Cobrar"/>
-        </fielset>-->
       </article>
     </section>
 

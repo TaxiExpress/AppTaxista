@@ -3,7 +3,7 @@ class __Controller.WaitingCtrl extends Monocle.Controller
   watchId = undefined
 
   events:
-    "tap #waiting_logout"                  : "logOut"
+    #"tap #waiting_logout"                  : "logOut"
     "change #waiting_available"            : "changeAvailable"
 
   elements:
@@ -68,12 +68,12 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     else
       @stopWatch()
 
-  logOut: =>
-    @stopWatch()
+  #logOut: =>
+  #  @stopWatch()
     
-    Lungo.Cache.set "pushID", undefined
-    @updateAvailable(driver.email, false)
-    Lungo.Cache.set "driver", ""
-    Lungo.Router.section "login_s"
+  #  Lungo.Cache.set "pushID", undefined
+  #  @updateAvailable(driver.email, false)
+  #  Lungo.Cache.set "driver", ""
+  #  Lungo.Router.section "login_s"
     
   

@@ -17,10 +17,19 @@ class __Controller.ChargeCtrl extends Monocle.Controller
 
   initialize: =>
     @optionCash[0].checked = true
-    @optionApp[0].checked = false
-
+    
     driver = Lungo.Cache.get "driver"
-    @optionApp[0].disabled = true if driver.appPayment is false
+    
+    if driver.appPayment is false
+      @optionCash[0].disabled = true
+      alert driver.appPayment
+      fieldset = document.getElementById("charge_app_fieldset")
+      console.log fieldset
+      padre = fieldset.parentNode
+      console.log padre
+      padre.removeChild fieldset
+    else
+      @optionApp[0].checked = false
  
   changeCash: =>
     driver = Lungo.Cache.get "driver"

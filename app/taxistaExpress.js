@@ -483,12 +483,19 @@
     }
 
     ChargeCtrl.prototype.initialize = function() {
-      var driver;
+      var driver, fieldset, padre;
       this.optionCash[0].checked = true;
-      this.optionApp[0].checked = false;
       driver = Lungo.Cache.get("driver");
       if (driver.appPayment === false) {
-        return this.optionApp[0].disabled = true;
+        this.optionCash[0].disabled = true;
+        alert(driver.appPayment);
+        fieldset = document.getElementById("charge_app_fieldset");
+        console.log(fieldset);
+        padre = fieldset.parentNode;
+        console.log(padre);
+        return padre.removeChild(fieldset);
+      } else {
+        return this.optionApp[0].checked = false;
       }
     };
 
@@ -894,6 +901,7 @@
       this.handlePush = __bind(this.handlePush, this);
       this.savePushID = __bind(this.savePushID, this);
       PushCtrl.__super__.constructor.apply(this, arguments);
+      this.savePushID("APAKXI", "ANDROID");
     }
 
     PushCtrl.prototype.savePushID = function(id, device) {
@@ -951,7 +959,6 @@
     watchId = void 0;
 
     WaitingCtrl.prototype.events = {
-      "tap #waiting_logout": "logOut",
       "change #waiting_available": "changeAvailable"
     };
 
@@ -961,7 +968,6 @@
     };
 
     function WaitingCtrl() {
-      this.logOut = __bind(this.logOut, this);
       this.changeAvailable = __bind(this.changeAvailable, this);
       this.updateAvailable = __bind(this.updateAvailable, this);
       this.stopWatch = __bind(this.stopWatch, this);
@@ -1046,14 +1052,6 @@
       } else {
         return this.stopWatch();
       }
-    };
-
-    WaitingCtrl.prototype.logOut = function() {
-      this.stopWatch();
-      Lungo.Cache.set("pushID", void 0);
-      this.updateAvailable(driver.email, false);
-      Lungo.Cache.set("driver", "");
-      return Lungo.Router.section("login_s");
     };
 
     return WaitingCtrl;
