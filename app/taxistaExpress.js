@@ -894,7 +894,6 @@
       this.handlePush = __bind(this.handlePush, this);
       this.savePushID = __bind(this.savePushID, this);
       PushCtrl.__super__.constructor.apply(this, arguments);
-      this.savePushID("APAKXI", "ANDROID");
     }
 
     PushCtrl.prototype.savePushID = function(id, device) {
