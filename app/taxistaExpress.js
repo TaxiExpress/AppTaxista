@@ -737,11 +737,19 @@
       alert(val);
       this.valuation[0].innerText = val;
       Lungo.Cache.set("travel", travel);
-      return timer = setTimeout(((function(_this) {
+      timer = setTimeout(((function(_this) {
         return function() {
           return Lungo.Router.section("waiting_s");
         };
       })(this)), 15000);
+      this.streetField[0].value = travel.origin;
+      Lungo.Cache.remove("travel");
+      Lungo.Cache.set("travel", travel);
+      return timer = setTimeout(((function(_this) {
+        return function() {
+          return Lungo.Router.section("waiting_s");
+        };
+      })(this)), 25000);
     };
 
     ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
@@ -966,21 +974,14 @@
     };
 
     PushCtrl.prototype.handlePush = function(notification) {
-      var lat, latlong, long, travel;
+      var lat, long, longlat, pos, travel;
       switch (notification.code) {
         case "801":
         case "802":
-          latlong = notification.startpoint.split(",");
-          lat = latlong[0];
-          long = latlong[1];
-          alert("code: " + notification.code);
-          alert("travelID: " + notification.travelID);
-          alert("startpoint: " + notification.startpoint.split(","));
-          alert("latitude: " + lat);
-          alert("longitud: " + long);
-          alert("origin: " + notification.origin);
-          alert("valuation: " + notification.valuation);
-          alert("phone: " + notification.phone);
+          longlat = notification.startpoint;
+          pos = longlat.indexOf(",");
+          lat = longlat.substring(0, pos);
+          long = longlat.substring(pos + 1, longlat.length);
           travel = {
             travelID: notification.travelID,
             origin: notification.origin,
@@ -990,7 +991,6 @@
             valuation: notification.valuation,
             phone: notification.phone
           };
-          Lungo.Cache.set("travel", travel);
           __Controller.confirmation.loadTravel(travel);
           Lungo.Router.section("confirmation_s");
           return navigator.notification.alert("Nueva solicitud", null, "Taxi Express", "Aceptar");
