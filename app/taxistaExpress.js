@@ -682,12 +682,13 @@
 
     ConfirmationCtrl.prototype.loadTravel = function(travel) {
       this.streetField[0].value = travel.origin;
+      Lungo.Cache.remove("travel");
       Lungo.Cache.set("travel", travel);
       return timer = setTimeout(((function(_this) {
         return function() {
           return Lungo.Router.section("waiting_s");
         };
-      })(this)), 15000);
+      })(this)), 25000);
     };
 
     ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
@@ -901,7 +902,6 @@
       this.handlePush = __bind(this.handlePush, this);
       this.savePushID = __bind(this.savePushID, this);
       PushCtrl.__super__.constructor.apply(this, arguments);
-      this.savePushID("APAKXI", "ANDROID");
     }
 
     PushCtrl.prototype.savePushID = function(id, device) {
@@ -912,13 +912,14 @@
     };
 
     PushCtrl.prototype.handlePush = function(notification) {
-      var lat, latlong, long, travel;
+      var lat, long, longlat, pos, travel;
       switch (notification.code) {
         case "801":
         case "802":
-          latlong = notification.startpoint.split(",");
-          lat = latlong[0];
-          long = latlong[1];
+          longlat = notification.startpoint;
+          pos = longlat.indexOf(",");
+          lat = longlat.substring(0, pos);
+          long = longlat.substring(pos + 1, longlat.length);
           travel = {
             travelID: notification.travelID,
             origin: notification.origin,
@@ -928,7 +929,6 @@
             valuation: notification.valuation,
             phone: notification.phone
           };
-          Lungo.Cache.set("travel", travel);
           __Controller.confirmation.loadTravel(travel);
           Lungo.Router.section("confirmation_s");
           return navigator.notification.alert("Nueva solicitud", null, "Taxi Express", "Aceptar");
