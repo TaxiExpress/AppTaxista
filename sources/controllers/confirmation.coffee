@@ -2,8 +2,11 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
   timer = null
 
   elements:
-    "#confirmation_streetField"           : "streetField"
-
+    #"#confirmation_streetField"           : "streetField"
+    "#confirmation_name"                  : "customerName"
+    "#confirmation_valuation"             : "valuation"
+    "#confirmation_street"                : "streetField"
+    
   events:
     "tap #confirmation_accept"            : "acceptConfirmation"
     "tap #confirmation_reject"            : "rejectConfirmation"
@@ -12,10 +15,26 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
     super
 
   loadTravel: (travel) ->
-    @streetField[0].value = travel.origin
+    alert travel.origin
+    #@streetField[0].value = travel.origin
+    @customerName[0].innerText = travel.name
+    @streetField[0].innerText = travel.origin
+    alert travel.valuation
+
+    val = ""
+    i = 0
+    while i < travel.valuation
+      val = val + "★"
+      i++
+    while i < 5
+      val = val + "☆"
+      i++
+    alert val
+    @valuation[0].innerText = val
+
     Lungo.Cache.set "travel", travel
     timer = setTimeout((=>Lungo.Router.section "waiting_s") , 15000)
-    
+
   acceptConfirmation: (event) =>
     driver = Lungo.Cache.get "driver"
     travel = Lungo.Cache.get "travel"

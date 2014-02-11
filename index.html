@@ -46,6 +46,11 @@
           </fieldset> 
         </div>
         <span class="logo"><img src="img/logo.png" alt=""/></span>
+        
+        <button id="waiting_prueba1" class="anchor">Confirmation</button>
+        <button id="waiting_prueba2" class="anchor">Arrive</button>
+        <button id="waiting_prueba3" class="anchor">Charge</button>
+        <button id="waiting_prueba4" class="anchor">Valuation</button>
         <!--<button id="waiting_logout" class="anchor">Cerrar Sesión</button>-->
       </article>
     </section>
@@ -53,14 +58,24 @@
     <section id="confirmation_s" data-transition="fade">
       <header data-title="Petición Cliente"></header>
       <article id="confirmation_a" class="street">
+        <div class="form list">
+          <li class="anchor contrast">DATOS DEL CLIENTE</li>
+          <img id="confirmation_image" class="avatar" src="" alt="" />
+          <fieldset><strong id="confirmation_name"></strong></fieldset>
+          <fieldset><strong id="confirmation_valuation" class="yellow"></strong></fieldset>
+          <li class="anchor contrast">¿Desea recoger al cliente en la siguiente dirección?</li>
+          <fieldset><strong id="confirmation_street"></strong></fieldset>
+        </div>
+        <!--
         <div class="location">
           <fieldset class="radius-bottom" >
             <stong id="confirmation_question">¿Desea recoger al cliente en la siguiente dirección?</strong>
             <input id="confirmation_streetField" type="text" readonly="readonly"/>
           </fieldset>
         </div>
+      -->
         <button id="confirmation_accept" data-label="Aceptar"/>
-         <button id="confirmation_reject" data-label="Rechazar"/>
+        <button id="confirmation_reject" data-label="Rechazar"/>
       </article>
     </section>
 
@@ -80,6 +95,7 @@
     <section id="charge_s" data-transition="fade">
       <header data-title="Cobro Trayecto"></header>
       <article id="charge_a" class="charge">
+        <!--
         <div class="form list">
           <fieldset> 
               <small id="charge_cash_label">Contado</small>
@@ -92,8 +108,48 @@
         </div>
         <input id="charge_amount" type="text" placeholder="Importe a cobrar"/>
         <button id="charge_charge" data-label="Cobrar"/>
+      -->
+        <div class="form list">
+          <fieldset> 
+              <strong id="charge_cash_label">Contado</small>
+              <input id="charge_cash" type="checkbox"/>
+          </fieldset> 
+          <fieldset id="charge_app_fieldset"> 
+              <strong id="charge_app_label">Mediante la aplicación</strong>
+              <input id="charge_app" type="checkbox"/>
+          </fieldset>
+          <fieldset>
+            <input id="charge_amount" type="text" placeholder="Importe a cobrar"/>
+          </fieldset>
+          <fieldset>
+            <button id="charge_charge">Cobrar</button>
+          </fieldset>
+          <li class="anchor contrast">VOTA AL CLIENTE</li>
+          <fieldset id="charge_votebox">
+              <button id="charge_positiveVote" class="green">Voto positivo</button>
+              <button id="charge_negativeVote"class="red">Voto negativo</button>
+          </fieldset>
+        </div>
       </article>
     </section>
+
+    <!--
+    <section id="valuation_s" data-transition="fade">
+      <header data-title="VALORE AL CLIENTE"></header>
+      <article id="valuation_a" class="street">
+        <div class="form list">
+          <li class="anchor contrast">DATOS DEL CLIENTE</li>
+          <img id="valuation_image" class="avatar" src="" alt="" />
+          <fieldset><strong id="valuation_name"></strong></fieldset>
+          <fieldset><strong id="valuation_valuation" class="yellow"></strong></fieldset>
+          <fieldset id="valuation_votebox">
+            <button id="valuation_positiveVote" class="green">Voto positivo</button>
+            <button id="valuation_negativeVote"class="red">Voto negativo</button>
+          </fieldset>
+        </div>
+      </article>
+    </section>
+    -->
 
     <script src="components/quojs/quo.js"></script>
     <script src="components/monocle/monocle.js"></script>

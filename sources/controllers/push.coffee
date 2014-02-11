@@ -4,7 +4,7 @@ class __Controller.PushCtrl extends Monocle.Controller
 
   constructor: ->
     super
-    @savePushID("APAKXI", "ANDROID")
+    #@savePushID("APAKXI", "ANDROID")
 
   savePushID: (id, device) =>
     Lungo.Cache.remove "pushID"  
@@ -19,6 +19,14 @@ class __Controller.PushCtrl extends Monocle.Controller
         lat = latlong[0]
         long = latlong[1]
 
+        alert "code: " + notification.code
+        alert "travelID: " + notification.travelID 
+        alert "startpoint: " + notification.startpoint.split(",")
+        alert "latitude: " + lat
+        alert "longitud: " + long
+        alert "origin: " + notification.origin
+        alert "valuation: " + notification.valuation
+        alert "phone: " + notification.phone
         travel =
           travelID: notification.travelID
           origin: notification.origin
@@ -35,4 +43,5 @@ class __Controller.PushCtrl extends Monocle.Controller
         navigator.notification.alert "Nueva solicitud", null, "Taxi Express", "Aceptar"
       when "803" #Recibo la push de confirmación de pago
         Lungo.Router.section "waiting_s"
+        #Lungo.Router.section "valuation_s"
         navigator.notification.alert "El pago se ha realizado correctamente", null, "Taxi Express", "Aceptar"

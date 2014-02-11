@@ -460,8 +460,6 @@
 
     ChargeCtrl.prototype.elements = {
       "#charge_amount": "amount",
-      "#option_cash": "valorCash",
-      "#option_card": "valorCard",
       "#charge_cash": "optionCash",
       "#charge_app": "optionApp"
     };
@@ -469,10 +467,15 @@
     ChargeCtrl.prototype.events = {
       "tap #charge_charge": "doCharge",
       "change #charge_app": "changeCash",
-      "change #charge_cash": "changeApp"
+      "change #charge_cash": "changeApp",
+      "singleTap #charge_positiveVote": "votePositive",
+      "singleTap #charge_negativeVote": "voteNegative"
     };
 
     function ChargeCtrl() {
+      this.vote = __bind(this.vote, this);
+      this.voteNegative = __bind(this.voteNegative, this);
+      this.votePositive = __bind(this.votePositive, this);
       this.valideAmount = __bind(this.valideAmount, this);
       this.travelCompleted = __bind(this.travelCompleted, this);
       this.doCharge = __bind(this.doCharge, this);
@@ -488,7 +491,6 @@
       driver = Lungo.Cache.get("driver");
       if (driver.appPayment === false) {
         this.optionCash[0].disabled = true;
-        alert(driver.appPayment);
         fieldset = document.getElementById("charge_app_fieldset");
         console.log(fieldset);
         padre = fieldset.parentNode;
@@ -568,7 +570,7 @@
       if (travel.destination === 'undefined') {
         travel.destination = "";
       }
-      $$.ajax({
+      return $$.ajax({
         type: "POST",
         url: server + "driver/travelcompleted",
         data: {
@@ -595,7 +597,6 @@
           };
         })(this)
       });
-      return Lungo.Router.section("waiting_s");
     };
 
     getStreet = function(pos) {
@@ -646,6 +647,41 @@
       }
     };
 
+    ChargeCtrl.prototype.votePositive = function(event) {
+      return this.vote("positive");
+    };
+
+    ChargeCtrl.prototype.voteNegative = function(event) {
+      return this.vote("negative");
+    };
+
+    ChargeCtrl.prototype.vote = function(vote) {
+      var data, server, travel;
+      travel = Lungo.Cache.get("travel");
+      server = Lungo.Cache.get("server");
+      data = {
+        email: travel.email,
+        vote: vote,
+        travelID: this.travel.id
+      };
+      return $$.ajax({
+        type: "POST",
+        url: server + "driver/votecustomer",
+        data: data,
+        success: (function(_this) {
+          return function(result) {
+            return navigator.notification.alert("Cliente valorado", null, "Taxi Express", "Aceptar");
+          };
+        })(this),
+        error: (function(_this) {
+          return function(xhr, type) {
+            console.log(type.response);
+            return navigator.notification.alert("Error al valorar al cliente", null, "Taxi Express", "Aceptar");
+          };
+        })(this)
+      });
+    };
+
     return ChargeCtrl;
 
   })(Monocle.Controller);
@@ -665,7 +701,9 @@
     timer = null;
 
     ConfirmationCtrl.prototype.elements = {
-      "#confirmation_streetField": "streetField"
+      "#confirmation_name": "customerName",
+      "#confirmation_valuation": "valuation",
+      "#confirmation_street": "streetField"
     };
 
     ConfirmationCtrl.prototype.events = {
@@ -681,7 +719,23 @@
     }
 
     ConfirmationCtrl.prototype.loadTravel = function(travel) {
-      this.streetField[0].value = travel.origin;
+      var i, val;
+      alert(travel.origin);
+      this.customerName[0].innerText = travel.name;
+      this.streetField[0].innerText = travel.origin;
+      alert(travel.valuation);
+      val = "";
+      i = 0;
+      while (i < travel.valuation) {
+        val = val + "★";
+        i++;
+      }
+      while (i < 5) {
+        val = val + "☆";
+        i++;
+      }
+      alert(val);
+      this.valuation[0].innerText = val;
       Lungo.Cache.set("travel", travel);
       return timer = setTimeout(((function(_this) {
         return function() {
@@ -849,6 +903,7 @@
       };
       Lungo.Cache.set("driver", driver);
       __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
+      __Controller.valuation = new __Controller.ValuationCtrl("section#valuation_s");
       __Controller.charge = new __Controller.ChargeCtrl("section#charge_s");
       __Controller.arrive = new __Controller.ArriveCtrl("section#arrive_s");
       __Controller.waiting = new __Controller.WaitingCtrl("section#waiting_s");
@@ -901,7 +956,6 @@
       this.handlePush = __bind(this.handlePush, this);
       this.savePushID = __bind(this.savePushID, this);
       PushCtrl.__super__.constructor.apply(this, arguments);
-      this.savePushID("APAKXI", "ANDROID");
     }
 
     PushCtrl.prototype.savePushID = function(id, device) {
@@ -919,6 +973,14 @@
           latlong = notification.startpoint.split(",");
           lat = latlong[0];
           long = latlong[1];
+          alert("code: " + notification.code);
+          alert("travelID: " + notification.travelID);
+          alert("startpoint: " + notification.startpoint.split(","));
+          alert("latitude: " + lat);
+          alert("longitud: " + long);
+          alert("origin: " + notification.origin);
+          alert("valuation: " + notification.valuation);
+          alert("phone: " + notification.phone);
           travel = {
             travelID: notification.travelID,
             origin: notification.origin,
@@ -949,6 +1011,27 @@
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  __Controller.ValuationCtrl = (function(_super) {
+    __extends(ValuationCtrl, _super);
+
+    function ValuationCtrl() {
+      this.initialize = __bind(this.initialize, this);
+      ValuationCtrl.__super__.constructor.apply(this, arguments);
+    }
+
+    ValuationCtrl.prototype.initialize = function(travel) {};
+
+    return ValuationCtrl;
+
+  })(Monocle.Controller);
+
+}).call(this);
+
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
   __Controller.WaitingCtrl = (function(_super) {
     var driver, manageError, updatePosition, watchId;
 
@@ -959,7 +1042,11 @@
     watchId = void 0;
 
     WaitingCtrl.prototype.events = {
-      "change #waiting_available": "changeAvailable"
+      "change #waiting_available": "changeAvailable",
+      "tap #waiting_prueba1": "confirmation",
+      "tap #waiting_prueba2": "arrive",
+      "tap #waiting_prueba3": "charge",
+      "tap #waiting_prueba4": "valuation"
     };
 
     WaitingCtrl.prototype.elements = {
@@ -972,10 +1059,46 @@
       this.updateAvailable = __bind(this.updateAvailable, this);
       this.stopWatch = __bind(this.stopWatch, this);
       this.getLocationUpdate = __bind(this.getLocationUpdate, this);
+      this.valuation = __bind(this.valuation, this);
+      this.charge = __bind(this.charge, this);
+      this.arrive = __bind(this.arrive, this);
+      this.confirmation = __bind(this.confirmation, this);
       WaitingCtrl.__super__.constructor.apply(this, arguments);
       driver = Lungo.Cache.get("driver");
       this.driver[0].innerText = driver.last_name + ", " + driver.first_name;
     }
+
+    WaitingCtrl.prototype.confirmation = function() {
+      var travel;
+      travel = {
+        name: "Fermin Querejeta Mendo",
+        valuation: 4,
+        origin: "mi casa"
+      };
+      __Controller.confirmation.loadTravel(travel);
+      return Lungo.Router.section("confirmation_s");
+    };
+
+    WaitingCtrl.prototype.arrive = function() {
+      return Lungo.Router.section("arrive_s");
+    };
+
+    WaitingCtrl.prototype.charge = function() {
+      __Controller.charge.initialize();
+      return Lungo.Router.section("charge_s");
+    };
+
+    WaitingCtrl.prototype.valuation = function() {
+      var travel;
+      travel = {
+        name: "Fermin Querejeta Mendo",
+        valuation: 4,
+        origin: "mi casa"
+      };
+      alert("valuation");
+      __Controller.valuation.initialize(travel);
+      return Lungo.Router.section("valuation_s");
+    };
 
     WaitingCtrl.prototype.getLocationUpdate = function() {
       var options, tt;

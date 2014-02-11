@@ -81,7 +81,7 @@ section .list li.arrow::after {
 }
 section .list li.contrast,
 section .list li a.contrast {
-  background: #cfcfcf;
+  background: none;
 }
 section .list li.selectable:active,
 section .list li a.selectable:active,
@@ -96,38 +96,7 @@ section .list li a.light {
   background: #cfcfcf;
   color: #808080;
 }
-section .list li.contrast,
-section .list li a.contrast,
-section .list li.selectable:active,
-section .list li a.selectable:active,
-section .list li.theme,
-section .list li a.theme,
-section .list li.contrast small,
-section .list li a.contrast small,
-section .list li.selectable:active small,
-section .list li a.selectable:active small,
-section .list li.theme small,
-section .list li a.theme small,
-section .list li.contrast .on-right:not(.tag),
-section .list li a.contrast .on-right:not(.tag),
-section .list li.selectable:active .on-right:not(.tag),
-section .list li a.selectable:active .on-right:not(.tag),
-section .list li.theme .on-right:not(.tag),
-section .list li a.theme .on-right:not(.tag),
-section .list li.contrast strong,
-section .list li a.contrast strong,
-section .list li.selectable:active strong,
-section .list li a.selectable:active strong,
-section .list li.theme strong,
-section .list li a.theme strong,
-section .list li.contrast .arrow::after,
-section .list li a.contrast .arrow::after,
-section .list li.selectable:active .arrow::after,
-section .list li a.selectable:active .arrow::after,
-section .list li.theme .arrow::after,
-section .list li a.theme .arrow::after {
-  color: #fff;
-}
+
 section .list li.contrast.arrow::after,
 section .list li a.contrast.arrow::after,
 section .list li.selectable:active.arrow::after,
@@ -366,7 +335,7 @@ body > section > footer {
 }
 body > section > article,
 body > section > [data-control="pull"] {
-  background-color: #e7e7e7;
+  background-color: #f4f4f4;
 }
 body > section > article,
 body > section > [data-control="pull"],
@@ -555,6 +524,7 @@ form fieldset,
 .form fieldset {
   background: #fff;
   border-bottom: 1px solid #e7e7e7;
+  line-height: 45px;
 }
 form fieldset .icon,
 .form fieldset .icon {

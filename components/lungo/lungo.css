@@ -179,6 +179,9 @@ form input[type="text"],.form input[type="text"],form input[type="password"],.fo
 form input[type="text"]:focus,.form input[type="text"]:focus,form input[type="password"]:focus,.form input[type="password"]:focus,form input[type="date"]:focus,.form input[type="date"]:focus,form input[type="datetime"]:focus,.form input[type="datetime"]:focus,form input[type="email"]:focus,.form input[type="email"]:focus,form input[type="number"]:focus,.form input[type="number"]:focus,form input[type="search"]:focus,.form input[type="search"]:focus,form input[type="tel"]:focus,.form input[type="tel"]:focus,form input[type="time"]:focus,.form input[type="time"]:focus,form input[type="url"]:focus,.form input[type="url"]:focus,form select:focus,.form select:focus,form textarea:focus,.form textarea:focus,form label.select:focus,.form label.select:focus{outline:none !important}
 form input[type="text"].border,.form input[type="text"].border,form input[type="password"].border,.form input[type="password"].border,form input[type="date"].border,.form input[type="date"].border,form input[type="datetime"].border,.form input[type="datetime"].border,form input[type="email"].border,.form input[type="email"].border,form input[type="number"].border,.form input[type="number"].border,form input[type="search"].border,.form input[type="search"].border,form input[type="tel"].border,.form input[type="tel"].border,form input[type="time"].border,.form input[type="time"].border,form input[type="url"].border,.form input[type="url"].border,form select.border,.form select.border,form textarea.border,.form textarea.border,form label.select.border,.form label.select.border,form input[type="text"].border > select,.form input[type="text"].border > select,form input[type="password"].border > select,.form input[type="password"].border > select,form input[type="date"].border > select,.form input[type="date"].border > select,form input[type="datetime"].border > select,.form input[type="datetime"].border > select,form input[type="email"].border > select,.form input[type="email"].border > select,form input[type="number"].border > select,.form input[type="number"].border > select,form input[type="search"].border > select,.form input[type="search"].border > select,form input[type="tel"].border > select,.form input[type="tel"].border > select,form input[type="time"].border > select,.form input[type="time"].border > select,form input[type="url"].border > select,.form input[type="url"].border > select,form select.border > select,.form select.border > select,form textarea.border > select,.form textarea.border > select,form label.select.border > select,.form label.select.border > select{padding:.3em .4em}
 form textarea,.form textarea{min-height:2.5em;line-height:1.2em}
+form fieldset > small:not(.select) > label,.form fieldset > small:not(.select) > label{margin-right: 10px;}
+form fieldset > small:not(.select) > span{overflow:hidden;}
+form fieldset > small:not(.select),.form fieldset > small:not(.select){font-size: 15px; margin-left:8px; line-height: 35px; overflow: hidden;}
 form fieldset,.form fieldset{position:relative;padding:0 .5em;}
 form fieldset > label:not(.select),.form fieldset > label:not(.select){float:left;width:20%;margin:.5em 0;line-height:1.75em;}
 form fieldset > label:not(.select).absolute,.form fieldset > label:not(.select).absolute{position:absolute}
@@ -188,7 +191,7 @@ form fieldset > label:not(.absolute) + input[type="checkbox"],.form fieldset > l
 form fieldset .icon,.form fieldset .icon{position:absolute;font-size:1.2em;top:.5em;right:.6em}
 form fieldset input[type="text"],.form fieldset input[type="text"],form fieldset input[type="password"],.form fieldset input[type="password"],form fieldset input[type="date"],.form fieldset input[type="date"],form fieldset input[type="datetime"],.form fieldset input[type="datetime"],form fieldset input[type="email"],.form fieldset input[type="email"],form fieldset input[type="number"],.form fieldset input[type="number"],form fieldset input[type="search"],.form fieldset input[type="search"],form fieldset input[type="tel"],.form fieldset input[type="tel"],form fieldset input[type="time"],.form fieldset input[type="time"],form fieldset input[type="url"],.form fieldset input[type="url"],form fieldset textarea,.form fieldset textarea{-webkit-box-shadow:none;-moz-box-shadow:none;-ms-box-shadow:none;-o-box-shadow:none;box-shadow:none;border:none;-webkit-border-radius:0;-moz-border-radius:0;-ms-border-radius:0;-o-border-radius:0;border-radius:0;padding:0 .3em;line-height:1.5em;}
 form fieldset input[type="text"],.form fieldset input[type="text"],form fieldset input[type="password"],.form fieldset input[type="password"],form fieldset input[type="date"],.form fieldset input[type="date"],form fieldset input[type="datetime"],.form fieldset input[type="datetime"],form fieldset input[type="email"],.form fieldset input[type="email"],form fieldset input[type="number"],.form fieldset input[type="number"],form fieldset input[type="search"],.form fieldset input[type="search"],form fieldset input[type="tel"],.form fieldset input[type="tel"],form fieldset input[type="time"],.form fieldset input[type="time"],form fieldset input[type="url"],.form fieldset input[type="url"],form fieldset textarea,.form fieldset textarea,form fieldset input[type="text"]:focus,.form fieldset input[type="text"]:focus,form fieldset input[type="password"]:focus,.form fieldset input[type="password"]:focus,form fieldset input[type="date"]:focus,.form fieldset input[type="date"]:focus,form fieldset input[type="datetime"]:focus,.form fieldset input[type="datetime"]:focus,form fieldset input[type="email"]:focus,.form fieldset input[type="email"]:focus,form fieldset input[type="number"]:focus,.form fieldset input[type="number"]:focus,form fieldset input[type="search"]:focus,.form fieldset input[type="search"]:focus,form fieldset input[type="tel"]:focus,.form fieldset input[type="tel"]:focus,form fieldset input[type="time"]:focus,.form fieldset input[type="time"]:focus,form fieldset input[type="url"]:focus,.form fieldset input[type="url"]:focus,form fieldset textarea:focus,.form fieldset textarea:focus{background:none}
-form fieldset input[type="checkbox"],.form fieldset input[type="checkbox"]{float:right}
+form fieldset input[type="checkbox"],.form fieldset input[type="checkbox"]{float:right;margin-top: 8px;outline: none;margin-right: 10px;}
 form fieldset label.select,.form fieldset label.select{line-height:1.5em}
 .indented form fieldset > label:not(.select):not(.anchor),.indented .form fieldset > label:not(.select):not(.anchor){width:25%}
 .indented form fieldset > label:not(.absolute) + input:not([type="checkbox"]),.indented .form fieldset > label:not(.absolute) + input:not([type="checkbox"]),.indented form fieldset > label:not(.absolute) + label.select,.indented .form fieldset > label:not(.absolute) + label.select{width:75%}
@@ -637,6 +640,16 @@ html { height: 100% }
 body { height: 100%; margin: 0; padding: 0 }
 #map-canvas { height: 100%; position:relative;}
 
+/*
+#prueba_logo, .logo{
+	padding:0;
+    width:100%;
+    height:100%; 
+    margin:0;
+    filter:alpha(opacity=90);
+    opacity:.90;
+	background:url('../../img/logo.png') no-repeat 0 0}
+*/
 #waiting_driver{text-align: center;}
 #waiting_logout{color:#888; width: 100%}
 #waiting_available_label{color: #555;}
@@ -654,15 +667,19 @@ body { height: 100%; margin: 0; padding: 0 }
 .street button#confirmation_reject{background-color: #444; color: #ffcc00}
 .street .location input{z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; width:100%; margin-top: 1%;}
 @media screen and (orientation: portrait){
-	.street button{margin: 5% auto; height:190px; font-size:30px; width: 100%}
+	.street button{margin: 5% auto; height:80px; font-size:30px; width: 100%}
+	/*.street button{margin: 5% auto; height:190px; font-size:30px; width: 100%}*/
 	.street .location input{height:60px; font-size:20px; padding-left:5px; padding-right:5px;}
-	.street .location #confirmation_question{font-size:20px}
+	.street .location #confirmation_question{font-size:16px}
+	/*.street .location #confirmation_question{font-size:20px;}*/
 }
 @media screen and (orientation: landscape){
 	.street .location{margin-right:  2%; margin-left: 2%}
-	.street button{height:190px; width: 46%; font-size:30px; float: left; margin-right:  2%;margin-left: 2%}
-	.street .location input{height:40px; font-size:30px; padding-left:5px; padding-right:5px;}	
-	.street .location #confirmation_question{font-size:24px;}
+	.street button{margin: 5% auto; height:20%; font-size:30px; width: 100%}
+	/*.street button{height:190px; width: 46%; font-size:30px; float: left; margin-right:  2%;margin-left: 2%}*/
+	.street .location input{height:40px; font-size:30px; padding-left:5px; padding-right:5px;}
+	.street .location #confirmation_question{font-size:20px;}
+	/*.street .location #confirmation_question{font-size:24px;}*/
 }
 
 .arrive .location input{position: absolute; z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; margin-top: 1%; left: 10px;}
@@ -696,22 +713,26 @@ div.chage{height: 100px;}
 .charge label{font-family:'Open Sans'; color: #555; margin: 1% auto;display: block; text-align: left;}
 #charge_amount{z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; width:100%; margin-top: 2%;}
 /*#charge_amount{z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; width:100%; margin-top: 5%;}*/
-#charge_charge{z-index:1!important; font-family:'Open Sans'; outline:none; color: #444; font-size:40px; width: 100%; margin-top: 2%;}
+#charge_charge{z-index:1!important; font-family:'Open Sans'; outline:none; color: #444; font-size:40px; width: 100%; margin-top: 5px; margin-right: 3px; margin-bottom: 5px;}
 @media screen and (orientation: portrait){
 	.charge input[type="radio"]{height: 12px; width: 12px;}
 	.charge label{font-size:20px; width: 35%; }	
-	#charge_amount{height:50px; font-size:30px;}
-	#charge_charge{height:150px;}
+	#charge_amount{height:45px; font-size:36px; margin: 0px;}
+	/*#charge_amount{height:50px; font-size:30px;}*/
+	#charge_charge{height:80px;}
+	/*#charge_charge{height:150px;}*/
 }
 @media screen and (orientation: landscape){
-	.charge input[type="radio"]{height: 20px; width: 20px;}
+	/*.charge input[type="radio"]{height: 20px; width: 20px;}*/
 	.charge label{font-size:50px; width: 35%;text-align: left;}	
-	#charge_amount{height:60px; font-size:50px;}
-	#charge_charge{height:120px;}
+	#charge_amount{height:45px; font-size:36px; margin: 0px;}
+	/*#charge_amount{height:60px; font-size:50px;}*/
+	#charge_charge{height:80px;}
+	/*#charge_charge{height:120px;}*/
 }
 
 /*#charge_charge{z-index:1!important; font-family:'Open Sans'; outline:none; color: #444; font-size:30px; border-radius:6px; height:150px; width: 100%; margin-top: 5%;}*/
-.charge fieldset {height: 35px; font-size: 25px; color: #444;}
+/*.charge fieldset {height: 35px; font-size: 25px; color: #444;}*/
 
 @media screen and (orientation: portrait){
 	header {font-size: 18px;}
@@ -725,4 +746,12 @@ body > section > article.splash .logo img {max-width:80%;margin:50px auto; float
 body > section > article.splash .load{position:absolute; left:0px;bottom:30%; width:100%;}
 body > section > article.splash .name{bottom:15px; position:absolute; text-align: center; left:0px; width:100%; font-size:1em; color:#444; letter-spacing: 0px;}
 .initial_form {position:absolute; width:80%; left: 10%; right: 10%; bottom:15%;}
+.list li.anchor{font-size:1.1em; padding-left: 15px;padding-top: 15px;padding-bottom: 10px;}
+img.avatar{ margin: 16px; right:0px; position:absolute; z-index:9999999999; width:60px; height:60px; background:#fff; border:1px solid #ccc; border-radius:8px;}
+/*.green{background:#ffcc00!important; width: 49%; color:#333}*/
+.green{background:#ffcc00!important;margin-top: 5px; margin-right: 3px;margin-bottom: 5px; width: 49%; color:#333}
+/*.red{background:#333!important; width: 49%; color:#fff}*/
+.red{background:#333!important;margin-top: 5px; margin-bottom: 5px; width: 49%; color:#fff}
+.yellow {color:#ffcc00;}
+
 

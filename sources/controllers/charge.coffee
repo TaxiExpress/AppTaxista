@@ -2,15 +2,17 @@ class __Controller.ChargeCtrl extends Monocle.Controller
 
 	elements:
     "#charge_amount"                 : "amount"
-    "#option_cash"                   : "valorCash"
-    "#option_card"                   : "valorCard"
+    #"#option_cash"                   : "valorCash"
+    #"#option_card"                   : "valorCard"
     "#charge_cash"                   : "optionCash"
     "#charge_app"                    : "optionApp"
 
-	events:
+  events:
     "tap #charge_charge"             : "doCharge"
     "change #charge_app"             : "changeCash"
     "change #charge_cash"            : "changeApp"
+    "singleTap #charge_positiveVote" : "votePositive"
+    "singleTap #charge_negativeVote" : "voteNegative"
     
   constructor: ->
     super
@@ -22,7 +24,6 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     
     if driver.appPayment is false
       @optionCash[0].disabled = true
-      alert driver.appPayment
       fieldset = document.getElementById("charge_app_fieldset")
       console.log fieldset
       padre = fieldset.parentNode
@@ -98,10 +99,11 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         @amount[0].value = ""
         if @optionCash[0].checked
           Lungo.Router.section "waiting_s"
+          #Lungo.Router.section "valuation_s"
       error: (xhr, type) =>
         navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
         Lungo.Router.section "charge_s"
-     Lungo.Router.section "waiting_s"
+    # Lungo.Router.section "waiting_s"
 
   getStreet = (pos) =>
     geocoder = new google.maps.Geocoder()
@@ -138,3 +140,26 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         return false
       else
         return true
+
+  votePositive: (event) =>
+    @vote "positive"
+
+  voteNegative: (event) =>
+    @vote "negative"
+
+  vote: (vote) =>
+    travel = Lungo.Cache.get "travel"
+    server = Lungo.Cache.get "server"
+    data =
+      email: travel.email
+      vote: vote
+      travelID: @travel.id
+    $$.ajax
+      type: "POST"
+      url: server + "driver/votecustomer"
+      data: data
+      success: (result) =>
+        navigator.notification.alert "Cliente valorado", null, "Taxi Express", "Aceptar"
+      error: (xhr, type) =>
+        console.log type.response
+        navigator.notification.alert "Error al valorar al cliente", null, "Taxi Express", "Aceptar"
