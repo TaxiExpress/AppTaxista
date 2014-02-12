@@ -6,7 +6,6 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     #"tap #waiting_logout"                  : "logOut"
     "change #waiting_available"            : "changeAvailable"
     "tap #waiting_prueba1"                 : "confirmation"
-    "tap #waiting_prueba2"                 : "arrive"
     "tap #waiting_prueba3"                 : "charge"
     "tap #waiting_prueba4"                 : "valuation"
 
@@ -28,12 +27,9 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     __Controller.confirmation.loadTravel(travel)
     Lungo.Router.section "confirmation_s"
 
-  arrive: =>
-    Lungo.Router.section "arrive_s"
-
   charge: =>
-    __Controller.charge.initialize()
     Lungo.Router.section "charge_s"
+    __Controller.charge.initialize()
 
   valuation: =>
     travel = 

@@ -6,13 +6,17 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     #"#option_card"                   : "valorCard"
     "#charge_cash"                   : "optionCash"
     "#charge_app"                    : "optionApp"
+    "#charge_positiveVote"           : "button_Positive"
+    "#charge_negativeVote"           : "button_Negative"
 
   events:
     "tap #charge_charge"             : "doCharge"
     "change #charge_app"             : "changeCash"
     "change #charge_cash"            : "changeApp"
-    "singleTap #charge_positiveVote" : "votePositive"
-    "singleTap #charge_negativeVote" : "voteNegative"
+    "tap #charge_positiveVote"       : "votePositive"
+    "tap #charge_negativeVote"       : "voteNegative"
+    #"singleTap #charge_positiveVote" : "votePositive"
+    #"singleTap #charge_negativeVote" : "voteNegative"
     
   constructor: ->
     super
@@ -31,7 +35,10 @@ class __Controller.ChargeCtrl extends Monocle.Controller
       padre.removeChild fieldset
     else
       @optionApp[0].checked = false
- 
+
+    @button_Positive[0].disabled = true
+    @button_Negative[0].disabled = true
+
   changeCash: =>
     driver = Lungo.Cache.get "driver"
 
@@ -40,6 +47,7 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         @optionCash[0].checked = false
       else
         @optionCash[0].checked = true
+
   changeApp: =>
     driver = Lungo.Cache.get "driver"
 
@@ -98,8 +106,10 @@ class __Controller.ChargeCtrl extends Monocle.Controller
       success: (result) =>
         @amount[0].value = ""
         if @optionCash[0].checked
-          Lungo.Router.section "waiting_s"
-          #Lungo.Router.section "valuation_s"
+          #@button_Positive[0].disabled = false
+          #@button_Negative[0].disabled = false
+          #Lungo.Router.section "waiting_s"
+          Lungo.Router.section "valuation_s"
       error: (xhr, type) =>
         navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
         Lungo.Router.section "charge_s"
@@ -142,24 +152,30 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         return true
 
   votePositive: (event) =>
+    alert "positive"
     @vote "positive"
 
   voteNegative: (event) =>
+    alert "negative"
     @vote "negative"
 
   vote: (vote) =>
+    alert "vote"
+    driver = Lungo.Cache.get "driver"
     travel = Lungo.Cache.get "travel"
     server = Lungo.Cache.get "server"
     data =
-      email: travel.email
+      email: driver.email
       vote: vote
-      travelID: @travel.id
+      travelID: travel.travelID
     $$.ajax
       type: "POST"
       url: server + "driver/votecustomer"
       data: data
       success: (result) =>
         navigator.notification.alert "Cliente valorado", null, "Taxi Express", "Aceptar"
+        Lungo.Router.section "waiting_s"
       error: (xhr, type) =>
         console.log type.response
         navigator.notification.alert "Error al valorar al cliente", null, "Taxi Express", "Aceptar"
+        Lungo.Router.section "waiting_s"

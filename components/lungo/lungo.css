@@ -654,7 +654,7 @@ body { height: 100%; margin: 0; padding: 0 }
 #waiting_logout{color:#888; width: 100%}
 #waiting_available_label{color: #555;}
 @media screen and (orientation: portrait){
-	#waiting_available_label{font-size: large;}
+	#waiting_available_label{font-size: medium;}
 }
 @media screen and (orientation: landscape){
 	#waiting_available_label{font-size: x-large;}

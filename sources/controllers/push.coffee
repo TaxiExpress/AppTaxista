@@ -4,6 +4,7 @@ class __Controller.PushCtrl extends Monocle.Controller
 
   constructor: ->
     super
+    #@savePushID "pruebaPush", "ANDROID"
 
   savePushID: (id, device) =>
     Lungo.Cache.remove "pushID"  
@@ -30,6 +31,6 @@ class __Controller.PushCtrl extends Monocle.Controller
         Lungo.Router.section "confirmation_s"
         navigator.notification.alert "Nueva solicitud", null, "Taxi Express", "Aceptar"
       when "803" #Recibo la push de confirmación de pago
-        Lungo.Router.section "waiting_s"
-        #Lungo.Router.section "valuation_s"
+        #Lungo.Router.section "waiting_s"
+        Lungo.Router.section "valuation_s"
         navigator.notification.alert "El pago se ha realizado correctamente", null, "Taxi Express", "Aceptar"

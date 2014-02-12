@@ -461,15 +461,17 @@
     ChargeCtrl.prototype.elements = {
       "#charge_amount": "amount",
       "#charge_cash": "optionCash",
-      "#charge_app": "optionApp"
+      "#charge_app": "optionApp",
+      "#charge_positiveVote": "button_Positive",
+      "#charge_negativeVote": "button_Negative"
     };
 
     ChargeCtrl.prototype.events = {
       "tap #charge_charge": "doCharge",
       "change #charge_app": "changeCash",
       "change #charge_cash": "changeApp",
-      "singleTap #charge_positiveVote": "votePositive",
-      "singleTap #charge_negativeVote": "voteNegative"
+      "tap #charge_positiveVote": "votePositive",
+      "tap #charge_negativeVote": "voteNegative"
     };
 
     function ChargeCtrl() {
@@ -495,10 +497,12 @@
         console.log(fieldset);
         padre = fieldset.parentNode;
         console.log(padre);
-        return padre.removeChild(fieldset);
+        padre.removeChild(fieldset);
       } else {
-        return this.optionApp[0].checked = false;
+        this.optionApp[0].checked = false;
       }
+      this.button_Positive[0].disabled = true;
+      return this.button_Negative[0].disabled = true;
     };
 
     ChargeCtrl.prototype.changeCash = function() {
@@ -586,7 +590,7 @@
           return function(result) {
             _this.amount[0].value = "";
             if (_this.optionCash[0].checked) {
-              return Lungo.Router.section("waiting_s");
+              return Lungo.Router.section("valuation_s");
             }
           };
         })(this),
@@ -648,21 +652,25 @@
     };
 
     ChargeCtrl.prototype.votePositive = function(event) {
+      alert("positive");
       return this.vote("positive");
     };
 
     ChargeCtrl.prototype.voteNegative = function(event) {
+      alert("negative");
       return this.vote("negative");
     };
 
     ChargeCtrl.prototype.vote = function(vote) {
-      var data, server, travel;
+      var data, driver, server, travel;
+      alert("vote");
+      driver = Lungo.Cache.get("driver");
       travel = Lungo.Cache.get("travel");
       server = Lungo.Cache.get("server");
       data = {
-        email: travel.email,
+        email: driver.email,
         vote: vote,
-        travelID: this.travel.id
+        travelID: travel.travelID
       };
       return $$.ajax({
         type: "POST",
@@ -670,13 +678,15 @@
         data: data,
         success: (function(_this) {
           return function(result) {
-            return navigator.notification.alert("Cliente valorado", null, "Taxi Express", "Aceptar");
+            navigator.notification.alert("Cliente valorado", null, "Taxi Express", "Aceptar");
+            return Lungo.Router.section("waiting_s");
           };
         })(this),
         error: (function(_this) {
           return function(xhr, type) {
             console.log(type.response);
-            return navigator.notification.alert("Error al valorar al cliente", null, "Taxi Express", "Aceptar");
+            navigator.notification.alert("Error al valorar al cliente", null, "Taxi Express", "Aceptar");
+            return Lungo.Router.section("waiting_s");
           };
         })(this)
       });
@@ -703,7 +713,9 @@
     ConfirmationCtrl.prototype.elements = {
       "#confirmation_name": "customerName",
       "#confirmation_valuation": "valuation",
-      "#confirmation_street": "streetField"
+      "#confirmation_street": "streetField",
+      "#confirmation_accept": "button_accept",
+      "#confirmation_reject": "button_reject"
     };
 
     ConfirmationCtrl.prototype.events = {
@@ -720,10 +732,8 @@
 
     ConfirmationCtrl.prototype.loadTravel = function(travel) {
       var i, val;
-      alert(travel.origin);
       this.customerName[0].innerText = travel.name;
       this.streetField[0].innerText = travel.origin;
-      alert(travel.valuation);
       val = "";
       i = 0;
       while (i < travel.valuation) {
@@ -734,15 +744,7 @@
         val = val + "☆";
         i++;
       }
-      alert(val);
       this.valuation[0].innerText = val;
-      Lungo.Cache.set("travel", travel);
-      timer = setTimeout(((function(_this) {
-        return function() {
-          return Lungo.Router.section("waiting_s");
-        };
-      })(this)), 15000);
-      this.streetField[0].value = travel.origin;
       Lungo.Cache.remove("travel");
       Lungo.Cache.set("travel", travel);
       return timer = setTimeout(((function(_this) {
@@ -754,6 +756,9 @@
 
     ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
       var data, driver, server, travel;
+      this.stopTimer();
+      this.button_accept[0].disabled = true;
+      this.button_reject[0].disabled = true;
       driver = Lungo.Cache.get("driver");
       travel = Lungo.Cache.get("travel");
       data = {
@@ -763,24 +768,27 @@
         longitude: travel.longitude
       };
       server = Lungo.Cache.get("server");
-      $$.ajax({
+      return $$.ajax({
         type: "POST",
         url: server + "driver/accepttravel",
         data: data,
         success: (function(_this) {
           return function(result) {
+            _this.button_accept[0].disabled = false;
+            _this.button_reject[0].disabled = false;
             __Controller.arrive.iniArrive();
             return Lungo.Router.section("arrive_s");
           };
         })(this),
         error: (function(_this) {
           return function(xhr, type) {
+            _this.button_accept[0].disabled = false;
+            _this.button_reject[0].disabled = false;
             navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
             return Lungo.Router.section("waiting_s");
           };
         })(this)
       });
-      return this.stopTimer();
     };
 
     ConfirmationCtrl.prototype.rejectConfirmation = function(event) {
@@ -995,7 +1003,7 @@
           Lungo.Router.section("confirmation_s");
           return navigator.notification.alert("Nueva solicitud", null, "Taxi Express", "Aceptar");
         case "803":
-          Lungo.Router.section("waiting_s");
+          Lungo.Router.section("valuation_s");
           return navigator.notification.alert("El pago se ha realizado correctamente", null, "Taxi Express", "Aceptar");
       }
     };
@@ -1019,7 +1027,9 @@
       ValuationCtrl.__super__.constructor.apply(this, arguments);
     }
 
-    ValuationCtrl.prototype.initialize = function(travel) {};
+    ValuationCtrl.prototype.initialize = function(travel) {
+      return alert(travel.name);
+    };
 
     return ValuationCtrl;
 
@@ -1044,7 +1054,6 @@
     WaitingCtrl.prototype.events = {
       "change #waiting_available": "changeAvailable",
       "tap #waiting_prueba1": "confirmation",
-      "tap #waiting_prueba2": "arrive",
       "tap #waiting_prueba3": "charge",
       "tap #waiting_prueba4": "valuation"
     };
@@ -1061,7 +1070,6 @@
       this.getLocationUpdate = __bind(this.getLocationUpdate, this);
       this.valuation = __bind(this.valuation, this);
       this.charge = __bind(this.charge, this);
-      this.arrive = __bind(this.arrive, this);
       this.confirmation = __bind(this.confirmation, this);
       WaitingCtrl.__super__.constructor.apply(this, arguments);
       driver = Lungo.Cache.get("driver");
@@ -1079,13 +1087,9 @@
       return Lungo.Router.section("confirmation_s");
     };
 
-    WaitingCtrl.prototype.arrive = function() {
-      return Lungo.Router.section("arrive_s");
-    };
-
     WaitingCtrl.prototype.charge = function() {
-      __Controller.charge.initialize();
-      return Lungo.Router.section("charge_s");
+      Lungo.Router.section("charge_s");
+      return __Controller.charge.initialize();
     };
 
     WaitingCtrl.prototype.valuation = function() {
