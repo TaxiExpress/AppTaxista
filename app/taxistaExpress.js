@@ -468,8 +468,8 @@
 
     ChargeCtrl.prototype.events = {
       "tap #charge_charge": "doCharge",
-      "change #charge_app": "changeCash",
-      "change #charge_cash": "changeApp",
+      "singleTap #charge_app": "changeCash",
+      "singleTap #charge_cash": "changeApp",
       "tap #charge_positiveVote": "votePositive",
       "tap #charge_negativeVote": "voteNegative"
     };
@@ -497,12 +497,10 @@
         console.log(fieldset);
         padre = fieldset.parentNode;
         console.log(padre);
-        padre.removeChild(fieldset);
+        return padre.removeChild(fieldset);
       } else {
-        this.optionApp[0].checked = false;
+        return this.optionApp[0].checked = false;
       }
-      this.button_Positive[0].disabled = true;
-      return this.button_Negative[0].disabled = true;
     };
 
     ChargeCtrl.prototype.changeCash = function() {
@@ -590,7 +588,7 @@
           return function(result) {
             _this.amount[0].value = "";
             if (_this.optionCash[0].checked) {
-              return Lungo.Router.section("valuation_s");
+              return Lungo.Router.section("waiting_s");
             }
           };
         })(this),
@@ -1027,9 +1025,7 @@
       ValuationCtrl.__super__.constructor.apply(this, arguments);
     }
 
-    ValuationCtrl.prototype.initialize = function(travel) {
-      return alert(travel.name);
-    };
+    ValuationCtrl.prototype.initialize = function(travel) {};
 
     return ValuationCtrl;
 
@@ -1052,7 +1048,7 @@
     watchId = void 0;
 
     WaitingCtrl.prototype.events = {
-      "change #waiting_available": "changeAvailable",
+      "singleTap #waiting_available": "changeAvailable",
       "tap #waiting_prueba1": "confirmation",
       "tap #waiting_prueba3": "charge",
       "tap #waiting_prueba4": "valuation"
@@ -1072,6 +1068,7 @@
       this.charge = __bind(this.charge, this);
       this.confirmation = __bind(this.confirmation, this);
       WaitingCtrl.__super__.constructor.apply(this, arguments);
+      this.valorAvailable[0].checked = true;
       driver = Lungo.Cache.get("driver");
       this.driver[0].innerText = driver.last_name + ", " + driver.first_name;
     }
@@ -1088,8 +1085,8 @@
     };
 
     WaitingCtrl.prototype.charge = function() {
-      Lungo.Router.section("charge_s");
-      return __Controller.charge.initialize();
+      __Controller.charge.initialize();
+      return Lungo.Router.section("charge_s");
     };
 
     WaitingCtrl.prototype.valuation = function() {
@@ -1100,6 +1097,8 @@
         origin: "mi casa"
       };
       alert("valuation");
+      __Controller.valuation = new __Controller.ValuationCtrl("section#valuation_s");
+      console.log(__Controller.valuation);
       __Controller.valuation.initialize(travel);
       return Lungo.Router.section("valuation_s");
     };

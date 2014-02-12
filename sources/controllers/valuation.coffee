@@ -14,7 +14,7 @@ class __Controller.ValuationCtrl extends Monocle.Controller
   initialize: (travel)=>
     #travel = Lungo.Cache.get "travel"
 
-    alert travel.name
+    #alert travel.name
     #@customerName[0].innerText = travel.name
     #alert travel.valuation
 

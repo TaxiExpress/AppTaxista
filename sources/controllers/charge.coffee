@@ -11,8 +11,8 @@ class __Controller.ChargeCtrl extends Monocle.Controller
 
   events:
     "tap #charge_charge"             : "doCharge"
-    "change #charge_app"             : "changeCash"
-    "change #charge_cash"            : "changeApp"
+    "singleTap #charge_app"          : "changeCash"
+    "singleTap #charge_cash"         : "changeApp"
     "tap #charge_positiveVote"       : "votePositive"
     "tap #charge_negativeVote"       : "voteNegative"
     #"singleTap #charge_positiveVote" : "votePositive"
@@ -22,10 +22,10 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     super
 
   initialize: =>
+    
     @optionCash[0].checked = true
     
     driver = Lungo.Cache.get "driver"
-    
     if driver.appPayment is false
       @optionCash[0].disabled = true
       fieldset = document.getElementById("charge_app_fieldset")
@@ -36,8 +36,8 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     else
       @optionApp[0].checked = false
 
-    @button_Positive[0].disabled = true
-    @button_Negative[0].disabled = true
+    #@button_Positive[0].disabled = true
+    #@button_Negative[0].disabled = true
 
   changeCash: =>
     driver = Lungo.Cache.get "driver"
@@ -108,8 +108,8 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         if @optionCash[0].checked
           #@button_Positive[0].disabled = false
           #@button_Negative[0].disabled = false
-          #Lungo.Router.section "waiting_s"
-          Lungo.Router.section "valuation_s"
+          Lungo.Router.section "waiting_s"
+          #Lungo.Router.section "valuation_s"
       error: (xhr, type) =>
         navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
         Lungo.Router.section "charge_s"
