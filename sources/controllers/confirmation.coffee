@@ -17,8 +17,13 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
     super
 
   loadTravel: (travel) ->
+    
+    @button_accept[0].disabled = false
+    @button_reject[0].disabled = false
+
     #@streetField[0].value = travel.origin
-    @customerName[0].innerText = travel.name
+    #@customerName[0].innerText = travel.name
+    @customerName[0].innerText = "Nombre y Apellidos"
     @streetField[0].innerText = travel.origin
 
     val = ""
@@ -59,8 +64,6 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
       url: server + "driver/accepttravel"
       data: data
       success: (result) =>
-        @button_accept[0].disabled = false
-        @button_reject[0].disabled = false
         __Controller.arrive.iniArrive()
         Lungo.Router.section "arrive_s"
       error: (xhr, type) =>

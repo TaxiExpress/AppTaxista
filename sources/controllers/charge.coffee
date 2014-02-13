@@ -2,12 +2,14 @@ class __Controller.ChargeCtrl extends Monocle.Controller
 
 	elements:
     "#charge_amount"                 : "amount"
-    #"#option_cash"                   : "valorCash"
-    #"#option_card"                   : "valorCard"
     "#charge_cash"                   : "optionCash"
+    "#charge_app_fieldset"           : "fieldset_charge_app"
     "#charge_app"                    : "optionApp"
+    "#charge_livote"                 : "li_vote"
+    "#charge_votebox"                : "fieldset_vote"
     "#charge_positiveVote"           : "button_Positive"
     "#charge_negativeVote"           : "button_Negative"
+    "#charge_charge"                 : "button_charge"
 
   events:
     "tap #charge_charge"             : "doCharge"
@@ -15,29 +17,30 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     "singleTap #charge_cash"         : "changeApp"
     "tap #charge_positiveVote"       : "votePositive"
     "tap #charge_negativeVote"       : "voteNegative"
-    #"singleTap #charge_positiveVote" : "votePositive"
-    #"singleTap #charge_negativeVote" : "voteNegative"
-    
+
   constructor: ->
     super
 
   initialize: =>
     
     @optionCash[0].checked = true
+    @button_charge[0].disabled = false
     
     driver = Lungo.Cache.get "driver"
     if driver.appPayment is false
       @optionCash[0].disabled = true
-      fieldset = document.getElementById("charge_app_fieldset")
-      console.log fieldset
-      padre = fieldset.parentNode
-      console.log padre
-      padre.removeChild fieldset
-    else
-      @optionApp[0].checked = false
+      if document.getElementById("charge_app_fieldset")
+        fieldset = document.getElementById("charge_app_fieldset")
+        alert fieldset
+        padre = fieldset.parentNode
+        padre.removeChild fieldset
+      else
+        @optionApp[0].checked = false
 
-    #@button_Positive[0].disabled = true
-    #@button_Negative[0].disabled = true
+    @li_vote[0].style.visibility = "hidden"
+    @fieldset_vote[0].style.visibility = "hidden"
+    #@button_Positive[0].style.visibility = "hidden"
+    #@button_Negative[0].style.visibility = "hidden"
 
   changeCash: =>
     driver = Lungo.Cache.get "driver"
@@ -81,7 +84,8 @@ class __Controller.ChargeCtrl extends Monocle.Controller
           maximumAge: 0
         navigator.geolocation.getCurrentPosition iniLocation, manageErrors
 
-      Lungo.Router.section "init_s"
+      @button_charge[0].disabled = true  
+      #Lungo.Router.section "init_s"
       setTimeout((=> @travelCompleted()) , 5000)
 
   travelCompleted: =>
@@ -106,9 +110,9 @@ class __Controller.ChargeCtrl extends Monocle.Controller
       success: (result) =>
         @amount[0].value = ""
         if @optionCash[0].checked
-          #@button_Positive[0].disabled = false
-          #@button_Negative[0].disabled = false
-          Lungo.Router.section "waiting_s"
+          @li_vote[0].style.visibility = "visible"
+          @fieldset_vote[0].style.visibility = "visible"
+          #Lungo.Router.section "waiting_s"
           #Lungo.Router.section "valuation_s"
       error: (xhr, type) =>
         navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
@@ -152,15 +156,12 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         return true
 
   votePositive: (event) =>
-    alert "positive"
     @vote "positive"
 
   voteNegative: (event) =>
-    alert "negative"
     @vote "negative"
 
   vote: (vote) =>
-    alert "vote"
     driver = Lungo.Cache.get "driver"
     travel = Lungo.Cache.get "travel"
     server = Lungo.Cache.get "server"

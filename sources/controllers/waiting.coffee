@@ -5,9 +5,8 @@ class __Controller.WaitingCtrl extends Monocle.Controller
   events:
     #"tap #waiting_logout"                  : "logOut"
     "singleTap #waiting_available"            : "changeAvailable"
-    "tap #waiting_prueba1"                 : "confirmation"
-    "tap #waiting_prueba3"                 : "charge"
-    "tap #waiting_prueba4"                 : "valuation"
+    #"tap #waiting_prueba1"                 : "confirmation"
+    #"tap #waiting_prueba3"                 : "charge"
 
   elements:
     "#waiting_driver"                      : "driver"
@@ -20,28 +19,17 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     @driver[0].innerText = driver.last_name + ", " + driver.first_name
     #@getLocationUpdate()
 
-  confirmation: =>
-    travel = 
-      name: "Fermin Querejeta Mendo"
-      valuation: 4
-      origin: "mi casa"
-    __Controller.confirmation.loadTravel(travel)
-    Lungo.Router.section "confirmation_s"
+  #confirmation: =>
+  #  travel = 
+  #    name: "Fermin Querejeta Mendo"
+  #    valuation: 4
+  #    origin: "mi casa"
+  #  __Controller.confirmation.loadTravel(travel)
+  #  Lungo.Router.section "confirmation_s"
 
-  charge: =>
-    __Controller.charge.initialize()
-    Lungo.Router.section "charge_s"
-
-  valuation: =>
-    travel = 
-      name: "Fermin Querejeta Mendo"
-      valuation: 4
-      origin: "mi casa"
-    alert "valuation"
-    __Controller.valuation = new __Controller.ValuationCtrl "section#valuation_s"
-    console.log __Controller.valuation
-    __Controller.valuation.initialize(travel)
-    Lungo.Router.section "valuation_s"
+  #charge: =>
+  #  __Controller.charge.initialize()
+  #  Lungo.Router.section "charge_s"
 
   getLocationUpdate: =>
     if navigator.geolocation

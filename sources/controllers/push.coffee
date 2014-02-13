@@ -29,7 +29,7 @@ class __Controller.PushCtrl extends Monocle.Controller
           phone: notification.phone
         __Controller.confirmation.loadTravel(travel)
         Lungo.Router.section "confirmation_s"
-        navigator.notification.alert "Nueva solicitud", null, "Taxi Express", "Aceptar"
+        #navigator.notification.alert "Nueva solicitud", null, "Taxi Express", "Aceptar"
       when "803" #Recibo la push de confirmación de pago
         #Lungo.Router.section "waiting_s"
         Lungo.Router.section "valuation_s"

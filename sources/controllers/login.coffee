@@ -71,7 +71,6 @@ class __Controller.LoginCtrl extends Monocle.Controller
 
     Lungo.Cache.set "driver", driver    
     __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
-    __Controller.valuation = new __Controller.ValuationCtrl "section#valuation_s"
     __Controller.charge = new __Controller.ChargeCtrl "section#charge_s"
     __Controller.arrive = new __Controller.ArriveCtrl "section#arrive_s"
     __Controller.waiting = new __Controller.WaitingCtrl "section#waiting_s"

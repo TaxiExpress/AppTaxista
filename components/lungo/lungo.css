@@ -696,14 +696,16 @@ body { height: 100%; margin: 0; padding: 0 }
 
 @media screen and (orientation: portrait){
 	.arrive .location a#arrive_call{height:40px; width: 40px;}
-	.arrive .location input{height:40px; font-size:28px; width:85%;} 
+	/*.arrive .location input{height:30px; font-size:18px; width:85%;} */
+	.arrive .location input{height:30px; font-size:18px; width:95%;}
 	.arrive .location button#arrive_pickup,
 	.arrive .location button#arrive_cancel{height:60px;}
 }
 @media screen and (orientation: landscape){
 	.arrive .location a#arrive_call{height:50px; width: 50px;}
 	.arrive .location{margin-left: 5%;}
-	.arrive .location input{height:50px; font-size:30px; width: 90%;}	
+	.arrive .location input{height:50px; font-size:30px; width: 95%;}	
+	/*.arrive .location input{height:50px; font-size:30px; width: 90%;}	*/
 	.arrive .location button#arrive_pickup,
 	.arrive .location button#arrive_cancel{height:50px}
 }
@@ -719,7 +721,7 @@ div.chage{height: 100px;}
 	.charge label{font-size:20px; width: 35%; }	
 	#charge_amount{height:45px; font-size:36px; margin: 0px;}
 	/*#charge_amount{height:50px; font-size:30px;}*/
-	#charge_charge{height:80px;}
+	#charge_charge{height:100px;}
 	/*#charge_charge{height:150px;}*/
 }
 @media screen and (orientation: landscape){
@@ -727,7 +729,7 @@ div.chage{height: 100px;}
 	.charge label{font-size:50px; width: 35%;text-align: left;}	
 	#charge_amount{height:45px; font-size:36px; margin: 0px;}
 	/*#charge_amount{height:60px; font-size:50px;}*/
-	#charge_charge{height:80px;}
+	#charge_charge{height:100px;}
 	/*#charge_charge{height:120px;}*/
 }
 

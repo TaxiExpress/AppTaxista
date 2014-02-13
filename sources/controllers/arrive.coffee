@@ -4,7 +4,9 @@ class __Controller.ArriveCtrl extends Monocle.Controller
   
   elements:
     "#arrive_streetField"            : "streetField"
-    "#arrive_call"                   : "telephone"
+    #"#arrive_call"                   : "telephone"
+    "#arrive_pickup"                 : "button_PickUp"
+    "#arrive_cancel"                 : "button_cancel"
   
   events:
     "tap #arrive_pickup"             : "doPickUp"
@@ -17,18 +19,18 @@ class __Controller.ArriveCtrl extends Monocle.Controller
   iniArrive: ->
     travel = Lungo.Cache.get "travel"
     @streetField[0].value = travel.origin
-    @telephone[0].href = "tel:" + travel.phone
+    #@telephone[0].href = "tel:" + travel.phone
 
     if navigator.geolocation
-      unless map is undefined
-        mapCanvas = document.getElementById("map-canvas")
-        padre = mapCanvas.parentNode
-        padre.removeChild mapCanvas
+      #unless map is undefined
+      #  mapCanvas = document.getElementById("map-canvas")
+      #  padre = mapCanvas.parentNode
+      #  padre.removeChild mapCanvas
         
-        eDIV = document.createElement("div");
-        eDIV.setAttribute "id", "map-canvas"
-        console.log eDIV
-        document.getElementById("arrive_s").appendChild(eDIV);
+      #  eDIV = document.createElement("div");
+      #  eDIV.setAttribute "id", "map-canvas"
+      #  console.log eDIV
+      #  document.getElementById("arrive_s").appendChild(eDIV);
 
       travel = Lungo.Cache.get "travel"
       arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude)
@@ -69,6 +71,9 @@ class __Controller.ArriveCtrl extends Monocle.Controller
     Lungo.Cache.set "travel", travel
 
   doPickUp: (event) =>
+    @button_PickUp[0].disabled = true
+    @button_cancel[0].disabled = true
+
     if navigator.geolocation
       options =
         enableHighAccuracy: true,
@@ -76,7 +81,7 @@ class __Controller.ArriveCtrl extends Monocle.Controller
         maximumAge: 0
       navigator.geolocation.getCurrentPosition iniLocation, manageErrors
 
-    Lungo.Router.section "init_s"
+    #Lungo.Router.section "init_s"
       
     setTimeout((=>
       driver = Lungo.Cache.get "driver"
@@ -98,15 +103,21 @@ class __Controller.ArriveCtrl extends Monocle.Controller
           latitude: travel.latitude
           longitude: travel.longitude
         success: (result) =>
+          @button_PickUp[0].disabled = false
+          @button_cancel[0].disabled = false
           __Controller.charge.initialize()
           Lungo.Router.section "charge_s"
         error: (xhr, type) =>
+          @button_PickUp[0].disabled = false
+          @button_cancel[0].disabled = false
           navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
-          Lungo.Router.section "arrive_s"       
+          #Lungo.Router.section "arrive_s"       
     ) , 5000)
       
     
   cancelPickUp: (event) =>
+    @button_PickUp[0].disabled = true
+    @button_cancel[0].disabled = true
     Lungo.Notification.confirm
       title: "¿Esta seguro que desea cancelar el viaje?"
       description: ""
@@ -117,7 +128,8 @@ class __Controller.ArriveCtrl extends Monocle.Controller
       cancel:
         label: "No"
         callback: =>
-          @
+          @button_PickUp[0].disabled = false
+          @button_cancel[0].disabled = false
 
   canceltravel: =>
     driver = Lungo.Cache.get "driver"
@@ -130,8 +142,12 @@ class __Controller.ArriveCtrl extends Monocle.Controller
         travelID: travel.travelID
         email: driver.email
       success: (result) =>
+        @button_PickUp[0].disabled = false
+        @button_cancel[0].disabled = false
         Lungo.Router.section "waiting_s"
       error: (xhr, type) =>
+        @button_PickUp[0].disabled = false
+        @button_cancel[0].disabled = false
         navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
 
   doCall: (event) =>
