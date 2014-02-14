@@ -43,7 +43,11 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
     Lungo.Cache.remove "travel"
     Lungo.Cache.set "travel", travel
 
-    timer = setTimeout((=>Lungo.Router.section "waiting_s") , 25000)
+    timer = setTimeout((=>
+      Lungo.Cache.remove "requestInProgress"  
+      Lungo.Cache.set "requestInProgress", false
+      Lungo.Router.section "waiting_s") 
+    , 25000)
     
   acceptConfirmation: (event) =>
     @stopTimer()
@@ -64,16 +68,21 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
       url: server + "driver/accepttravel"
       data: data
       success: (result) =>
-        __Controller.arrive.iniArrive()
         Lungo.Router.section "arrive_s"
+        __Controller.arrive.iniArrive()
       error: (xhr, type) =>
         @button_accept[0].disabled = false
         @button_reject[0].disabled = false
         navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
+        Lungo.Cache.remove "requestInProgress"  
+        Lungo.Cache.set "requestInProgress", false
         Lungo.Router.section "waiting_s"
+
 
   rejectConfirmation: (event) =>
     @stopTimer()
+    Lungo.Cache.remove "requestInProgress"  
+    Lungo.Cache.set "requestInProgress", false
     Lungo.Router.section "waiting_s"
 
   stopTimer: =>

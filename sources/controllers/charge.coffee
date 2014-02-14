@@ -31,7 +31,6 @@ class __Controller.ChargeCtrl extends Monocle.Controller
       @optionCash[0].disabled = true
       if document.getElementById("charge_app_fieldset")
         fieldset = document.getElementById("charge_app_fieldset")
-        alert fieldset
         padre = fieldset.parentNode
         padre.removeChild fieldset
       else
@@ -39,8 +38,6 @@ class __Controller.ChargeCtrl extends Monocle.Controller
 
     @li_vote[0].style.visibility = "hidden"
     @fieldset_vote[0].style.visibility = "hidden"
-    #@button_Positive[0].style.visibility = "hidden"
-    #@button_Negative[0].style.visibility = "hidden"
 
   changeCash: =>
     driver = Lungo.Cache.get "driver"
@@ -60,15 +57,15 @@ class __Controller.ChargeCtrl extends Monocle.Controller
       else
         @optionApp[0].checked = true
 
-  iniLocation = (location) =>
-    travel = Lungo.Cache.get "travel"
-
-    currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
-    travel.latitude = location.coords.latitude
-    travel.longitude = location.coords.longitude
-    getStreet(currentLocation)  
-    
-    Lungo.Cache.set "travel", travel
+  #iniLocation = (location) =>
+  #  travel = Lungo.Cache.get "travel"
+  #
+  #  currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
+  #  travel.latitude = location.coords.latitude
+  #  travel.longitude = location.coords.longitude
+  #  getStreet(currentLocation)  
+  #  
+  #  Lungo.Cache.set "travel", travel
 
   manageErrors = =>
     console.log "ERROR CHARGE"
@@ -76,25 +73,33 @@ class __Controller.ChargeCtrl extends Monocle.Controller
   doCharge: (event) =>
     correcto = @valideAmount(@amount[0].value)
     if correcto
-      travel = Lungo.Cache.get "travel"
-      if navigator.geolocation
-        options =
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
-        navigator.geolocation.getCurrentPosition iniLocation, manageErrors
+      #travel = Lungo.Cache.get "travel"
+      #if navigator.geolocation
+      #  options =
+      #    enableHighAccuracy: true,
+      #    timeout: 5000,
+      #    maximumAge: 0
+      #  navigator.geolocation.getCurrentPosition iniLocation, manageErrors
 
       @button_charge[0].disabled = true  
+      @travelCompleted()
       #Lungo.Router.section "init_s"
-      setTimeout((=> @travelCompleted()) , 5000)
+      #setTimeout((=> @travelCompleted()) , 5000)
 
   travelCompleted: =>
     driver = Lungo.Cache.get "driver"
     server = Lungo.Cache.get "server"
     travel = Lungo.Cache.get "travel"
 
-    travel.destination = Lungo.Cache.get "destination"
-    travel.destination = ""  if travel.destination is 'undefined'
+    # si tenemos las coordenadas cuando recogemos al cliente buscamos la calle donde estamos con las coordenadas
+    latitude = Lungo.Cache.get "latitude"
+    longitude = Lungo.Cache.get "longitude"
+    destination = Lungo.Cache.get "street"
+    # Si la señal del gps ha fallado y no tenemos datos dejamos los valores que nos ha pasado el cliente
+    if latitude is undefined or longitude is undefined
+      latitude = 0.0
+      longitude = 0.0
+      destination = "Desconocida"
 
     $$.ajax
       type: "POST"
@@ -102,9 +107,9 @@ class __Controller.ChargeCtrl extends Monocle.Controller
       data:
         travelID: travel.travelID
         email: driver.email
-        destination: travel.destination
-        latitude: travel.latitude
-        longitude: travel.longitude
+        destination: destination
+        latitude: latitude
+        longitude: longitude
         appPayment: @optionApp[0].checked
         cost: @amount[0].value
       success: (result) =>
@@ -119,23 +124,24 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         Lungo.Router.section "charge_s"
     # Lungo.Router.section "waiting_s"
 
-  getStreet = (pos) =>
-    geocoder = new google.maps.Geocoder()
-    geocoder.geocode
-      latLng: pos
-    , (results, status) =>
-      if status is google.maps.GeocoderStatus.OK
-        if results[1]
-          if results[0].address_components[1].short_name == results[0].address_components[0].short_name
-            street = results[0].address_components[1].short_name
-          else 
-            street = results[0].address_components[1].short_name + ", " +results[0].address_components[0].short_name
-        else
-          street = 'Calle desconocida'
-      else
-        street = 'Calle desconocida'
-      Lungo.Cache.remove "destination"  
-      Lungo.Cache.set "destination", street
+  #getStreet = (pos) =>
+  #  geocoder = new google.maps.Geocoder()
+  #  geocoder.geocode
+  #    latLng: pos
+  #  , (results, status) =>
+  #    if status is google.maps.GeocoderStatus.OK
+  #      if results[1]
+  #        if results[0].address_components[1].short_name == results[0].address_components[0].short_name
+  #          street = results[0].address_components[1].short_name
+  #        else 
+  #          street = results[0].address_components[1].short_name + ", " +results[0].address_components[0].short_name
+  #      else
+  #        street = 'Calle desconocida'
+  #    else
+  #      street = 'Calle desconocida'
+  #    alert street
+  #    Lungo.Cache.remove "destination"  
+  #    Lungo.Cache.set "destination", street
 
   valideAmount: (amount) =>
     # how many decimals are allowed?
@@ -154,6 +160,10 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         return false
       else
         return true
+
+  enableVote: =>
+    @li_vote[0].style.visibility = "visible"
+    @fieldset_vote[0].style.visibility = "visible"
 
   votePositive: (event) =>
     @vote "positive"
@@ -176,7 +186,11 @@ class __Controller.ChargeCtrl extends Monocle.Controller
       success: (result) =>
         navigator.notification.alert "Cliente valorado", null, "Taxi Express", "Aceptar"
         Lungo.Router.section "waiting_s"
+        Lungo.Cache.remove "requestInProgress"  
+        Lungo.Cache.set "requestInProgress", false
       error: (xhr, type) =>
         console.log type.response
         navigator.notification.alert "Error al valorar al cliente", null, "Taxi Express", "Aceptar"
         Lungo.Router.section "waiting_s"
+        Lungo.Cache.remove "requestInProgress"  
+        Lungo.Cache.set "requestInProgress", false

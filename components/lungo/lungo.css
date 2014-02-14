@@ -656,9 +656,11 @@ body { height: 100%; margin: 0; padding: 0 }
 @media screen and (orientation: portrait){
 	#waiting_available_label{font-size:14px;}
 }
+/*
 @media screen and (orientation: landscape){
 	#waiting_available_label{font-size: x-large;}
 }
+*/
 #waiting_a{background: #fff;}
 #waiting_a fieldset{text-align: left;}
 
@@ -673,16 +675,16 @@ body { height: 100%; margin: 0; padding: 0 }
 	.street .location #confirmation_question{font-size:16px}
 	/*.street .location #confirmation_question{font-size:20px;}*/
 }
+
+/*
 @media screen and (orientation: landscape){
 	.street .location{margin-right:  2%; margin-left: 2%}
 	.street button{margin: 5% auto; height:20%; font-size:30px; width: 100%}
-	/*.street button{height:190px; width: 46%; font-size:30px; float: left; margin-right:  2%;margin-left: 2%}*/
 	.street .location input{height:40px; font-size:30px; padding-left:5px; padding-right:5px;}
 	.street .location #confirmation_question{font-size:20px;}
-	/*.street .location #confirmation_question{font-size:24px;}*/
 }
-
-.arrive .location input{position: absolute; z-index:1!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; margin-top: 1%; left: 10px;}
+*/
+.arrive .location input{position: absolute; z-index:2!important; font-family:'Open Sans'; outline:none; display:block; color:#444; border:0px; border-radius:6px; text-align:center; font-weight: 100; text-overflow:ellipsis; overflow: hidden; margin-top: 1%; left: 10px;}
 .arrive .location button,
 .arrive .location a{position: absolute; z-index:1!important; font-family:'Open Sans'; outline:none; border-radius:6px;}
 
@@ -697,19 +699,19 @@ body { height: 100%; margin: 0; padding: 0 }
 @media screen and (orientation: portrait){
 	.arrive .location a#arrive_call{height:40px; width: 40px;}
 	/*.arrive .location input{height:30px; font-size:18px; width:85%;} */
-	.arrive .location input{height:30px; font-size:18px; width:95%;}
+	.arrive .location input{height:30px; font-size:18px; width:80%;}
 	.arrive .location button#arrive_pickup,
 	.arrive .location button#arrive_cancel{height:60px;}
 }
+/*
 @media screen and (orientation: landscape){
 	.arrive .location a#arrive_call{height:50px; width: 50px;}
 	.arrive .location{margin-left: 5%;}
 	.arrive .location input{height:50px; font-size:30px; width: 95%;}	
-	/*.arrive .location input{height:50px; font-size:30px; width: 90%;}	*/
 	.arrive .location button#arrive_pickup,
 	.arrive .location button#arrive_cancel{height:50px}
 }
-
+*/
 div.chage{height: 100px;}
 .charge input[type="radio"]{color: #444}
 .charge label{font-family:'Open Sans'; color: #555; margin: 1% auto;display: block; text-align: left;}
@@ -724,24 +726,24 @@ div.chage{height: 100px;}
 	#charge_charge{height:100px;}
 	/*#charge_charge{height:150px;}*/
 }
+/*
 @media screen and (orientation: landscape){
-	/*.charge input[type="radio"]{height: 20px; width: 20px;}*/
 	.charge label{font-size:50px; width: 35%;text-align: left;}	
 	#charge_amount{height:45px; font-size:36px; margin: 0px;}
-	/*#charge_amount{height:60px; font-size:50px;}*/
 	#charge_charge{height:100px;}
-	/*#charge_charge{height:120px;}*/
 }
-
+*/
 /*#charge_charge{z-index:1!important; font-family:'Open Sans'; outline:none; color: #444; font-size:30px; border-radius:6px; height:150px; width: 100%; margin-top: 5%;}*/
 /*.charge fieldset {height: 35px; font-size: 25px; color: #444;}*/
 
 @media screen and (orientation: portrait){
 	header {font-size: 18px;}
 }
+/*
 @media screen and (orientation: landscape){
 	header {font-size: 26px;}
 }
+*/
 
 body > section > article.splash .logo{left:0px;bottom:55%; width:100%;}
 body > section > article.splash .logo img {max-width:80%;margin:50px auto; float:center; position:relative;max-height:25%}

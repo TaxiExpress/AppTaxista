@@ -69,6 +69,9 @@ class __Controller.LoginCtrl extends Monocle.Controller
       last_name: result.last_name
       appPayment: result.appPayment
 
+    Lungo.Cache.remove "requestInProgress"  
+    Lungo.Cache.set "requestInProgress", false
+
     Lungo.Cache.set "driver", driver    
     __Controller.confirmation = new __Controller.ConfirmationCtrl "section#confirmation_s"
     __Controller.charge = new __Controller.ChargeCtrl "section#charge_s"

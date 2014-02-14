@@ -19,18 +19,6 @@ class __Controller.WaitingCtrl extends Monocle.Controller
     @driver[0].innerText = driver.last_name + ", " + driver.first_name
     #@getLocationUpdate()
 
-  #confirmation: =>
-  #  travel = 
-  #    name: "Fermin Querejeta Mendo"
-  #    valuation: 4
-  #    origin: "mi casa"
-  #  __Controller.confirmation.loadTravel(travel)
-  #  Lungo.Router.section "confirmation_s"
-
-  #charge: =>
-  #  __Controller.charge.initialize()
-  #  Lungo.Router.section "charge_s"
-
   getLocationUpdate: =>
     if navigator.geolocation
       options = 
@@ -46,6 +34,17 @@ class __Controller.WaitingCtrl extends Monocle.Controller
       @watchId = undefined
   
   updatePosition = (position) =>
+    console.log "latitude" + position.coords.latitude
+    console.log "latitude" + position.coords.longitude
+
+    Lungo.Cache.remove "latitude"  
+    Lungo.Cache.set "latitude", position.coords.latitude
+    Lungo.Cache.remove "longitude"  
+    Lungo.Cache.set "longitude", position.coords.longitude
+
+    currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+    getStreet(currentLocation)  
+
     driver = Lungo.Cache.get "driver"
     server = Lungo.Cache.get "server"
     $$.ajax
@@ -82,6 +81,24 @@ class __Controller.WaitingCtrl extends Monocle.Controller
       @getLocationUpdate()
     else
       @stopWatch()
+
+  getStreet = (pos) =>
+    geocoder = new google.maps.Geocoder()
+    geocoder.geocode
+      latLng: pos
+    , (results, status) =>
+      if status is google.maps.GeocoderStatus.OK
+        if results[1]
+          if results[0].address_components[1].short_name == results[0].address_components[0].short_name
+            street = results[0].address_components[1].short_name
+          else 
+            street = results[0].address_components[1].short_name + ", " +results[0].address_components[0].short_name
+        else
+          street = 'Calle desconocida'
+      else
+        street = 'Calle desconocida'
+      Lungo.Cache.remove "street"  
+      Lungo.Cache.set "street", street
 
   #logOut: =>
   #  @stopWatch()
