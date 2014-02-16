@@ -17,7 +17,7 @@
         <article id="init_a" class="splash initial">
           <span class="logo"><img src="img/logo.png" alt=""/></span>
           <span class="load"><img src="img/loading.gif" alt="Cargando..." /></span>
-          <span class="name">taxiexpress.com (Versión Taxista)</span>
+          <span class="name">taxiexpress.tk</span>
        </article>
     </section>
 
@@ -36,49 +36,43 @@
        </article>
     </section>
 
-    <section id="waiting_s" data-transition="fade">
-      <header data-title="Esperando Solicitud" id="waiting_driver"></header>      
-      <article id="waiting_a" class="splash initial">
+    <section id="waiting_s" data-transition="fade">    
+      <article id="waiting_a" class="waiting">
         <div class="form list">
+          <span class="logo"><img src="img/logo.png" alt=""/></span>
+          <fieldset><small id="waiting_driver"></small></fieldset>
           <fieldset> 
-              <small id="waiting_available_label">Disponible para recibir peticiones</small>
-              <input id="waiting_available" type="checkbox" checked/>
+              <small>Disponible para recoger clientes</small>
+              <input id="waiting_available" type="checkbox" />
           </fieldset> 
+          <br><br>
+          <fieldset><small><span>Vehículo: </span><label id="waiting_car"></label></small></fieldset>
+          <fieldset><small><span>Matrícula: </span><label id="waiting_plate"></label></small></fieldset>
+          <fieldset><small><span>Nº Licencia: </span><label id="waiting_license"></label></small></fieldset>
         </div>
-        <span class="logo"><img src="img/logo.png" alt=""/></span>
-        <!--<button id="waiting_logout" class="anchor">Cerrar Sesión</button>-->
       </article>
     </section>
 
     <section id="confirmation_s" data-transition="fade">
-      <header data-title="Petición Cliente"></header>
+      <header data-title="Solicitud de servicio"></header>
       <article id="confirmation_a" class="street">
         <div class="form list">
           <li class="anchor contrast">DATOS DEL CLIENTE</li>
           <img id="confirmation_image" class="avatar" src="" alt="" />
-          <fieldset><strong id="confirmation_name"></strong></fieldset>
-          <fieldset><strong id="confirmation_valuation" class="yellow"></strong></fieldset>
-          <li class="anchor contrast">¿Desea recoger al cliente en la siguiente dirección?</li>
-          <fieldset><strong id="confirmation_street"></strong></fieldset>
+          <fieldset><small id="confirmation_name"></small></fieldset>
+          <fieldset><small id="confirmation_valuation" class="yellow"></small></fieldset>
+          <br><li class="anchor contrast">DIRECCIÓN DE RECOGIDA</li>
+          <fieldset><small id="confirmation_street"></small></fieldset>
         </div>
-        <!--
-        <div class="location">
-          <fieldset class="radius-bottom" >
-            <stong id="confirmation_question">¿Desea recoger al cliente en la siguiente dirección?</strong>
-            <input id="confirmation_streetField" type="text" readonly="readonly"/>
-          </fieldset>
-        </div>
-      -->
         <button id="confirmation_accept" data-label="Aceptar"/>
         <button id="confirmation_reject" data-label="Rechazar"/>
       </article>
     </section>
 
     <section id="arrive_s" data-transition="fade">
-      <header data-title="Solicitud Aceptada"></header>
       <article id="arrive_a" class="arrive">
         <div class="location">
-          <input id="arrive_streetField" type="text" readonly="readonly" />
+          <input id="arrive_streetField" type="text" readonly="readonly" value=""/>
           <a id="arrive_call" class="button" href="" data-icon="phone"></a>
           <button id="arrive_pickup" data-label="Recoger"/>
           <button id="arrive_cancel" data-label="Cancelar"/>
@@ -88,45 +82,27 @@
     </section>
 
     <section id="charge_s" data-transition="fade">
-      <header data-title="Cobro Trayecto"></header>
       <article id="charge_a" class="charge">
-        <!--
         <div class="form list">
           <fieldset> 
-              <small id="charge_cash_label">Contado</small>
+              <strong>Pago en mano</strong>
               <input id="charge_cash" type="checkbox"/>
           </fieldset> 
           <fieldset id="charge_app_fieldset"> 
-              <strong id="charge_app_label">Mediante la aplicación</strong>
-              <input id="charge_app" type="checkbox"/>
-          </fieldset> 
-        </div>
-        <input id="charge_amount" type="text" placeholder="Importe a cobrar"/>
-        <button id="charge_charge" data-label="Cobrar"/>
-      -->
-        <div class="form list">
-          <fieldset> 
-              <strong id="charge_cash_label">Contado</small>
-              <input id="charge_cash" type="checkbox"/>
-          </fieldset> 
-          <fieldset id="charge_app_fieldset"> 
-              <strong id="charge_app_label">Mediante la aplicación</strong>
+              <strong>Pago a través de App</strong>
               <input id="charge_app" type="checkbox"/>
           </fieldset>
           <fieldset>
-            <input id="charge_amount" type="text" placeholder="Importe a cobrar"/>
+            <input id="charge_amount" type="number" placeholder="Importe"/>
           </fieldset>
           <fieldset>
-            <!--<button id="charge_charge">Cobrar</button>-->
             <button id="charge_charge" data-label="Cobrar">
-          </fieldset>
-          
+          </fieldset>          
           <li id="charge_livote" class="anchor contrast">VOTA AL CLIENTE</li>
           <fieldset id="charge_votebox">
             <button id="charge_positiveVote" class="green">Voto positivo</button>
             <button id="charge_negativeVote"class="red">Voto negativo</button>
           </fieldset>
-          
         </div>
       </article>
     </section>
@@ -138,11 +114,7 @@
     <script src="app/taxistaExpress.js"></script>   
     <script src="cordova.js"></script>
     <script src="PushNotification.js"></script>
-    <script src='fastclick.js'></script>
     <script type="text/javascript">
-        window.addEventListener('load', function() {
-            FastClick.attach(document.body);
-        }, false);
         var pushNotification;        
         function onDeviceReady() {
             try { 
@@ -176,7 +148,7 @@
             switch( e.event ) {
                 case 'registered':
                 if ( e.regid.length > 0 ) {
-                    __Controller.push.savePushID(e.regid, "ANDROID");
+                    __Controller.push.savePushID(e.regid);
                 }
                 break;                
                 case 'message':
@@ -201,7 +173,7 @@
         }
         
         function tokenHandler (result) {
-            __Controller.push.savePushID(result,"IOS");
+            __Controller.push.savePushID(result);
         }
         
         function successHandler (result) {

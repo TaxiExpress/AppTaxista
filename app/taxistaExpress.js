@@ -7,7 +7,6 @@
 
     function AppCtrl() {
       AppCtrl.__super__.constructor.apply(this, arguments);
-      Lungo.Cache.set("phone", "669338946");
       Lungo.Cache.set("server", "http://TaxiLoadBalancer-638315338.us-east-1.elb.amazonaws.com/");
       __Controller.login = new __Controller.LoginCtrl("section#login_s");
     }
@@ -30,7 +29,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ArriveCtrl = (function(_super) {
-    var getStreet, manageErrors, map;
+    var map;
 
     __extends(ArriveCtrl, _super);
 
@@ -44,95 +43,94 @@
     };
 
     ArriveCtrl.prototype.events = {
-      "tap #arrive_pickup": "doPickUp",
-      "tap #arrive_cancel": "cancelPickUp",
-      "tap #arrive_call": "doCall"
+      "singleTap #arrive_pickup": "doPickUp",
+      "singleTap #arrive_cancel": "cancelPickUp"
     };
 
     function ArriveCtrl() {
-      this.doCall = __bind(this.doCall, this);
-      this.canceltravel = __bind(this.canceltravel, this);
       this.cancelPickUp = __bind(this.cancelPickUp, this);
       this.doPickUp = __bind(this.doPickUp, this);
+      this.showMap = __bind(this.showMap, this);
+      this.iniArrive = __bind(this.iniArrive, this);
       ArriveCtrl.__super__.constructor.apply(this, arguments);
     }
 
     ArriveCtrl.prototype.iniArrive = function() {
-      var arriveLocation, mapOptions, marker, travel;
+      var travel;
       travel = Lungo.Cache.get("travel");
-      this.streetField[0].value = travel.origin;
+      this.streetField[0].value = Lungo.Cache.get("origin");
       this.telephone[0].href = "tel:" + travel.phone;
-      if (navigator.geolocation) {
-        travel = Lungo.Cache.get("travel");
-        arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude);
-        mapOptions = {
-          center: arriveLocation,
-          zoom: 16,
-          mapTypeId: google.maps.MapTypeId.ROADMAP,
-          panControl: false,
-          streetViewControl: false,
-          overviewMapControl: false,
-          mapTypeControl: false,
-          zoomControl: false,
-          styles: [
-            {
-              featureType: "poi",
-              elementType: "labels",
-              stylers: [
-                {
-                  visibility: "off"
-                }
-              ]
-            }
-          ]
-        };
-        map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-        return marker = new google.maps.Marker({
-          position: arriveLocation,
-          map: map,
-          title: travel.origin
-        });
-      }
+      Lungo.Router.section("arrive_s");
+      travel = Lungo.Cache.get("travel");
+      return this.showMap(travel);
     };
 
-    manageErrors = function(err) {
-      return console.log("error gps arrive");
+    ArriveCtrl.prototype.showMap = function(travel) {
+      var bounds, destination, directionsDisplay, directionsService, lat, long, origin, request;
+      lat = Lungo.Cache.get("latitude");
+      long = Lungo.Cache.get("longitude");
+      directionsService = new google.maps.DirectionsService();
+      directionsDisplay = new google.maps.DirectionsRenderer();
+      map = new google.maps.Map(document.getElementById("map-canvas"), {
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        panControl: false,
+        streetViewControl: false,
+        overviewMapControl: false,
+        mapTypeControl: false,
+        zoomControl: false,
+        styles: [
+          {
+            featureType: "all",
+            elementType: "labels",
+            stylers: [
+              {
+                visibility: "off"
+              }
+            ]
+          }
+        ]
+      });
+      directionsDisplay.setMap(map);
+      bounds = new google.maps.LatLngBounds();
+      origin = new google.maps.LatLng(lat, long);
+      destination = new google.maps.LatLng(travel.latitude, travel.longitude);
+      bounds.extend(origin);
+      bounds.extend(destination);
+      map.fitBounds(bounds);
+      request = {
+        origin: origin,
+        destination: destination,
+        travelMode: google.maps.DirectionsTravelMode.DRIVING
+      };
+      return directionsService.route(request, function(response, status) {
+        if (status === google.maps.DirectionsStatus.OK) {
+          return directionsDisplay.setDirections(response);
+        }
+      });
     };
 
     ArriveCtrl.prototype.doPickUp = function(event) {
-      var currentLocation, driver, latitude, longitude, origin, server, travel;
+      var driver, server, travel;
       this.button_PickUp[0].disabled = true;
       this.button_cancel[0].disabled = true;
       driver = Lungo.Cache.get("driver");
       travel = Lungo.Cache.get("travel");
       server = Lungo.Cache.get("server");
-      latitude = Lungo.Cache.get("latitude");
-      longitude = Lungo.Cache.get("longitude");
-      if (latitude === void 0 || longitude === void 0) {
-        latitude = travel.latitude;
-        longitude = travel.longitude;
-        origin = travel.origin;
-      } else {
-        currentLocation = new google.maps.LatLng(latitude, longitude);
-        getStreet(currentLocation);
-        origin = Lungo.Cache.get("origin");
-      }
       return $$.ajax({
         type: "POST",
         url: server + "driver/travelstarted",
         data: {
           email: driver.email,
           travelID: travel.travelID,
-          origin: origin,
-          latitude: latitude,
-          longitude: longitude
+          origin: "",
+          latitude: "",
+          longitude: ""
         },
         success: (function(_this) {
           return function(result) {
             _this.button_PickUp[0].disabled = false;
             _this.button_cancel[0].disabled = false;
-            __Controller.charge.initialize();
-            return Lungo.Router.section("charge_s");
+            return __Controller.charge.initialize();
           };
         })(this),
         error: (function(_this) {
@@ -151,9 +149,32 @@
       this.button_cancel[0].disabled = true;
       onConfirm = (function(_this) {
         return function(button) {
+          var driver, server, travel;
           switch (button) {
             case 1:
-              _this.canceltravel();
+              driver = Lungo.Cache.get("driver");
+              travel = Lungo.Cache.get("travel");
+              server = Lungo.Cache.get("server");
+              $$.ajax({
+                type: "POST",
+                url: server + "driver/canceltravel",
+                data: {
+                  travelID: travel.travelID,
+                  email: driver.email
+                },
+                success: function(result) {
+                  _this.button_PickUp[0].disabled = false;
+                  _this.button_cancel[0].disabled = false;
+                  Lungo.Router.section("waiting_s");
+                  Lungo.Cache.remove("requestInProgress");
+                  return Lungo.Cache.set("requestInProgress", false);
+                },
+                error: function(xhr, type) {
+                  _this.button_PickUp[0].disabled = false;
+                  _this.button_cancel[0].disabled = false;
+                  return navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
+                }
+              });
               break;
             case 2:
               _this.button_PickUp[0].disabled = false;
@@ -162,66 +183,6 @@
         };
       })(this);
       return navigator.notification.confirm("", onConfirm, "¿Esta seguro que desea cancelar el viaje?", "Si, No");
-    };
-
-    ArriveCtrl.prototype.canceltravel = function() {
-      var driver, server, travel;
-      driver = Lungo.Cache.get("driver");
-      travel = Lungo.Cache.get("travel");
-      server = Lungo.Cache.get("server");
-      return $$.ajax({
-        type: "POST",
-        url: server + "driver/canceltravel",
-        data: {
-          travelID: travel.travelID,
-          email: driver.email
-        },
-        success: (function(_this) {
-          return function(result) {
-            _this.button_PickUp[0].disabled = false;
-            _this.button_cancel[0].disabled = false;
-            Lungo.Router.section("waiting_s");
-            Lungo.Cache.remove("requestInProgress");
-            return Lungo.Cache.set("requestInProgress", false);
-          };
-        })(this),
-        error: (function(_this) {
-          return function(xhr, type) {
-            _this.button_PickUp[0].disabled = false;
-            _this.button_cancel[0].disabled = false;
-            return navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
-          };
-        })(this)
-      });
-    };
-
-    ArriveCtrl.prototype.doCall = function(event) {
-      return document.getElementById("fdw").onclick();
-    };
-
-    getStreet = function(pos) {
-      var geocoder;
-      geocoder = new google.maps.Geocoder();
-      return geocoder.geocode({
-        latLng: pos
-      }, function(results, status) {
-        var street;
-        if (status === google.maps.GeocoderStatus.OK) {
-          if (results[1]) {
-            if (results[0].address_components[1].short_name === results[0].address_components[0].short_name) {
-              street = results[0].address_components[1].short_name;
-            } else {
-              street = results[0].address_components[1].short_name + ", " + results[0].address_components[0].short_name;
-            }
-          } else {
-            street = 'Calle desconocida';
-          }
-        } else {
-          street = 'Calle desconocida';
-        }
-        Lungo.Cache.remove("origin");
-        return Lungo.Cache.set("origin", street);
-      });
     };
 
     return ArriveCtrl;
@@ -236,8 +197,6 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.ChargeCtrl = (function(_super) {
-    var manageErrors;
-
     __extends(ChargeCtrl, _super);
 
     ChargeCtrl.prototype.elements = {
@@ -254,95 +213,88 @@
 
     ChargeCtrl.prototype.events = {
       "tap #charge_charge": "doCharge",
-      "singleTap #charge_app": "changeCash",
-      "singleTap #charge_cash": "changeApp",
+      "change #charge_app": "changeApp",
+      "change #charge_cash": "changeCash",
       "tap #charge_positiveVote": "votePositive",
       "tap #charge_negativeVote": "voteNegative"
     };
 
     function ChargeCtrl() {
+      this.getStreet = __bind(this.getStreet, this);
       this.vote = __bind(this.vote, this);
       this.voteNegative = __bind(this.voteNegative, this);
       this.votePositive = __bind(this.votePositive, this);
-      this.enableVote = __bind(this.enableVote, this);
       this.valideAmount = __bind(this.valideAmount, this);
       this.travelCompleted = __bind(this.travelCompleted, this);
       this.doCharge = __bind(this.doCharge, this);
-      this.changeApp = __bind(this.changeApp, this);
       this.changeCash = __bind(this.changeCash, this);
+      this.changeApp = __bind(this.changeApp, this);
       this.initialize = __bind(this.initialize, this);
+      var driver;
       ChargeCtrl.__super__.constructor.apply(this, arguments);
+      driver = Lungo.Cache.get("driver");
+      this.optionApp[0].checked = driver.appPayment;
+      if (!driver.appPayment) {
+        this.optionCash[0].checked = !driver.appPayment;
+        this.optionCash[0].disabled = !driver.appPayment;
+        this.fieldset_charge_app[0].style.display = "none";
+      }
     }
 
     ChargeCtrl.prototype.initialize = function() {
-      var driver, fieldset, padre;
-      this.optionCash[0].checked = true;
+      Lungo.Router.section("charge_s");
       this.button_charge[0].disabled = false;
-      driver = Lungo.Cache.get("driver");
-      if (driver.appPayment === false) {
-        this.optionCash[0].disabled = true;
-        if (document.getElementById("charge_app_fieldset")) {
-          fieldset = document.getElementById("charge_app_fieldset");
-          padre = fieldset.parentNode;
-          padre.removeChild(fieldset);
-        } else {
-          this.optionApp[0].checked = false;
-        }
-      }
-      this.li_vote[0].style.visibility = "hidden";
-      return this.fieldset_vote[0].style.visibility = "hidden";
-    };
-
-    ChargeCtrl.prototype.changeCash = function() {
-      var driver;
-      driver = Lungo.Cache.get("driver");
-      if (driver.appPayment === true) {
-        if (this.optionApp[0].checked === true) {
-          return this.optionCash[0].checked = false;
-        } else {
-          return this.optionCash[0].checked = true;
-        }
-      }
+      this.li_vote[0].style.display = "none";
+      return this.fieldset_vote[0].style.display = "none";
     };
 
     ChargeCtrl.prototype.changeApp = function() {
       var driver;
       driver = Lungo.Cache.get("driver");
-      if (driver.appPayment === true) {
-        if (this.optionCash[0].checked === true) {
-          return this.optionApp[0].checked = false;
+      if (driver.appPayment) {
+        if (this.optionApp[0].checked) {
+          this.optionApp[0].checked = true;
+          return this.optionCash[0].checked = false;
         } else {
-          return this.optionApp[0].checked = true;
+          this.optionApp[0].checked = false;
+          return this.optionCash[0].checked = true;
         }
       }
     };
 
-    manageErrors = function() {
-      return console.log("ERROR CHARGE");
+    ChargeCtrl.prototype.changeCash = function() {
+      var driver;
+      driver = Lungo.Cache.get("driver");
+      if (driver.appPayment) {
+        if (this.optionCash[0].checked) {
+          this.optionApp[0].checked = false;
+          return this.optionCash[0].checked = true;
+        } else {
+          this.optionApp[0].checked = true;
+          return this.optionCash[0].checked = false;
+        }
+      }
     };
 
     ChargeCtrl.prototype.doCharge = function(event) {
-      var correcto;
-      correcto = this.valideAmount(this.amount[0].value);
-      if (correcto) {
+      var currentLocation, lat, long;
+      if (this.valideAmount(this.amount[0].value)) {
         this.button_charge[0].disabled = true;
-        return this.travelCompleted();
+        lat = Lungo.Cache.get("latitude");
+        long = Lungo.Cache.get("longitude");
+        currentLocation = new google.maps.LatLng(lat, long);
+        return this.getStreet(currentLocation);
       }
     };
 
     ChargeCtrl.prototype.travelCompleted = function() {
       var destination, driver, latitude, longitude, server, travel;
       driver = Lungo.Cache.get("driver");
-      server = Lungo.Cache.get("server");
       travel = Lungo.Cache.get("travel");
       latitude = Lungo.Cache.get("latitude");
       longitude = Lungo.Cache.get("longitude");
-      destination = Lungo.Cache.get("street");
-      if (latitude === void 0 || longitude === void 0) {
-        latitude = 0.0;
-        longitude = 0.0;
-        destination = "Desconocida";
-      }
+      destination = Lungo.Cache.get("destination");
+      server = Lungo.Cache.get("server");
       return $$.ajax({
         type: "POST",
         url: server + "driver/travelcompleted",
@@ -358,10 +310,8 @@
         success: (function(_this) {
           return function(result) {
             _this.amount[0].value = "";
-            if (_this.optionCash[0].checked) {
-              _this.li_vote[0].style.visibility = "visible";
-              return _this.fieldset_vote[0].style.visibility = "visible";
-            }
+            _this.li_vote[0].style.display = "block";
+            return _this.fieldset_vote[0].style.display = "block";
           };
         })(this),
         error: (function(_this) {
@@ -396,11 +346,6 @@
       }
     };
 
-    ChargeCtrl.prototype.enableVote = function() {
-      this.li_vote[0].style.visibility = "visible";
-      return this.fieldset_vote[0].style.visibility = "visible";
-    };
-
     ChargeCtrl.prototype.votePositive = function(event) {
       return this.vote("positive");
     };
@@ -416,8 +361,8 @@
       server = Lungo.Cache.get("server");
       data = {
         email: driver.email,
-        vote: vote,
-        travelID: travel.travelID
+        travelID: travel.travelID,
+        vote: vote
       };
       return $$.ajax({
         type: "POST",
@@ -443,6 +388,36 @@
       });
     };
 
+    ChargeCtrl.prototype.getStreet = function(pos) {
+      var geocoder;
+      geocoder = new google.maps.Geocoder();
+      return geocoder.geocode({
+        latLng: pos
+      }, (function(_this) {
+        return function(results, status) {
+          if (status === google.maps.GeocoderStatus.OK) {
+            if (results[1]) {
+              if (results[0].address_components[1].short_name === results[0].address_components[0].short_name) {
+                Lungo.Cache.remove("destination");
+                Lungo.Cache.set("destination", results[0].address_components[1].short_name);
+                return _this.travelCompleted();
+              } else {
+                Lungo.Cache.remove("destination");
+                Lungo.Cache.set("destination", results[0].address_components[1].short_name + ", " + results[0].address_components[0].short_name);
+                return _this.travelCompleted();
+              }
+            } else {
+              console.log("falla");
+              return _this.getStreet(pos);
+            }
+          } else {
+            console.log("falla");
+            return _this.getStreet(pos);
+          }
+        };
+      })(this));
+    };
+
     return ChargeCtrl;
 
   })(Monocle.Controller);
@@ -464,6 +439,7 @@
     ConfirmationCtrl.prototype.elements = {
       "#confirmation_name": "customerName",
       "#confirmation_valuation": "valuation",
+      "#confirmation_image": "image",
       "#confirmation_street": "streetField",
       "#confirmation_accept": "button_accept",
       "#confirmation_reject": "button_reject"
@@ -475,31 +451,73 @@
     };
 
     function ConfirmationCtrl() {
+      this.getStreet = __bind(this.getStreet, this);
       this.stopTimer = __bind(this.stopTimer, this);
       this.rejectConfirmation = __bind(this.rejectConfirmation, this);
       this.acceptConfirmation = __bind(this.acceptConfirmation, this);
+      var travel;
       ConfirmationCtrl.__super__.constructor.apply(this, arguments);
+      travel = {
+        travelID: "32",
+        origin: "Calle falsa 4",
+        latitude: "43.32132432",
+        longitude: "-2.4567875423",
+        customerID: "13",
+        phone: "653432423"
+      };
     }
 
     ConfirmationCtrl.prototype.loadTravel = function(travel) {
-      var i, val;
+      var currentLocation, data, server;
+      currentLocation = new google.maps.LatLng(travel.latitude, travel.longitude);
+      this.getStreet(currentLocation);
       this.button_accept[0].disabled = false;
       this.button_reject[0].disabled = false;
-      this.customerName[0].innerText = "Nombre y Apellidos";
-      this.streetField[0].innerText = travel.origin;
-      val = "";
-      i = 0;
-      while (i < travel.valuation) {
-        val = val + "★";
-        i++;
-      }
-      while (i < 5) {
-        val = val + "☆";
-        i++;
-      }
-      this.valuation[0].innerText = val;
+      this.streetField[0].innerText = "Calle desconocida";
+      this.customerName[0].innerText = "Usuario desconocido";
+      this.image[0].src = "img/user.png";
+      this.valuation[0].innerText = "☆☆☆☆☆";
+      server = Lungo.Cache.get("server");
+      data = {
+        customerID: travel.customerID
+      };
+      $$.ajax({
+        type: "GET",
+        url: server + "driver/getcustomerdata",
+        data: data,
+        success: (function(_this) {
+          return function(result) {
+            var i, val;
+            _this.customerName[0].innerText = result.name + " " + result.surname;
+            if (result.image) {
+              _this.image[0].src = result.image;
+            }
+            val = "";
+            i = 0;
+            while (i < result.valuation) {
+              val = val + "★";
+              i++;
+            }
+            while (i < 5) {
+              val = val + "☆";
+              i++;
+            }
+            return _this.valuation[0].innerText = val;
+          };
+        })(this),
+        error: (function(_this) {
+          return function(xhr, type) {
+            return console.log(type.response);
+          };
+        })(this)
+      });
       Lungo.Cache.remove("travel");
       Lungo.Cache.set("travel", travel);
+      setTimeout(((function(_this) {
+        return function() {
+          return Lungo.Router.section("confirmation_s");
+        };
+      })(this)), 2000);
       return timer = setTimeout(((function(_this) {
         return function() {
           Lungo.Cache.remove("requestInProgress");
@@ -519,8 +537,8 @@
       data = {
         email: driver.email,
         travelID: travel.travelID,
-        latitude: travel.latitude,
-        longitude: travel.longitude
+        latitude: Lungo.Cache.get("latitude"),
+        longitude: Lungo.Cache.get("longitude")
       };
       server = Lungo.Cache.get("server");
       return $$.ajax({
@@ -529,14 +547,11 @@
         data: data,
         success: (function(_this) {
           return function(result) {
-            Lungo.Router.section("arrive_s");
             return __Controller.arrive.iniArrive();
           };
         })(this),
         error: (function(_this) {
           return function(xhr, type) {
-            _this.button_accept[0].disabled = false;
-            _this.button_reject[0].disabled = false;
             navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
             Lungo.Cache.remove("requestInProgress");
             Lungo.Cache.set("requestInProgress", false);
@@ -555,6 +570,36 @@
 
     ConfirmationCtrl.prototype.stopTimer = function() {
       return clearTimeout(timer);
+    };
+
+    ConfirmationCtrl.prototype.getStreet = function(pos) {
+      var geocoder;
+      geocoder = new google.maps.Geocoder();
+      return geocoder.geocode({
+        latLng: pos
+      }, (function(_this) {
+        return function(results, status) {
+          if (status === google.maps.GeocoderStatus.OK) {
+            if (results[1]) {
+              if (results[0].address_components[1].short_name === results[0].address_components[0].short_name) {
+                _this.streetField[0].innerText = results[0].address_components[1].short_name;
+                Lungo.Cache.remove("origin");
+                return Lungo.Cache.set("origin", _this.streetField[0].innerText);
+              } else {
+                _this.streetField[0].innerText = results[0].address_components[1].short_name + ", " + results[0].address_components[0].short_name;
+                Lungo.Cache.remove("origin");
+                return Lungo.Cache.set("origin", _this.streetField[0].innerText);
+              }
+            } else {
+              console.log("falla");
+              return _this.getStreet(pos);
+            }
+          } else {
+            console.log("falla");
+            return _this.getStreet(pos);
+          }
+        };
+      })(this));
     };
 
     return ConfirmationCtrl;
@@ -604,6 +649,7 @@
     LoginCtrl.prototype.doLogin = function(event) {
       if (this.username[0].value && this.password[0].value) {
         this.drop();
+        navigator.splashscreen.show();
         return this.valideCredentials(this.username[0].value, this.password[0].value);
       } else {
         return navigator.notification.alert("Debe rellenar el email y la contraseña", null, "Taxi Express", "Aceptar");
@@ -611,7 +657,7 @@
     };
 
     LoginCtrl.prototype.valideCredentials = function(email, pass) {
-      var data, device, pushID, server;
+      var data, pushID, server;
       pushID = Lungo.Cache.get("pushID");
       if (pushID === void 0) {
         return setTimeout(((function(_this) {
@@ -621,13 +667,11 @@
           };
         })(this)), 500);
       } else {
-        device = Lungo.Cache.get("pushDevice");
         server = Lungo.Cache.get("server");
         data = {
           email: email,
           password: pass,
-          pushID: pushID,
-          pushDevice: device
+          pushID: pushID
         };
         server = Lungo.Cache.get("server");
         return $$.ajax({
@@ -645,7 +689,8 @@
                 return Lungo.Router.section("login_s");
               }), 500);
               _this.password[0].value = "";
-              return navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
+              navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
+              return navigator.splashscreen.hide();
             };
           })(this)
         });
@@ -672,17 +717,22 @@
         email: email,
         first_name: result.first_name,
         last_name: result.last_name,
-        appPayment: result.appPayment
+        appPayment: result.appPayment,
+        available: result.available,
+        model: result.model,
+        company: result.company,
+        plate: result.plate,
+        license: result.license
       };
+      Lungo.Cache.set("driver", driver);
       Lungo.Cache.remove("requestInProgress");
       Lungo.Cache.set("requestInProgress", false);
-      Lungo.Cache.set("driver", driver);
       __Controller.confirmation = new __Controller.ConfirmationCtrl("section#confirmation_s");
       __Controller.charge = new __Controller.ChargeCtrl("section#charge_s");
       __Controller.arrive = new __Controller.ArriveCtrl("section#arrive_s");
       __Controller.waiting = new __Controller.WaitingCtrl("section#waiting_s");
-      __Controller.waiting.getLocationUpdate();
-      return Lungo.Router.section("waiting_s");
+      Lungo.Router.section("waiting_s");
+      return navigator.splashscreen.hide();
     };
 
     LoginCtrl.prototype.drop = function() {
@@ -701,7 +751,10 @@
               credentials = results.rows.item(0);
               return _this.valideCredentials(credentials.email, credentials.pass);
             } else {
-              return Lungo.Router.section("login_s");
+              Lungo.Router.section("login_s");
+              return setTimeout((function() {
+                return navigator.splashscreen.hide();
+              }), 500);
             }
           }), null);
         };
@@ -730,19 +783,16 @@
       this.handlePush = __bind(this.handlePush, this);
       this.savePushID = __bind(this.savePushID, this);
       PushCtrl.__super__.constructor.apply(this, arguments);
-      Lungo.Cache.set("requestInProgress", false);
     }
 
-    PushCtrl.prototype.savePushID = function(id, device) {
+    PushCtrl.prototype.savePushID = function(id) {
       Lungo.Cache.remove("pushID");
-      Lungo.Cache.set("pushID", id);
-      Lungo.Cache.remove("pushDevice");
-      return Lungo.Cache.set("pushDevice", device);
+      return Lungo.Cache.set("pushID", id);
     };
 
     PushCtrl.prototype.handlePush = function(notification) {
       var lat, long, longlat, pos, travel;
-      switch (notification.code) {
+      switch (notification.message) {
         case "801":
         case "802":
           if (!Lungo.Cache.get("requestInProgress")) {
@@ -758,15 +808,13 @@
               startpoint: notification.startpoint,
               latitude: lat,
               longitude: long,
-              valuation: notification.valuation,
+              customerID: notification.customerID,
               phone: notification.phone
             };
-            __Controller.confirmation.loadTravel(travel);
-            return Lungo.Router.section("confirmation_s");
+            return __Controller.confirmation.loadTravel(travel);
           }
           break;
         case "803":
-          __Controller.charge.enableVote();
           return navigator.notification.alert("El pago se ha realizado correctamente", null, "Taxi Express", "Aceptar");
       }
     };
@@ -783,64 +831,49 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.WaitingCtrl = (function(_super) {
-    var driver, getStreet, manageError, updatePosition, watchId;
+    var driver, getStreet, updatePosition, watchId;
 
     __extends(WaitingCtrl, _super);
 
-    driver = null;
+    driver = void 0;
 
     watchId = void 0;
 
     WaitingCtrl.prototype.events = {
-      "singleTap #waiting_available": "changeAvailable"
+      "change #waiting_available": "changeAvailable"
     };
 
     WaitingCtrl.prototype.elements = {
       "#waiting_driver": "driver",
-      "#waiting_available": "valorAvailable"
+      "#waiting_available": "valorAvailable",
+      "#waiting_car": "car",
+      "#waiting_plate": "plate",
+      "#waiting_license": "license"
     };
 
     function WaitingCtrl() {
-      this.changeAvailable = __bind(this.changeAvailable, this);
-      this.updateAvailable = __bind(this.updateAvailable, this);
       this.stopWatch = __bind(this.stopWatch, this);
       this.getLocationUpdate = __bind(this.getLocationUpdate, this);
+      this.updateAvailable = __bind(this.updateAvailable, this);
+      this.changeAvailable = __bind(this.changeAvailable, this);
       WaitingCtrl.__super__.constructor.apply(this, arguments);
-      this.valorAvailable[0].checked = true;
       driver = Lungo.Cache.get("driver");
-      this.driver[0].innerText = driver.last_name + ", " + driver.first_name;
+      this.valorAvailable[0].checked = driver.available;
+      this.driver[0].innerText = driver.first_name + " " + driver.last_name;
+      this.car[0].innerText = driver.company + " " + driver.model;
+      this.plate[0].innerText = driver.plate;
+      this.license[0].innerText = driver.license;
+      if (driver.available) {
+        this.getLocationUpdate();
+      }
     }
 
-    WaitingCtrl.prototype.getLocationUpdate = function() {
-      var options, tt;
-      if (navigator.geolocation) {
-        options = {
-          enableHighAccuracy: true,
-          timeout: 3000,
-          maximumAge: 3000
-        };
-        tt = navigator.geolocation.watchPosition(updatePosition, manageError, options);
-        return this.watchId = tt;
-      }
-    };
-
-    WaitingCtrl.prototype.stopWatch = function() {
-      if (this.watchId) {
-        navigator.geolocation.clearWatch(this.watchId);
-        return this.watchId = void 0;
-      }
-    };
-
     updatePosition = function(position) {
-      var currentLocation, server;
-      console.log("latitude" + position.coords.latitude);
-      console.log("latitude" + position.coords.longitude);
+      var server;
       Lungo.Cache.remove("latitude");
       Lungo.Cache.set("latitude", position.coords.latitude);
       Lungo.Cache.remove("longitude");
       Lungo.Cache.set("longitude", position.coords.longitude);
-      currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-      getStreet(currentLocation);
       driver = Lungo.Cache.get("driver");
       server = Lungo.Cache.get("server");
       return $$.ajax({
@@ -860,8 +893,12 @@
       });
     };
 
-    manageError = function() {
-      return console.log("ERROR");
+    WaitingCtrl.prototype.changeAvailable = function() {
+      return setTimeout(((function(_this) {
+        return function() {
+          return _this.updateAvailable(driver.email, _this.valorAvailable[0].checked);
+        };
+      })(this)), 700);
     };
 
     WaitingCtrl.prototype.updateAvailable = function(email, available) {
@@ -876,23 +913,40 @@
         },
         success: (function(_this) {
           return function(result) {
-            return _this;
+            _this.valorAvailable[0].checked = available;
+            if (available) {
+              return _this.getLocationUpdate();
+            } else {
+              return _this.stopWatch();
+            }
           };
         })(this),
         error: (function(_this) {
           return function(xhr, type) {
+            _this.valorAvailable[0].checked = !available;
             return navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
           };
         })(this)
       });
     };
 
-    WaitingCtrl.prototype.changeAvailable = function() {
-      this.updateAvailable(driver.email, this.valorAvailable[0].checked);
-      if (this.valorAvailable[0].checked) {
-        return this.getLocationUpdate();
-      } else {
-        return this.stopWatch();
+    WaitingCtrl.prototype.getLocationUpdate = function() {
+      var options, tt;
+      console.log("empiezo");
+      if (navigator.geolocation) {
+        options = {
+          frequency: 30000
+        };
+        tt = navigator.geolocation.watchPosition(updatePosition, null, options);
+        return this.watchId = tt;
+      }
+    };
+
+    WaitingCtrl.prototype.stopWatch = function() {
+      console.log("dsa" + this.watchId);
+      if (this.watchId) {
+        navigator.geolocation.clearWatch(this.watchId);
+        return this.watchId = void 0;
       }
     };
 

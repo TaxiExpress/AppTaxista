@@ -13,94 +13,69 @@ class __Controller.ChargeCtrl extends Monocle.Controller
 
   events:
     "tap #charge_charge"             : "doCharge"
-    "singleTap #charge_app"          : "changeCash"
-    "singleTap #charge_cash"         : "changeApp"
+    "change #charge_app"          : "changeApp"
+    "change #charge_cash"         : "changeCash"
     "tap #charge_positiveVote"       : "votePositive"
     "tap #charge_negativeVote"       : "voteNegative"
 
+
   constructor: ->
     super
+    driver = Lungo.Cache.get "driver"
+    @optionApp[0].checked = driver.appPayment
+    if !driver.appPayment
+      @optionCash[0].checked = !driver.appPayment
+      @optionCash[0].disabled = !driver.appPayment
+      @fieldset_charge_app[0].style.display = "none"
+
 
   initialize: =>
-    
-    @optionCash[0].checked = true
-    @button_charge[0].disabled = false
-    
-    driver = Lungo.Cache.get "driver"
-    if driver.appPayment is false
-      @optionCash[0].disabled = true
-      if document.getElementById("charge_app_fieldset")
-        fieldset = document.getElementById("charge_app_fieldset")
-        padre = fieldset.parentNode
-        padre.removeChild fieldset
-      else
-        @optionApp[0].checked = false
+    Lungo.Router.section "charge_s"
+    @button_charge[0].disabled = false  
+    @li_vote[0].style.display = "none"
+    @fieldset_vote[0].style.display = "none"
 
-    @li_vote[0].style.visibility = "hidden"
-    @fieldset_vote[0].style.visibility = "hidden"
-
-  changeCash: =>
-    driver = Lungo.Cache.get "driver"
-
-    if driver.appPayment is true
-      if @optionApp[0].checked is true
-        @optionCash[0].checked = false
-      else
-        @optionCash[0].checked = true
 
   changeApp: =>
     driver = Lungo.Cache.get "driver"
-
-    if driver.appPayment is true
-      if @optionCash[0].checked is true
-        @optionApp[0].checked = false
-      else
+    if driver.appPayment
+      if @optionApp[0].checked
         @optionApp[0].checked = true
+        @optionCash[0].checked = false
+      else
+        @optionApp[0].checked = false
+        @optionCash[0].checked = true
 
-  #iniLocation = (location) =>
-  #  travel = Lungo.Cache.get "travel"
-  #
-  #  currentLocation = new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
-  #  travel.latitude = location.coords.latitude
-  #  travel.longitude = location.coords.longitude
-  #  getStreet(currentLocation)  
-  #  
-  #  Lungo.Cache.set "travel", travel
+    
 
-  manageErrors = =>
-    console.log "ERROR CHARGE"
+  changeCash: =>
+    driver = Lungo.Cache.get "driver"
+    if driver.appPayment
+      if @optionCash[0].checked
+        @optionApp[0].checked = false
+        @optionCash[0].checked = true
+      else
+        @optionApp[0].checked = true          
+        @optionCash[0].checked = false
+
     
   doCharge: (event) =>
-    correcto = @valideAmount(@amount[0].value)
-    if correcto
-      #travel = Lungo.Cache.get "travel"
-      #if navigator.geolocation
-      #  options =
-      #    enableHighAccuracy: true,
-      #    timeout: 5000,
-      #    maximumAge: 0
-      #  navigator.geolocation.getCurrentPosition iniLocation, manageErrors
+    if @valideAmount(@amount[0].value)
+      @button_charge[0].disabled = true
+      lat = Lungo.Cache.get "latitude"
+      long = Lungo.Cache.get "longitude"
+      currentLocation = new google.maps.LatLng(lat, long)
+      @getStreet(currentLocation)
 
-      @button_charge[0].disabled = true  
-      @travelCompleted()
-      #Lungo.Router.section "init_s"
-      #setTimeout((=> @travelCompleted()) , 5000)
+
 
   travelCompleted: =>
     driver = Lungo.Cache.get "driver"
-    server = Lungo.Cache.get "server"
     travel = Lungo.Cache.get "travel"
-
-    # si tenemos las coordenadas cuando recogemos al cliente buscamos la calle donde estamos con las coordenadas
     latitude = Lungo.Cache.get "latitude"
     longitude = Lungo.Cache.get "longitude"
-    destination = Lungo.Cache.get "street"
-    # Si la señal del gps ha fallado y no tenemos datos dejamos los valores que nos ha pasado el cliente
-    if latitude is undefined or longitude is undefined
-      latitude = 0.0
-      longitude = 0.0
-      destination = "Desconocida"
-
+    destination = Lungo.Cache.get "destination"
+    server = Lungo.Cache.get "server"
     $$.ajax
       type: "POST"
       url: server + "driver/travelcompleted"
@@ -114,34 +89,13 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         cost: @amount[0].value
       success: (result) =>
         @amount[0].value = ""
-        if @optionCash[0].checked
-          @li_vote[0].style.visibility = "visible"
-          @fieldset_vote[0].style.visibility = "visible"
-          #Lungo.Router.section "waiting_s"
-          #Lungo.Router.section "valuation_s"
+        @li_vote[0].style.display = "block"
+        @fieldset_vote[0].style.display = "block"
       error: (xhr, type) =>
         navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
         Lungo.Router.section "charge_s"
-    # Lungo.Router.section "waiting_s"
 
-  #getStreet = (pos) =>
-  #  geocoder = new google.maps.Geocoder()
-  #  geocoder.geocode
-  #    latLng: pos
-  #  , (results, status) =>
-  #    if status is google.maps.GeocoderStatus.OK
-  #      if results[1]
-  #        if results[0].address_components[1].short_name == results[0].address_components[0].short_name
-  #          street = results[0].address_components[1].short_name
-  #        else 
-  #          street = results[0].address_components[1].short_name + ", " +results[0].address_components[0].short_name
-  #      else
-  #        street = 'Calle desconocida'
-  #    else
-  #      street = 'Calle desconocida'
-  #    alert street
-  #    Lungo.Cache.remove "destination"  
-  #    Lungo.Cache.set "destination", street
+
 
   valideAmount: (amount) =>
     # how many decimals are allowed?
@@ -161,15 +115,14 @@ class __Controller.ChargeCtrl extends Monocle.Controller
       else
         return true
 
-  enableVote: =>
-    @li_vote[0].style.visibility = "visible"
-    @fieldset_vote[0].style.visibility = "visible"
 
   votePositive: (event) =>
     @vote "positive"
 
+
   voteNegative: (event) =>
     @vote "negative"
+
 
   vote: (vote) =>
     driver = Lungo.Cache.get "driver"
@@ -177,8 +130,8 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     server = Lungo.Cache.get "server"
     data =
       email: driver.email
-      vote: vote
       travelID: travel.travelID
+      vote: vote
     $$.ajax
       type: "POST"
       url: server + "driver/votecustomer"
@@ -194,3 +147,28 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         Lungo.Router.section "waiting_s"
         Lungo.Cache.remove "requestInProgress"  
         Lungo.Cache.set "requestInProgress", false
+
+
+  getStreet: (pos) =>
+    geocoder = new google.maps.Geocoder()
+    geocoder.geocode
+      latLng: pos
+    , (results, status) =>
+      if status is google.maps.GeocoderStatus.OK
+        if results[1]
+          if results[0].address_components[1].short_name == results[0].address_components[0].short_name
+            Lungo.Cache.remove "destination"
+            Lungo.Cache.set "destination", results[0].address_components[1].short_name
+            @travelCompleted()
+          else 
+            Lungo.Cache.remove "destination"
+            Lungo.Cache.set "destination", results[0].address_components[1].short_name + ", " +results[0].address_components[0].short_name
+            @travelCompleted()
+        else
+          console.log "falla"
+          @getStreet pos
+      else
+        console.log "falla"
+        @getStreet pos
+
+  

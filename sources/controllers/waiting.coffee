@@ -1,50 +1,37 @@
 class __Controller.WaitingCtrl extends Monocle.Controller
-  driver = null
+  
+  driver = undefined
   watchId = undefined
 
   events:
-    #"tap #waiting_logout"                  : "logOut"
-    "singleTap #waiting_available"            : "changeAvailable"
-    #"tap #waiting_prueba1"                 : "confirmation"
-    #"tap #waiting_prueba3"                 : "charge"
+    "change #waiting_available"            : "changeAvailable"
 
   elements:
-    "#waiting_driver"                      : "driver"
-    "#waiting_available"                   : "valorAvailable"
+    "#waiting_driver"                         : "driver"
+    "#waiting_available"                      : "valorAvailable"
+    "#waiting_car"                            : "car"
+    "#waiting_plate"                          : "plate"
+    "#waiting_license"                        : "license"
+
+
 
   constructor: ->
     super
-    @valorAvailable[0].checked = true
     driver = Lungo.Cache.get "driver"
-    @driver[0].innerText = driver.last_name + ", " + driver.first_name
-    #@getLocationUpdate()
+    @valorAvailable[0].checked = driver.available
+    @driver[0].innerText = driver.first_name+ " "+driver.last_name
+    @car[0].innerText = driver.company + " " + driver.model
+    @plate[0].innerText = driver.plate
+    @license[0].innerText = driver.license
+    @getLocationUpdate() if driver.available
 
-  getLocationUpdate: =>
-    if navigator.geolocation
-      options = 
-        enableHighAccuracy: true
-        timeout: 3000
-        maximumAge : 3000
-      tt = navigator.geolocation.watchPosition updatePosition, manageError, options
-      @watchId = tt
 
-  stopWatch: =>
-    if @watchId
-      navigator.geolocation.clearWatch(@watchId)
-      @watchId = undefined
   
   updatePosition = (position) =>
-    console.log "latitude" + position.coords.latitude
-    console.log "latitude" + position.coords.longitude
-
     Lungo.Cache.remove "latitude"  
     Lungo.Cache.set "latitude", position.coords.latitude
     Lungo.Cache.remove "longitude"  
     Lungo.Cache.set "longitude", position.coords.longitude
-
-    currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
-    getStreet(currentLocation)  
-
     driver = Lungo.Cache.get "driver"
     server = Lungo.Cache.get "server"
     $$.ajax
@@ -59,8 +46,13 @@ class __Controller.WaitingCtrl extends Monocle.Controller
       error: (xhr, type) =>
         @
 
-  manageError = =>
-    console.log "ERROR"
+
+
+  changeAvailable: =>
+    setTimeout((=> 
+      @updateAvailable(driver.email, @valorAvailable[0].checked)
+    ) , 700)
+
 
   updateAvailable: (email, available) =>
     server = Lungo.Cache.get "server"
@@ -71,16 +63,31 @@ class __Controller.WaitingCtrl extends Monocle.Controller
         email: email
         available: available
       success: (result) =>
-        @
+        @valorAvailable[0].checked = available
+        if available
+          @getLocationUpdate()
+        else
+          @stopWatch()
       error: (xhr, type) =>
+        @valorAvailable[0].checked = !available
         navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
 
-  changeAvailable: =>
-    @updateAvailable(driver.email, @valorAvailable[0].checked)
-    if @valorAvailable[0].checked
-      @getLocationUpdate()
-    else
-      @stopWatch()
+
+  getLocationUpdate: =>
+    console.log "empiezo"
+    if navigator.geolocation
+      options =
+        frequency: 30000
+      tt = navigator.geolocation.watchPosition updatePosition, null, options
+      @watchId = tt
+
+
+  stopWatch: =>
+    console.log "dsa" + @watchId
+    if @watchId
+      navigator.geolocation.clearWatch(@watchId)
+      @watchId = undefined
+
 
   getStreet = (pos) =>
     geocoder = new google.maps.Geocoder()
@@ -100,12 +107,3 @@ class __Controller.WaitingCtrl extends Monocle.Controller
       Lungo.Cache.remove "street"  
       Lungo.Cache.set "street", street
 
-  #logOut: =>
-  #  @stopWatch()
-    
-  #  Lungo.Cache.set "pushID", undefined
-  #  @updateAvailable(driver.email, false)
-  #  Lungo.Cache.set "driver", ""
-  #  Lungo.Router.section "login_s"
-    
-  
