@@ -60,21 +60,23 @@
           <li class="anchor contrast">DATOS DEL CLIENTE</li>
           <img id="confirmation_image" class="avatar" src="" alt="" />
           <fieldset><small id="confirmation_name"></small></fieldset>
-          <fieldset><small id="confirmation_valuation" class="yellow"></small></fieldset>
+          <fieldset><small>Valoración: &nbsp;<span id="confirmation_valuation" class="yellow"></span></small></fieldset>
           <br><li class="anchor contrast">DIRECCIÓN DE RECOGIDA</li>
           <fieldset><small id="confirmation_street"></small></fieldset>
+          <div id="map-canvas2" />
         </div>
-        <button id="confirmation_accept" data-label="Aceptar"/>
-        <button id="confirmation_reject" data-label="Rechazar"/>
+        <button id="confirmation_accept" class="anchor cancel" data-label="Aceptar servicio" />
+        <button id="confirmation_reject" class="anchor accept" data-label="Rechazar"/>
       </article>
     </section>
 
     <section id="arrive_s" data-transition="fade">
       <article id="arrive_a" class="arrive">
+        <a id="arrive_call" class="phoneCall" href=""></a>
+        <button class="topLeftButton" data-view-aside="menu_s" data-icon="phone"></button>
         <div class="location">
           <input id="arrive_streetField" type="text" readonly="readonly" value=""/>
-          <a id="arrive_call" class="button" href="" data-icon="phone"></a>
-          <button id="arrive_pickup" data-label="Recoger"/>
+          <button id="arrive_pickup" data-label="Recogido"/>
           <button id="arrive_cancel" data-label="Cancelar"/>
         </div>
         <div id="map-canvas" />
@@ -82,27 +84,24 @@
     </section>
 
     <section id="charge_s" data-transition="fade">
+      <header data-title="Pago del servicio"></header>
       <article id="charge_a" class="charge">
         <div class="form list">
-          <fieldset> 
-              <strong>Pago en mano</strong>
-              <input id="charge_cash" type="checkbox"/>
-          </fieldset> 
-          <fieldset id="charge_app_fieldset"> 
-              <strong>Pago a través de App</strong>
-              <input id="charge_app" type="checkbox"/>
-          </fieldset>
+          <li class="anchor contrast">IMPORTE DEL SERVICIO</li>
           <fieldset>
             <input id="charge_amount" type="number" placeholder="Importe"/>
           </fieldset>
-          <fieldset>
-            <button id="charge_charge" data-label="Cobrar">
-          </fieldset>          
-          <li id="charge_livote" class="anchor contrast">VOTA AL CLIENTE</li>
-          <fieldset id="charge_votebox">
-            <button id="charge_positiveVote" class="green">Voto positivo</button>
-            <button id="charge_negativeVote"class="red">Voto negativo</button>
+          <li class="anchor contrast">FORMA DE PAGO</li>
+          <fieldset> 
+              <small>Pago en mano</small>
+              <input id="charge_cash" type="checkbox"/>
+          </fieldset> 
+          <fieldset id="charge_app_fieldset"> 
+              <small>Pago a través de App</small>
+              <input id="charge_app" type="checkbox"/>
           </fieldset>
+          <br/>
+          <button id="charge_charge" class="anchor accept" data-label="Cobrar" /> 
         </div>
       </article>
     </section>

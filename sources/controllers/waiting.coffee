@@ -74,7 +74,6 @@ class __Controller.WaitingCtrl extends Monocle.Controller
 
 
   getLocationUpdate: =>
-    console.log "empiezo"
     if navigator.geolocation
       options =
         frequency: 30000
@@ -83,7 +82,6 @@ class __Controller.WaitingCtrl extends Monocle.Controller
 
 
   stopWatch: =>
-    console.log "dsa" + @watchId
     if @watchId
       navigator.geolocation.clearWatch(@watchId)
       @watchId = undefined

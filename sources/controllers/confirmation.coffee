@@ -17,14 +17,6 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
 
   constructor: ->
     super
-    travel =
-      travelID: "32"
-      origin: "Calle falsa 4"
-      latitude: "43.32132432"
-      longitude: "-2.4567875423"
-      customerID: "13"
-      phone: "653432423"
-    #@loadTravel(travel)
 
 
   loadTravel: (travel) ->
@@ -44,6 +36,7 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
       url: server + "driver/getcustomerdata"
       data:  data
       success: (result) =>
+        @showMap(travel)
         @customerName[0].innerText = result.name + " " + result.surname
         @image[0].src = result.image if result.image
         val = ""
@@ -59,7 +52,7 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
         console.log type.response
     Lungo.Cache.remove "travel"
     Lungo.Cache.set "travel", travel
-    setTimeout((=> Lungo.Router.section "confirmation_s" ), 2000)
+    Lungo.Router.section "confirmation_s"
     timer = setTimeout((=>
       Lungo.Cache.remove "requestInProgress"  
       Lungo.Cache.set "requestInProgress", false
@@ -67,38 +60,64 @@ class __Controller.ConfirmationCtrl extends Monocle.Controller
     , 25000)
 
 
-    
+  showMap: (travel) =>
+    arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude)
+    mapOptions =
+      center: arriveLocation
+      zoom: 16
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+      panControl: false
+      streetViewControl:false
+      overviewMapControl:false
+      mapTypeControl:false
+      zoomControl:false
+      styles: [
+        featureType: "poi.business"
+        elementType: "labels"
+        stylers: [visibility: "off"]
+      ]
+    map = new google.maps.Map(document.getElementById("map-canvas2"), mapOptions)
+
+    marker = new google.maps.Marker(
+      position: arriveLocation
+      map: map
+      title: @streetField[0].value
+    )
+
+
   acceptConfirmation: (event) =>
-    @stopTimer()
-    @button_accept[0].disabled = true
-    @button_reject[0].disabled = true
-    driver = Lungo.Cache.get "driver"
-    travel = Lungo.Cache.get "travel"
-    data = 
-      email: driver.email
-      travelID: travel.travelID 
-      latitude: Lungo.Cache.get "latitude"
-      longitude: Lungo.Cache.get "longitude"
-    server = Lungo.Cache.get "server"
-    $$.ajax
-      type: "POST"
-      url: server + "driver/accepttravel"
-      data: data
-      success: (result) =>
-        __Controller.arrive.iniArrive()
-      error: (xhr, type) =>
-        navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
-        Lungo.Cache.remove "requestInProgress"  
-        Lungo.Cache.set "requestInProgress", false
-        Lungo.Router.section "waiting_s"
+    if !@button_accept[0].disabled
+      @stopTimer()
+      @button_accept[0].disabled = true
+      @button_reject[0].disabled = true
+      driver = Lungo.Cache.get "driver"
+      travel = Lungo.Cache.get "travel"
+      data = 
+        email: driver.email
+        travelID: travel.travelID 
+        latitude: Lungo.Cache.get "latitude"
+        longitude: Lungo.Cache.get "longitude"
+      server = Lungo.Cache.get "server"
+      $$.ajax
+        type: "POST"
+        url: server + "driver/accepttravel"
+        data: data
+        success: (result) =>
+          __Controller.arrive.iniArrive()
+        error: (xhr, type) =>
+          navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
+          Lungo.Cache.remove "requestInProgress"  
+          Lungo.Cache.set "requestInProgress", false
+          Lungo.Router.section "waiting_s"
 
 
 
   rejectConfirmation: (event) =>
-    @stopTimer()
-    Lungo.Cache.remove "requestInProgress"  
-    Lungo.Cache.set "requestInProgress", false
-    Lungo.Router.section "waiting_s"
+    if !@button_reject[0].disabled
+      @stopTimer()
+      Lungo.Cache.remove "requestInProgress"  
+      Lungo.Cache.set "requestInProgress", false
+      Lungo.Router.section "waiting_s"
 
 
 

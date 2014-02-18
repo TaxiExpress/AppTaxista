@@ -17,7 +17,6 @@ class __Controller.ArriveCtrl extends Monocle.Controller
   constructor: ->
     super
 
-
   iniArrive: =>
     travel = Lungo.Cache.get "travel"
     @streetField[0].value = Lungo.Cache.get "origin"
@@ -25,6 +24,7 @@ class __Controller.ArriveCtrl extends Monocle.Controller
     Lungo.Router.section "arrive_s"
     travel = Lungo.Cache.get "travel"
     @showMap(travel)
+
 
   showMap: (travel) =>
     lat = Lungo.Cache.get "latitude"
@@ -60,59 +60,61 @@ class __Controller.ArriveCtrl extends Monocle.Controller
 
 
   doPickUp: (event) =>
-    @button_PickUp[0].disabled = true
-    @button_cancel[0].disabled = true
-    driver = Lungo.Cache.get "driver"
-    travel = Lungo.Cache.get "travel"
-    server = Lungo.Cache.get "server"
-    $$.ajax
-      type: "POST"
-      url: server + "driver/travelstarted"
-      data:
-        email: driver.email
-        travelID: travel.travelID
-        origin: ""
-        latitude: ""
-        longitude: ""
-      success: (result) =>
-        @button_PickUp[0].disabled = false
-        @button_cancel[0].disabled = false
-        __Controller.charge.initialize()
-      error: (xhr, type) =>
-        @button_PickUp[0].disabled = false
-        @button_cancel[0].disabled = false
-        navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
+    if !@button_PickUp[0].disabled
+      @button_PickUp[0].disabled = true
+      @button_cancel[0].disabled = true
+      driver = Lungo.Cache.get "driver"
+      travel = Lungo.Cache.get "travel"
+      server = Lungo.Cache.get "server"
+      $$.ajax
+        type: "POST"
+        url: server + "driver/travelstarted"
+        data:
+          email: driver.email
+          travelID: travel.travelID
+          origin: ""
+          latitude: ""
+          longitude: ""
+        success: (result) =>
+          @button_PickUp[0].disabled = false
+          @button_cancel[0].disabled = false
+          __Controller.charge.initialize()
+        error: (xhr, type) =>
+          @button_PickUp[0].disabled = false
+          @button_cancel[0].disabled = false
+          navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
 
       
     
   cancelPickUp: (event) =>
-    @button_PickUp[0].disabled = true
-    @button_cancel[0].disabled = true
-    onConfirm = (button) =>
-      switch button
-        when 1
-          driver = Lungo.Cache.get "driver"
-          travel = Lungo.Cache.get "travel"
-          server = Lungo.Cache.get "server"
-          $$.ajax
-            type: "POST"
-            url: server + "driver/canceltravel"
-            data:
-              travelID: travel.travelID
-              email: driver.email
-            success: (result) =>
-              @button_PickUp[0].disabled = false
-              @button_cancel[0].disabled = false
-              Lungo.Router.section "waiting_s"
-              Lungo.Cache.remove "requestInProgress"  
-              Lungo.Cache.set "requestInProgress", false
-            error: (xhr, type) =>
-              @button_PickUp[0].disabled = false
-              @button_cancel[0].disabled = false
-              navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
-        when 2
-          @button_PickUp[0].disabled = false
-          @button_cancel[0].disabled = false
-      return
-    navigator.notification.confirm "", onConfirm, "¿Esta seguro que desea cancelar el viaje?", "Si, No"
+    if !@button_cancel[0].disabled
+      @button_PickUp[0].disabled = true
+      @button_cancel[0].disabled = true
+      onConfirm = (button) =>
+        switch button
+          when 1
+            driver = Lungo.Cache.get "driver"
+            travel = Lungo.Cache.get "travel"
+            server = Lungo.Cache.get "server"
+            $$.ajax
+              type: "POST"
+              url: server + "driver/canceltravel"
+              data:
+                travelID: travel.travelID
+                email: driver.email
+              success: (result) =>
+                @button_PickUp[0].disabled = false
+                @button_cancel[0].disabled = false
+                Lungo.Router.section "waiting_s"
+                Lungo.Cache.remove "requestInProgress"  
+                Lungo.Cache.set "requestInProgress", false
+              error: (xhr, type) =>
+                @button_PickUp[0].disabled = false
+                @button_cancel[0].disabled = false
+                navigator.notification.alert type.response, null, "Taxi Express", "Aceptar"
+          when 2
+            @button_PickUp[0].disabled = false
+            @button_cancel[0].disabled = false
+        return
+      navigator.notification.confirm "", onConfirm, "¿Esta seguro que desea cancelar el viaje?", "Si, No"
 

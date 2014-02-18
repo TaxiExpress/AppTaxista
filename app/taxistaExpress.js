@@ -111,78 +111,82 @@
 
     ArriveCtrl.prototype.doPickUp = function(event) {
       var driver, server, travel;
-      this.button_PickUp[0].disabled = true;
-      this.button_cancel[0].disabled = true;
-      driver = Lungo.Cache.get("driver");
-      travel = Lungo.Cache.get("travel");
-      server = Lungo.Cache.get("server");
-      return $$.ajax({
-        type: "POST",
-        url: server + "driver/travelstarted",
-        data: {
-          email: driver.email,
-          travelID: travel.travelID,
-          origin: "",
-          latitude: "",
-          longitude: ""
-        },
-        success: (function(_this) {
-          return function(result) {
-            _this.button_PickUp[0].disabled = false;
-            _this.button_cancel[0].disabled = false;
-            return __Controller.charge.initialize();
-          };
-        })(this),
-        error: (function(_this) {
-          return function(xhr, type) {
-            _this.button_PickUp[0].disabled = false;
-            _this.button_cancel[0].disabled = false;
-            return navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
-          };
-        })(this)
-      });
+      if (!this.button_PickUp[0].disabled) {
+        this.button_PickUp[0].disabled = true;
+        this.button_cancel[0].disabled = true;
+        driver = Lungo.Cache.get("driver");
+        travel = Lungo.Cache.get("travel");
+        server = Lungo.Cache.get("server");
+        return $$.ajax({
+          type: "POST",
+          url: server + "driver/travelstarted",
+          data: {
+            email: driver.email,
+            travelID: travel.travelID,
+            origin: "",
+            latitude: "",
+            longitude: ""
+          },
+          success: (function(_this) {
+            return function(result) {
+              _this.button_PickUp[0].disabled = false;
+              _this.button_cancel[0].disabled = false;
+              return __Controller.charge.initialize();
+            };
+          })(this),
+          error: (function(_this) {
+            return function(xhr, type) {
+              _this.button_PickUp[0].disabled = false;
+              _this.button_cancel[0].disabled = false;
+              return navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
+            };
+          })(this)
+        });
+      }
     };
 
     ArriveCtrl.prototype.cancelPickUp = function(event) {
       var onConfirm;
-      this.button_PickUp[0].disabled = true;
-      this.button_cancel[0].disabled = true;
-      onConfirm = (function(_this) {
-        return function(button) {
-          var driver, server, travel;
-          switch (button) {
-            case 1:
-              driver = Lungo.Cache.get("driver");
-              travel = Lungo.Cache.get("travel");
-              server = Lungo.Cache.get("server");
-              $$.ajax({
-                type: "POST",
-                url: server + "driver/canceltravel",
-                data: {
-                  travelID: travel.travelID,
-                  email: driver.email
-                },
-                success: function(result) {
-                  _this.button_PickUp[0].disabled = false;
-                  _this.button_cancel[0].disabled = false;
-                  Lungo.Router.section("waiting_s");
-                  Lungo.Cache.remove("requestInProgress");
-                  return Lungo.Cache.set("requestInProgress", false);
-                },
-                error: function(xhr, type) {
-                  _this.button_PickUp[0].disabled = false;
-                  _this.button_cancel[0].disabled = false;
-                  return navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
-                }
-              });
-              break;
-            case 2:
-              _this.button_PickUp[0].disabled = false;
-              _this.button_cancel[0].disabled = false;
-          }
-        };
-      })(this);
-      return navigator.notification.confirm("", onConfirm, "¿Esta seguro que desea cancelar el viaje?", "Si, No");
+      if (!this.button_cancel[0].disabled) {
+        this.button_PickUp[0].disabled = true;
+        this.button_cancel[0].disabled = true;
+        onConfirm = (function(_this) {
+          return function(button) {
+            var driver, server, travel;
+            switch (button) {
+              case 1:
+                driver = Lungo.Cache.get("driver");
+                travel = Lungo.Cache.get("travel");
+                server = Lungo.Cache.get("server");
+                $$.ajax({
+                  type: "POST",
+                  url: server + "driver/canceltravel",
+                  data: {
+                    travelID: travel.travelID,
+                    email: driver.email
+                  },
+                  success: function(result) {
+                    _this.button_PickUp[0].disabled = false;
+                    _this.button_cancel[0].disabled = false;
+                    Lungo.Router.section("waiting_s");
+                    Lungo.Cache.remove("requestInProgress");
+                    return Lungo.Cache.set("requestInProgress", false);
+                  },
+                  error: function(xhr, type) {
+                    _this.button_PickUp[0].disabled = false;
+                    _this.button_cancel[0].disabled = false;
+                    return navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
+                  }
+                });
+                break;
+              case 2:
+                _this.button_PickUp[0].disabled = false;
+                _this.button_cancel[0].disabled = false;
+            }
+          };
+        })(this);
+        return navigator.notification.confirm("", onConfirm, "¿Esta seguro que desea cancelar el viaje?", "Si, No");
+      }
     };
 
     return ArriveCtrl;
@@ -204,31 +208,26 @@
       "#charge_cash": "optionCash",
       "#charge_app_fieldset": "fieldset_charge_app",
       "#charge_app": "optionApp",
-      "#charge_livote": "li_vote",
-      "#charge_votebox": "fieldset_vote",
-      "#charge_positiveVote": "button_Positive",
-      "#charge_negativeVote": "button_Negative",
       "#charge_charge": "button_charge"
     };
 
     ChargeCtrl.prototype.events = {
+      "tap #charge_amount": "cleanAmount",
       "tap #charge_charge": "doCharge",
       "change #charge_app": "changeApp",
-      "change #charge_cash": "changeCash",
-      "tap #charge_positiveVote": "votePositive",
-      "tap #charge_negativeVote": "voteNegative"
+      "change #charge_cash": "changeCash"
     };
 
     function ChargeCtrl() {
-      this.getStreet = __bind(this.getStreet, this);
       this.vote = __bind(this.vote, this);
-      this.voteNegative = __bind(this.voteNegative, this);
-      this.votePositive = __bind(this.votePositive, this);
+      this.showVote = __bind(this.showVote, this);
+      this.getStreet = __bind(this.getStreet, this);
       this.valideAmount = __bind(this.valideAmount, this);
       this.travelCompleted = __bind(this.travelCompleted, this);
       this.doCharge = __bind(this.doCharge, this);
       this.changeCash = __bind(this.changeCash, this);
       this.changeApp = __bind(this.changeApp, this);
+      this.cleanAmount = __bind(this.cleanAmount, this);
       this.initialize = __bind(this.initialize, this);
       var driver;
       ChargeCtrl.__super__.constructor.apply(this, arguments);
@@ -243,9 +242,12 @@
 
     ChargeCtrl.prototype.initialize = function() {
       Lungo.Router.section("charge_s");
-      this.button_charge[0].disabled = false;
-      this.li_vote[0].style.display = "none";
-      return this.fieldset_vote[0].style.display = "none";
+      this.amount[0].value = "";
+      return this.button_charge[0].disabled = false;
+    };
+
+    ChargeCtrl.prototype.cleanAmount = function() {
+      return this.amount[0].value = "";
     };
 
     ChargeCtrl.prototype.changeApp = function() {
@@ -264,6 +266,7 @@
 
     ChargeCtrl.prototype.changeCash = function() {
       var driver;
+      this.button_charge[0].focus();
       driver = Lungo.Cache.get("driver");
       if (driver.appPayment) {
         if (this.optionCash[0].checked) {
@@ -278,12 +281,14 @@
 
     ChargeCtrl.prototype.doCharge = function(event) {
       var currentLocation, lat, long;
-      if (this.valideAmount(this.amount[0].value)) {
-        this.button_charge[0].disabled = true;
-        lat = Lungo.Cache.get("latitude");
-        long = Lungo.Cache.get("longitude");
-        currentLocation = new google.maps.LatLng(lat, long);
-        return this.getStreet(currentLocation);
+      if (!this.button_charge[0].disabled) {
+        if (this.valideAmount(this.amount[0].value)) {
+          this.button_charge[0].disabled = true;
+          lat = Lungo.Cache.get("latitude");
+          long = Lungo.Cache.get("longitude");
+          currentLocation = new google.maps.LatLng(lat, long);
+          return this.getStreet(currentLocation);
+        }
       }
     };
 
@@ -309,9 +314,7 @@
         },
         success: (function(_this) {
           return function(result) {
-            _this.amount[0].value = "";
-            _this.li_vote[0].style.display = "block";
-            return _this.fieldset_vote[0].style.display = "block";
+            return _this.showVote();
           };
         })(this),
         error: (function(_this) {
@@ -338,54 +341,12 @@
         }
         dectext = amount.substring(amount.indexOf(".") + 1, amount.length);
         if (dectext.length > decallowed) {
-          navigator.notification.alert("Por favor, entra un número con " + decallowed + " números decimales.", null, "Taxi Express", "Aceptar");
+          navigator.notification.alert("El importe debe tener " + decallowed + " decimales.", null, "Taxi Express", "Aceptar");
           return false;
         } else {
           return true;
         }
       }
-    };
-
-    ChargeCtrl.prototype.votePositive = function(event) {
-      return this.vote("positive");
-    };
-
-    ChargeCtrl.prototype.voteNegative = function(event) {
-      return this.vote("negative");
-    };
-
-    ChargeCtrl.prototype.vote = function(vote) {
-      var data, driver, server, travel;
-      driver = Lungo.Cache.get("driver");
-      travel = Lungo.Cache.get("travel");
-      server = Lungo.Cache.get("server");
-      data = {
-        email: driver.email,
-        travelID: travel.travelID,
-        vote: vote
-      };
-      return $$.ajax({
-        type: "POST",
-        url: server + "driver/votecustomer",
-        data: data,
-        success: (function(_this) {
-          return function(result) {
-            navigator.notification.alert("Cliente valorado", null, "Taxi Express", "Aceptar");
-            Lungo.Router.section("waiting_s");
-            Lungo.Cache.remove("requestInProgress");
-            return Lungo.Cache.set("requestInProgress", false);
-          };
-        })(this),
-        error: (function(_this) {
-          return function(xhr, type) {
-            console.log(type.response);
-            navigator.notification.alert("Error al valorar al cliente", null, "Taxi Express", "Aceptar");
-            Lungo.Router.section("waiting_s");
-            Lungo.Cache.remove("requestInProgress");
-            return Lungo.Cache.set("requestInProgress", false);
-          };
-        })(this)
-      });
     };
 
     ChargeCtrl.prototype.getStreet = function(pos) {
@@ -407,15 +368,63 @@
                 return _this.travelCompleted();
               }
             } else {
-              console.log("falla");
               return _this.getStreet(pos);
             }
           } else {
-            console.log("falla");
             return _this.getStreet(pos);
           }
         };
       })(this));
+    };
+
+    ChargeCtrl.prototype.showVote = function() {
+      var onConfirm;
+      onConfirm = (function(_this) {
+        return function(button) {
+          switch (button) {
+            case 1:
+              _this.vote("negative");
+              break;
+            case 2:
+              _this.vote("positive");
+          }
+        };
+      })(this);
+      return navigator.notification.confirm("¿Cómo valora al cliente que acaba de contratar sus servicios?", onConfirm, "Valoración cliente", "Mal, Bien");
+    };
+
+    ChargeCtrl.prototype.vote = function(vote) {
+      var data, driver, server, travel;
+      driver = Lungo.Cache.get("driver");
+      travel = Lungo.Cache.get("travel");
+      server = Lungo.Cache.get("server");
+      data = {
+        email: driver.email,
+        travelID: travel.travelID,
+        vote: vote
+      };
+      return $$.ajax({
+        type: "POST",
+        url: server + "driver/votecustomer",
+        data: data,
+        success: (function(_this) {
+          return function(result) {
+            navigator.notification.alert("Trayecto finalizado. Gracias por usar TaxiExpress", null, "Taxi Express", "Aceptar");
+            Lungo.Router.section("waiting_s");
+            Lungo.Cache.remove("requestInProgress");
+            return Lungo.Cache.set("requestInProgress", false);
+          };
+        })(this),
+        error: (function(_this) {
+          return function(xhr, type) {
+            console.log(type.response);
+            navigator.notification.alert("Error al valorar al cliente", null, "Taxi Express", "Aceptar");
+            Lungo.Router.section("waiting_s");
+            Lungo.Cache.remove("requestInProgress");
+            return Lungo.Cache.set("requestInProgress", false);
+          };
+        })(this)
+      });
     };
 
     return ChargeCtrl;
@@ -455,16 +464,8 @@
       this.stopTimer = __bind(this.stopTimer, this);
       this.rejectConfirmation = __bind(this.rejectConfirmation, this);
       this.acceptConfirmation = __bind(this.acceptConfirmation, this);
-      var travel;
+      this.showMap = __bind(this.showMap, this);
       ConfirmationCtrl.__super__.constructor.apply(this, arguments);
-      travel = {
-        travelID: "32",
-        origin: "Calle falsa 4",
-        latitude: "43.32132432",
-        longitude: "-2.4567875423",
-        customerID: "13",
-        phone: "653432423"
-      };
     }
 
     ConfirmationCtrl.prototype.loadTravel = function(travel) {
@@ -488,6 +489,7 @@
         success: (function(_this) {
           return function(result) {
             var i, val;
+            _this.showMap(travel);
             _this.customerName[0].innerText = result.name + " " + result.surname;
             if (result.image) {
               _this.image[0].src = result.image;
@@ -513,11 +515,7 @@
       });
       Lungo.Cache.remove("travel");
       Lungo.Cache.set("travel", travel);
-      setTimeout(((function(_this) {
-        return function() {
-          return Lungo.Router.section("confirmation_s");
-        };
-      })(this)), 2000);
+      Lungo.Router.section("confirmation_s");
       return timer = setTimeout(((function(_this) {
         return function() {
           Lungo.Cache.remove("requestInProgress");
@@ -527,45 +525,81 @@
       })(this)), 25000);
     };
 
-    ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
-      var data, driver, server, travel;
-      this.stopTimer();
-      this.button_accept[0].disabled = true;
-      this.button_reject[0].disabled = true;
-      driver = Lungo.Cache.get("driver");
-      travel = Lungo.Cache.get("travel");
-      data = {
-        email: driver.email,
-        travelID: travel.travelID,
-        latitude: Lungo.Cache.get("latitude"),
-        longitude: Lungo.Cache.get("longitude")
+    ConfirmationCtrl.prototype.showMap = function(travel) {
+      var arriveLocation, map, mapOptions, marker;
+      arriveLocation = new google.maps.LatLng(travel.latitude, travel.longitude);
+      mapOptions = {
+        center: arriveLocation,
+        zoom: 16,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        panControl: false,
+        streetViewControl: false,
+        overviewMapControl: false,
+        mapTypeControl: false,
+        zoomControl: false,
+        styles: [
+          {
+            featureType: "poi.business",
+            elementType: "labels",
+            stylers: [
+              {
+                visibility: "off"
+              }
+            ]
+          }
+        ]
       };
-      server = Lungo.Cache.get("server");
-      return $$.ajax({
-        type: "POST",
-        url: server + "driver/accepttravel",
-        data: data,
-        success: (function(_this) {
-          return function(result) {
-            return __Controller.arrive.iniArrive();
-          };
-        })(this),
-        error: (function(_this) {
-          return function(xhr, type) {
-            navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
-            Lungo.Cache.remove("requestInProgress");
-            Lungo.Cache.set("requestInProgress", false);
-            return Lungo.Router.section("waiting_s");
-          };
-        })(this)
+      map = new google.maps.Map(document.getElementById("map-canvas2"), mapOptions);
+      return marker = new google.maps.Marker({
+        position: arriveLocation,
+        map: map,
+        title: this.streetField[0].value
       });
     };
 
+    ConfirmationCtrl.prototype.acceptConfirmation = function(event) {
+      var data, driver, server, travel;
+      if (!this.button_accept[0].disabled) {
+        this.stopTimer();
+        this.button_accept[0].disabled = true;
+        this.button_reject[0].disabled = true;
+        driver = Lungo.Cache.get("driver");
+        travel = Lungo.Cache.get("travel");
+        data = {
+          email: driver.email,
+          travelID: travel.travelID,
+          latitude: Lungo.Cache.get("latitude"),
+          longitude: Lungo.Cache.get("longitude")
+        };
+        server = Lungo.Cache.get("server");
+        return $$.ajax({
+          type: "POST",
+          url: server + "driver/accepttravel",
+          data: data,
+          success: (function(_this) {
+            return function(result) {
+              return __Controller.arrive.iniArrive();
+            };
+          })(this),
+          error: (function(_this) {
+            return function(xhr, type) {
+              navigator.notification.alert(type.response, null, "Taxi Express", "Aceptar");
+              Lungo.Cache.remove("requestInProgress");
+              Lungo.Cache.set("requestInProgress", false);
+              return Lungo.Router.section("waiting_s");
+            };
+          })(this)
+        });
+      }
+    };
+
     ConfirmationCtrl.prototype.rejectConfirmation = function(event) {
-      this.stopTimer();
-      Lungo.Cache.remove("requestInProgress");
-      Lungo.Cache.set("requestInProgress", false);
-      return Lungo.Router.section("waiting_s");
+      if (!this.button_reject[0].disabled) {
+        this.stopTimer();
+        Lungo.Cache.remove("requestInProgress");
+        Lungo.Cache.set("requestInProgress", false);
+        return Lungo.Router.section("waiting_s");
+      }
     };
 
     ConfirmationCtrl.prototype.stopTimer = function() {
@@ -932,7 +966,6 @@
 
     WaitingCtrl.prototype.getLocationUpdate = function() {
       var options, tt;
-      console.log("empiezo");
       if (navigator.geolocation) {
         options = {
           frequency: 30000
@@ -943,7 +976,6 @@
     };
 
     WaitingCtrl.prototype.stopWatch = function() {
-      console.log("dsa" + this.watchId);
       if (this.watchId) {
         navigator.geolocation.clearWatch(this.watchId);
         return this.watchId = void 0;
