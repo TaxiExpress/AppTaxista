@@ -11,7 +11,6 @@ class __Controller.LoginCtrl extends Monocle.Controller
     "tap #login_login_b"                           : "doLogin"
 
 
-
   constructor: ->
     super
     @db = window.openDatabase "TaxiExpressDriver", "1.0", "description", 2 * 1024 * 1024
@@ -20,15 +19,23 @@ class __Controller.LoginCtrl extends Monocle.Controller
     @read()
 
 
+  getPassHash: (pass) =>
+    tx = pass
+    i = 0
+    while i < 5000
+      hashObj = new jsSHA(tx, "TEXT")
+      tx = hashObj.getHash("SHA-256", "HEX")
+      i++
+    return tx
+
 
   doLogin: (event) =>
     if @username[0].value && @password[0].value
       @drop()
       navigator.splashscreen.show()
-      @valideCredentials @username[0].value, @password[0].value
+      @valideCredentials @username[0].value, @getPassHash @password[0].value
     else
       navigator.notification.alert "Debe rellenar el email y la contraseña", null, "Taxi Express", "Aceptar"
-
 
 
   valideCredentials: (email, pass)=>
@@ -65,7 +72,7 @@ class __Controller.LoginCtrl extends Monocle.Controller
       pass = credentials.pass
     else
       email = @username[0].value
-      pass = @password[0].value
+      pass = @getPassHash password[0].value
     @db.transaction (tx) =>
       sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('"+email+"','"+pass+"');"
       tx.executeSql sql

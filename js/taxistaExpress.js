@@ -670,6 +670,7 @@
       this.drop = __bind(this.drop, this);
       this.valideCredentials = __bind(this.valideCredentials, this);
       this.doLogin = __bind(this.doLogin, this);
+      this.getPassHash = __bind(this.getPassHash, this);
       LoginCtrl.__super__.constructor.apply(this, arguments);
       this.db = window.openDatabase("TaxiExpressDriver", "1.0", "description", 2 * 1024 * 1024);
       this.db.transaction((function(_this) {
@@ -680,11 +681,23 @@
       this.read();
     }
 
+    LoginCtrl.prototype.getPassHash = function(pass) {
+      var hashObj, i, tx;
+      tx = pass;
+      i = 0;
+      while (i < 5000) {
+        hashObj = new jsSHA(tx, "TEXT");
+        tx = hashObj.getHash("SHA-256", "HEX");
+        i++;
+      }
+      return tx;
+    };
+
     LoginCtrl.prototype.doLogin = function(event) {
       if (this.username[0].value && this.password[0].value) {
         this.drop();
         navigator.splashscreen.show();
-        return this.valideCredentials(this.username[0].value, this.password[0].value);
+        return this.valideCredentials(this.username[0].value, this.getPassHash(this.password[0].value));
       } else {
         return navigator.notification.alert("Debe rellenar el email y la contraseña", null, "Taxi Express", "Aceptar");
       }
@@ -738,7 +751,7 @@
         pass = credentials.pass;
       } else {
         email = this.username[0].value;
-        pass = this.password[0].value;
+        pass = this.getPassHash(password[0].value);
       }
       this.db.transaction((function(_this) {
         return function(tx) {
