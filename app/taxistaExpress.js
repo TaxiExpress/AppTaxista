@@ -648,13 +648,15 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __Controller.LoginCtrl = (function(_super) {
-    var credentials, db;
+    var credentials, db, passHashed;
 
     __extends(LoginCtrl, _super);
 
     db = void 0;
 
     credentials = void 0;
+
+    passHashed = void 0;
 
     LoginCtrl.prototype.elements = {
       "#login_username": "username",
@@ -697,7 +699,8 @@
       if (this.username[0].value && this.password[0].value) {
         this.drop();
         navigator.splashscreen.show();
-        return this.valideCredentials(this.username[0].value, this.getPassHash(this.password[0].value));
+        this.passHashed = this.getPassHash(this.password[0].value);
+        return this.valideCredentials(this.username[0].value, this.passHashed);
       } else {
         return navigator.notification.alert("Debe rellenar el email y la contraseña", null, "Taxi Express", "Aceptar");
       }
@@ -751,7 +754,7 @@
         pass = credentials.pass;
       } else {
         email = this.username[0].value;
-        pass = this.getPassHash(password[0].value);
+        pass = this.passHashed;
       }
       this.db.transaction((function(_this) {
         return function(tx) {

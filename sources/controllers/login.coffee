@@ -2,6 +2,7 @@ class __Controller.LoginCtrl extends Monocle.Controller
 
   db = undefined
   credentials = undefined
+  passHashed = undefined
       
   elements:
     "#login_username"                              : "username"
@@ -33,7 +34,8 @@ class __Controller.LoginCtrl extends Monocle.Controller
     if @username[0].value && @password[0].value
       @drop()
       navigator.splashscreen.show()
-      @valideCredentials @username[0].value, @getPassHash @password[0].value
+      @passHashed = @getPassHash(@password[0].value)
+      @valideCredentials @username[0].value, @passHashed
     else
       navigator.notification.alert "Debe rellenar el email y la contraseña", null, "Taxi Express", "Aceptar"
 
@@ -72,7 +74,7 @@ class __Controller.LoginCtrl extends Monocle.Controller
       pass = credentials.pass
     else
       email = @username[0].value
-      pass = @getPassHash password[0].value
+      pass = @passHashed
     @db.transaction (tx) =>
       sql = "INSERT INTO accessDataDriver (email, pass) VALUES ('"+email+"','"+pass+"');"
       tx.executeSql sql
