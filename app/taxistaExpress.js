@@ -212,6 +212,7 @@
     };
 
     ChargeCtrl.prototype.events = {
+      "change #charge_amount": "addEuros",
       "tap #charge_amount": "cleanAmount",
       "tap #charge_charge": "doCharge",
       "change #charge_app": "changeApp",
@@ -227,10 +228,12 @@
       this.doCharge = __bind(this.doCharge, this);
       this.changeCash = __bind(this.changeCash, this);
       this.changeApp = __bind(this.changeApp, this);
+      this.addEuros = __bind(this.addEuros, this);
       this.cleanAmount = __bind(this.cleanAmount, this);
       this.initialize = __bind(this.initialize, this);
       var driver;
       ChargeCtrl.__super__.constructor.apply(this, arguments);
+      this.amountToSend = 0;
       driver = Lungo.Cache.get("driver");
       this.optionApp[0].checked = driver.appPayment;
       if (!driver.appPayment) {
@@ -241,13 +244,22 @@
     }
 
     ChargeCtrl.prototype.initialize = function() {
+      this.amountToSend = 0;
       Lungo.Router.section("charge_s");
       this.amount[0].value = "";
       return this.button_charge[0].disabled = false;
     };
 
     ChargeCtrl.prototype.cleanAmount = function() {
-      return this.amount[0].value = "";
+      this.amount[0].value = "";
+      return this.amountToSend = "";
+    };
+
+    ChargeCtrl.prototype.addEuros = function() {
+      if (this.amount[0].value) {
+        this.amountToSend = this.amount[0].value;
+        return this.amount[0].value = this.amount[0].value + " €";
+      }
     };
 
     ChargeCtrl.prototype.changeApp = function() {
@@ -282,7 +294,7 @@
     ChargeCtrl.prototype.doCharge = function(event) {
       var currentLocation, lat, long;
       if (!this.button_charge[0].disabled) {
-        if (this.valideAmount(this.amount[0].value)) {
+        if (this.valideAmount(this.amountToSend)) {
           this.button_charge[0].disabled = true;
           lat = Lungo.Cache.get("latitude");
           long = Lungo.Cache.get("longitude");
@@ -310,7 +322,7 @@
           latitude: latitude,
           longitude: longitude,
           appPayment: this.optionApp[0].checked,
-          cost: this.amount[0].value
+          cost: this.amountToSend
         },
         success: (function(_this) {
           return function(result) {
@@ -334,6 +346,9 @@
         return false;
       } else if (amount === "") {
         navigator.notification.alert("El importe no puede estar vacío", null, "Taxi Express", "Aceptar");
+        return false;
+      } else if (amount < 0) {
+        navigator.notification.alert("El importe debe ser un número positivo", null, "Taxi Express", "Aceptar");
         return false;
       } else {
         if (amount.indexOf(".") === -1) {
@@ -699,6 +714,7 @@
       if (this.username[0].value && this.password[0].value) {
         this.drop();
         navigator.splashscreen.show();
+        Lungo.Router.section("init_s");
         this.passHashed = this.getPassHash(this.password[0].value);
         return this.valideCredentials(this.username[0].value, this.passHashed);
       } else {

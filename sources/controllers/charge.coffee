@@ -8,14 +8,15 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     "#charge_charge"                 : "button_charge"
 
   events:
+    "change #charge_amount"          : "addEuros"
     "tap #charge_amount"             : "cleanAmount"
     "tap #charge_charge"             : "doCharge"
     "change #charge_app"             : "changeApp"
     "change #charge_cash"            : "changeCash"
 
-
   constructor: ->
     super
+    @amountToSend = 0
     driver = Lungo.Cache.get "driver"
     @optionApp[0].checked = driver.appPayment
     if !driver.appPayment
@@ -25,6 +26,7 @@ class __Controller.ChargeCtrl extends Monocle.Controller
 
 
   initialize: =>
+    @amountToSend = 0
     Lungo.Router.section "charge_s"
     @amount[0].value = ""
     @button_charge[0].disabled = false
@@ -32,6 +34,13 @@ class __Controller.ChargeCtrl extends Monocle.Controller
 
   cleanAmount: =>
     @amount[0].value = ""
+    @amountToSend = ""
+
+
+  addEuros: =>
+    if @amount[0].value
+      @amountToSend = @amount[0].value
+      @amount[0].value = @amount[0].value + " €"
 
 
   changeApp: =>
@@ -60,7 +69,7 @@ class __Controller.ChargeCtrl extends Monocle.Controller
     
   doCharge: (event) =>
     if !@button_charge[0].disabled
-      if @valideAmount(@amount[0].value)
+      if @valideAmount(@amountToSend)
         @button_charge[0].disabled = true
         lat = Lungo.Cache.get "latitude"
         long = Lungo.Cache.get "longitude"
@@ -86,7 +95,7 @@ class __Controller.ChargeCtrl extends Monocle.Controller
         latitude: latitude
         longitude: longitude
         appPayment: @optionApp[0].checked
-        cost: @amount[0].value
+        cost: @amountToSend
       success: (result) =>
         @showVote()
       error: (xhr, type) =>
@@ -103,6 +112,9 @@ class __Controller.ChargeCtrl extends Monocle.Controller
       return false
     else if amount is ""
       navigator.notification.alert "El importe no puede estar vacío", null, "Taxi Express", "Aceptar"
+      return false
+    else if amount < 0
+      navigator.notification.alert "El importe debe ser un número positivo", null, "Taxi Express", "Aceptar"
       return false
     else
       amount += "."  if amount.indexOf(".") is -1

@@ -34,6 +34,7 @@ class __Controller.LoginCtrl extends Monocle.Controller
     if @username[0].value && @password[0].value
       @drop()
       navigator.splashscreen.show()
+      Lungo.Router.section "init_s"
       @passHashed = @getPassHash(@password[0].value)
       @valideCredentials @username[0].value, @passHashed
     else
